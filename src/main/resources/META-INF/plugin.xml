@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE idea-plugin PUBLIC
+        "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<idea-plugin version="2" url="http://revu.googlecode.com/">
+  <id>org.sylfra.idea.plugins.revu</id>
+  <name>revu</name>
+  <description><![CDATA[
+<html>
+  Team Code Reviewer for Intellij IDEA
+</html>
+    ]]></description>
+  <category>xml</category>
+  <version>1.1</version>
+  <vendor email="sylfradev@yahoo.fr" url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS</vendor>
+  <change-notes><![CDATA[
+<html>
+  First public release
+</html>
+]]></change-notes>
+  <idea-version since-build="8000"/>
+  <resource-bundle>org.sylfra.idea.plugins.revu.Bundle</resource-bundle>
+
+  <application-components>
+    <component>
+      <implementation-class>
+        org.sylfra.idea.plugins.revu.RevuPlugin
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>
+        org.sylfra.idea.plugins.revu.settings.RevuSettingsConfigurable
+      </implementation-class>
+    </component>
+  </application-components>
+
+  <extensions xmlns="com.intellij">
+
+    <applicationService
+      serviceInterface="org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent"
+      serviceImplementation="org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent"/>
+  </extensions>
+
+  <actions>
+  </actions>
+
+</idea-plugin>
