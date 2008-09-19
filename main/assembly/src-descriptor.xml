@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id>src-dist</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>/</directory>
+      <includes>
+        <include>*.*</include>
+        <include>src/**</include>
+        <include>target/apidocs/**</include>
+      </includes>
+      <excludes>
+        <exclude>**/*.iws</exclude>
+      </excludes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
