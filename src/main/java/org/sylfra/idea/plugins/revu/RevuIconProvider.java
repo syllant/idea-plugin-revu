@@ -11,7 +11,7 @@ import javax.swing.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class RevuIconManager
+public abstract class RevuIconProvider
 {
   @NonNls
   private static final String PACKAGE_ROOT = "/org/sylfra/idea/plugins/revu/resources/icons";
@@ -22,7 +22,16 @@ public abstract class RevuIconManager
    */
   public static enum IconRef
   {
-    revu, revuLarge, editConfig
+    REVU("revu"),
+    REVU_LARGE("revuLarge"),
+    EDIT_CONFIG("editConfig"),
+    GUTTER_COMMENT("gutterComment");
+    private final String imgName;
+
+    IconRef(String imgName)
+    {
+      this.imgName = imgName;
+    }
   }
 
   /**
@@ -34,6 +43,6 @@ public abstract class RevuIconManager
    */
   public static Icon getIcon(IconRef iconRef)
   {
-    return IconLoader.getIcon(PACKAGE_ROOT + "/" + iconRef + ".png");
+    return IconLoader.getIcon(PACKAGE_ROOT + "/" + iconRef.imgName + ".png");
   }
 }

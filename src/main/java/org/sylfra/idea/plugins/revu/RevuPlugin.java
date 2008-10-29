@@ -1,12 +1,18 @@
 package org.sylfra.idea.plugins.revu;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.GutterRenderer;
+import org.sylfra.idea.plugins.revu.ui.RevuToolPanel;
 
 /**
  * The main application component available as a singleton and providing convenient methods
@@ -15,17 +21,19 @@ import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuPlugin implements ApplicationComponent
+public class RevuPlugin implements ProjectComponent
 {
-  public static final String COMPONENT_NAME = "revu";
+  public static final String PLUGIN_NAME = "reVu";
   public static final String PLUGIN_ID = "org.sylfra.idea.plugins.revu";
 
   private static final Logger LOGGER =
     Logger.getInstance(RevuPlugin.class.getName());
 
-  public static RevuPlugin getInstance()
+  private Project project;
+
+  public RevuPlugin(Project project)
   {
-    return ApplicationManager.getApplication().getComponent(RevuPlugin.class);
+    this.project = project;
   }
 
   /**
@@ -35,7 +43,7 @@ public class RevuPlugin implements ApplicationComponent
   @NotNull
   public String getComponentName()
   {
-    return COMPONENT_NAME;
+    return PLUGIN_NAME;
   }
 
   /**
@@ -43,6 +51,18 @@ public class RevuPlugin implements ApplicationComponent
    */
   public void initComponent()
   {
+    EditorFactory.getInstance().addEditorFactoryListener(new GutterRenderer(project));
+  }
+
+  private void initToolWindow()
+  {
+    ToolWindow toolwindow = ToolWindowManager.getInstance(project)
+      .registerToolWindow(PLUGIN_NAME, true, ToolWindowAnchor.BOTTOM);
+    ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+    Content content = contentFactory.createContent(new RevuToolPanel(), PLUGIN_NAME, true);
+    toolwindow.getContentManager().addContent(content);
+
+    toolwindow.setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.REVU));
   }
 
   /**
@@ -52,13 +72,12 @@ public class RevuPlugin implements ApplicationComponent
   {
   }
 
-  /**
-   * Provides settings component
-   *
-   * @return settings component
-   */
-  public RevuSettingsComponent getSettingsComponent()
+  public void projectOpened()
   {
-    return ServiceManager.getService(RevuSettingsComponent.class);
+    initToolWindow();
+  }
+
+  public void projectClosed()
+  {
   }
 }

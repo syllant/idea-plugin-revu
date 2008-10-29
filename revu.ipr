@@ -139,10 +139,6 @@
       <SplitterProportionsDataImpl />
     </option>
   </component>
-  <component name="ErrorTreeViewConfiguration">
-    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
-    <option name="HIDE_WARNINGS" value="false" />
-  </component>
   <component name="ExportToHTMLSettings">
     <option name="PRINT_LINE_NUMBERS" value="false" />
     <option name="OPEN_IN_BROWSER" value="false" />
@@ -548,6 +544,23 @@
     <option name="myReportAsWarnings" value="false" />
   </component>
   <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://idea-revu.googlecode.com/svn/branches" />
+                  <option value="https://idea-revu.googlecode.com/svn/tags" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://idea-revu.googlecode.com/svn/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="myVersion" value="124" />
   </component>
   <component name="SvnChangesBrowserSettings">
@@ -691,15 +704,125 @@
     <property name="splitStringsAtNewline" value="false" />
     <property name="useTabs" value="false" />
   </component>
+  <component name="libraryTable">
+    <library name="Maven: org.testng:testng:jdk15:5.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/testng/testng/5.1/testng-5.1-jdk15.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/testng/testng/5.1/testng-5.1-jdk15-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/testng/testng/5.1/testng-5.1-jdk15-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: junit:junit:3.8.1">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/3.8.1/junit-3.8.1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/3.8.1/junit-3.8.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/3.8.1/junit-3.8.1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.intellij.idea:idea:8.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/idea/8.0/idea-8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/idea/8.0/idea-8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/idea/8.0/idea-8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.intellij.idea:bootstrap:8.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/bootstrap/8.0/bootstrap-8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/bootstrap/8.0/bootstrap-8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/bootstrap/8.0/bootstrap-8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.intellij.idea:openapi:8.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/openapi/8.0/openapi-8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/openapi/8.0/openapi-8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/openapi/8.0/openapi-8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.intellij.idea:annotations:8.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/annotations/8.0/annotations-8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/annotations/8.0/annotations-8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/annotations/8.0/annotations-8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.intellij.idea:extensions:8.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/extensions/8.0/extensions-8.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/extensions/8.0/extensions-8.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/extensions/8.0/extensions-8.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: org.jaxen:jaxen:1.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jaxen/jaxen/1.0/jaxen-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jaxen/jaxen/1.0/jaxen-1.0-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/jaxen/jaxen/1.0/jaxen-1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: com.thoughtworks.xstream:xstream:1.2.2">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/thoughtworks/xstream/xstream/1.2.2/xstream-1.2.2.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/com/thoughtworks/xstream/xstream/1.2.2/xstream-1.2.2-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/com/thoughtworks/xstream/xstream/1.2.2/xstream-1.2.2-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Maven: xpp3:xpp3_min:1.1.3.4.O">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/xpp3/xpp3_min/1.1.3.4.O/xpp3_min-1.1.3.4.O.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$MAVEN_REPOSITORY$/xpp3/xpp3_min/1.1.3.4.O/xpp3_min-1.1.3.4.O-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$MAVEN_REPOSITORY$/xpp3/xpp3_min/1.1.3.4.O/xpp3_min-1.1.3.4.O-sources.jar!/" />
+      </SOURCES>
+    </library>
+  </component>
   <component name="testng.defaultConfiguration">
     <outputDirectory />
     <properties />
     <groups />
   </component>
-  <component name="uidesigner-configuration">
-    <option name="INSTRUMENT_CLASSES" value="true" />
-    <option name="COPY_FORMS_RUNTIME_TO_OUTPUT" value="true" />
-    <option name="DEFAULT_LAYOUT_MANAGER" value="GridLayoutManager" />
-  </component>
+  <UsedPathMacros>
+    <macro name="MAVEN_REPOSITORY" />
+  </UsedPathMacros>
 </project>
 

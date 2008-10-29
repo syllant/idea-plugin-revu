@@ -14,12 +14,12 @@ import java.util.ResourceBundle;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuI18NManager
+public class RevuMessageProvider
 {
   private static Reference<ResourceBundle> pluginBundle;
 
   @NonNls
-  private static final String BUNDLE = "org.sylfra.idea.plugins.revu.Bundle";
+  private static final String BUNDLE = "org.sylfra.idea.plugins.revu.resources.Bundle";
 
   /**
    * Returns the message got the specified key, formatted with specified params
@@ -29,7 +29,7 @@ public class RevuI18NManager
    *
    * @return the formatted message
    */
-  public static String message(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params)
+  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params)
   {
     return CommonBundle.message(getBundle(), key, params);
   }
@@ -41,7 +41,7 @@ public class RevuI18NManager
    *
    * @return the formatted message
    */
-  public static String message(@PropertyKey(resourceBundle = BUNDLE)String key)
+  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key)
   {
     return message(key, new Object[]{});
   }

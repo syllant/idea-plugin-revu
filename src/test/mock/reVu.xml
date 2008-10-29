@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project relativePaths="false" version="4">
+  <component name="reVuSettings">
+    <option name="reviews">
+      <list>
+        <Review>
+          <option name="active" value="true"/>
+          <option name="title" value="test"/>
+          <option name="updateStatus">
+            <UpdateStatus/>
+          </option>
+        </Review>
+      </list>
+    </option>
+  </component>
+</project>
+
