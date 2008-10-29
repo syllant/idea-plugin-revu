@@ -11,12 +11,12 @@ import com.intellij.openapi.components.Storage;
  * @version $Id$
  */
 @State(
-  name = "RevuSettings",
+  name = "reVuSettings",
   storages = {
-  @Storage(
-    id = "RevuSettings",
-    file = "$APP_CONFIG$/revu.xml"
-  )}
+    @Storage(
+      id = "reVu",
+      file = "$PROJECT_FILE$/../reVu.xml"
+    )}
 )
 public class RevuSettingsComponent
   implements PersistentStateComponent<RevuSettings>

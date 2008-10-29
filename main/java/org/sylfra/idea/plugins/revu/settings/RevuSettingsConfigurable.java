@@ -1,13 +1,13 @@
 package org.sylfra.idea.plugins.revu.settings;
 
-import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.RevuIconManager;
+import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ import javax.swing.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuSettingsConfigurable implements ApplicationComponent, Configurable
+public class RevuSettingsConfigurable implements ProjectComponent, Configurable
 {
   /**
    * {@inheritDoc}
@@ -27,7 +27,7 @@ public class RevuSettingsConfigurable implements ApplicationComponent, Configura
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.COMPONENT_NAME + ".SettingsConfigurable";
+    return RevuPlugin.PLUGIN_NAME + ".SettingsConfigurable";
   }
 
   /**
@@ -50,7 +50,7 @@ public class RevuSettingsConfigurable implements ApplicationComponent, Configura
   @Nls
   public String getDisplayName()
   {
-    return "revu";
+    return "reVu";
   }
 
   /**
@@ -59,7 +59,7 @@ public class RevuSettingsConfigurable implements ApplicationComponent, Configura
   @Nullable
   public Icon getIcon()
   {
-    return RevuIconManager.getIcon(RevuIconManager.IconRef.revuLarge);
+    return RevuIconProvider.getIcon(RevuIconProvider.IconRef.REVU_LARGE);
   }
 
   /**
@@ -106,6 +106,14 @@ public class RevuSettingsConfigurable implements ApplicationComponent, Configura
    * {@inheritDoc}
    */
   public void disposeUIResources()
+  {
+  }
+
+  public void projectOpened()
+  {
+  }
+
+  public void projectClosed()
   {
   }
 }
