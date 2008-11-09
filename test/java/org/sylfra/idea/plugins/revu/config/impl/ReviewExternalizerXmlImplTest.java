@@ -1,12 +1,13 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.testFramework.IdeaTestCase;
 import org.apache.tools.ant.util.FileUtils;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.model.*;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
@@ -19,43 +20,62 @@ import java.util.Locale;
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewLoaderXmlImplTest
+public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 {
-  @Test
+  @Override
+  protected void setUp() throws Exception
+  {
+    super.setUp();
+    checkTestFilesExists("Test-1.java", "Test-2.java");
+  }
+
+  private void checkTestFilesExists(String... fileNames)
+    throws IOException
+  {
+    for (String fileName : fileNames)
+    {
+      File f = new File(myProject.getBaseDir().getPath(), fileName);
+      f.deleteOnExit();
+      if (LocalFileSystem.getInstance().findFileByIoFile(f) == null)
+      {
+        LocalFileSystem.getInstance().createChildFile(null, myProject.getBaseDir(), fileName);
+      }
+    }
+  }
+
   public void testLoad()
   {
-    ReviewExternalizerXmlImpl impl = new ReviewExternalizerXmlImpl();
+    ReviewExternalizerXmlImpl impl = new ReviewExternalizerXmlImpl(getProject());
     try
     {
       Review review =
-        impl.load(getClass().getClassLoader().getResourceAsStream("review-sample.xml"));
+        impl.load(getClass().getClassLoader().getResourceAsStream("/review-test-unit.xml"));
 
       Review sampleReview = buildSampleReview();
 
       // Referential
-      Assert.assertEquals(review.getReviewReferential().getPrioritiesByName(),
+      assertEquals(review.getReviewReferential().getPrioritiesByName(),
         sampleReview.getReviewReferential().getPrioritiesByName());
-      Assert.assertEquals(review.getReviewReferential().getUsersByRole(),
+      assertEquals(review.getReviewReferential().getUsersByRole(),
         sampleReview.getReviewReferential().getUsersByRole());
-      Assert.assertEquals(review.getReviewReferential(),
+      assertEquals(review.getReviewReferential(),
         sampleReview.getReviewReferential());
 
       // Items
-      Assert.assertEquals(review.getItemsByFilePath(), sampleReview.getItemsByFilePath());
+      assertEquals(review.getItemsByFiles(), sampleReview.getItemsByFiles());
 
       // Whole review
-      Assert.assertEquals(review, sampleReview);
+      assertEquals(review, sampleReview);
     }
     catch (RevuException e)
     {
-      Assert.fail("Review loading failed", e);
+      fail("Review loading failed");
     }
   }
 
-  @Test
   public void testSave() throws IOException
   {
-    ReviewExternalizerXmlImpl impl = new ReviewExternalizerXmlImpl();
+    ReviewExternalizerXmlImpl impl = new ReviewExternalizerXmlImpl(getProject());
     try
     {
       Review sampleReview = buildSampleReview();
@@ -65,16 +85,16 @@ public class ReviewLoaderXmlImplTest
       String actual = new String(baos.toByteArray());
 
       String expected = FileUtils.readFully(new InputStreamReader(getClass().getClassLoader()
-        .getResourceAsStream("review-sample.xml")));
+        .getResourceAsStream("/review-test-unit.xml")));
       // XStream produces Unix line separators
       expected = expected.replaceAll("\\r\n", "\n");
 
       // Items
-      Assert.assertEquals(actual, expected);
+      assertEquals(actual, expected);
     }
     catch (RevuException e)
     {
-      Assert.fail("Review saving failed", e);
+      fail("Review saving failed");
     }
   }
 
@@ -93,9 +113,14 @@ public class ReviewLoaderXmlImplTest
     ReviewPriority priority1 = new ReviewPriority((byte) 1, "priority1");
     ReviewPriority priority2 = new ReviewPriority((byte) 2, "priority2");
     ReviewPriority priority3 = new ReviewPriority((byte) 3, "priority3");
-    referential.setPriorities(Arrays.asList(priority1, priority2, priority3));
+    referential.setPriorities(new HashSet<ReviewPriority>(
+      Arrays.asList(priority1, priority2, priority3)));
 
-    referential.consolidate();
+    // Categories
+    ReviewCategory category1 = new ReviewCategory("category1");
+    ReviewCategory category2 = new ReviewCategory("category2");
+    referential.setCategories(new HashSet<ReviewCategory>(
+      Arrays.asList(category1, category2)));
 
     // Review
     Review review = new Review();
@@ -106,23 +131,27 @@ public class ReviewLoaderXmlImplTest
     review.setHistory(createHistory(referential, 0, 1));
 
     // Items
-    review.setItems(Arrays.asList(createReviewItem(referential, 1),
-      createReviewItem(referential, 2)));
+    review.setItems(Arrays.asList(createReviewItem(review, 1),
+      createReviewItem(review, 2)));
 
     return review;
   }
 
-  private ReviewItem createReviewItem(ReviewReferential referential, int i)
+  private ReviewItem createReviewItem(Review review, int i)
   {
-    ReviewItem item = new ReviewItem();
+    ReviewReferential referential = review.getReviewReferential();
+    ReviewItem item = new ReviewItem(review);
 
-    item.setFilePath("Test-" + i + ".java");
+    item.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
     item.setLineStart(i);
     item.setLineEnd(i * i + 1);
     item.setPriority(
       referential.getPriority("priority" + i % referential.getPrioritiesByName().size()));
+    item.setCategory(
+      referential.getCategory("category" + i % referential.getCategoriesByName().size()));
     item.setStatus(ReviewItem.Status.TO_RESOLVE);
-    item.setDesc("Test item review " + i + ".");
+    item.setDesc("Test item review " + i + ". Test item review " + i + ".");
+    item.setTitle("Test item review " + i + ".");
     item.setHistory(createHistory(referential, i, i + 1));
 
     return item;

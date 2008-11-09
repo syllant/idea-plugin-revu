@@ -1,7 +1,5 @@
 package org.sylfra.idea.plugins.revu.settings;
 
-import org.sylfra.idea.plugins.revu.model.Review;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,20 +11,31 @@ import java.util.List;
  */
 public class RevuSettings
 {
-  private List<Review> reviews;
+  private boolean autoScrollToSource;
+  private List<String> reviewFiles;
 
   public RevuSettings()
   {
-    reviews = new ArrayList<Review>();
+    reviewFiles = new ArrayList<String>();
   }
 
-  public List<Review> getReviews()
+  public boolean isAutoScrollToSource()
   {
-    return reviews;
+    return autoScrollToSource;
   }
 
-  public void setReviews(List<Review> reviews)
+  public void setAutoScrollToSource(boolean autoScrollToSource)
   {
-    this.reviews = reviews;
+    this.autoScrollToSource = autoScrollToSource;
+  }
+
+  public List<String> getReviewFiles()
+  {
+    return reviewFiles;
+  }
+
+  public void setReviewFiles(List<String> reviewFiles)
+  {
+    this.reviewFiles = reviewFiles;
   }
 }

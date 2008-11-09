@@ -1,6 +1,8 @@
 package org.sylfra.idea.plugins.revu.model;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,7 +20,7 @@ public class ReviewItem implements Serializable
     CLOSED
   }
 
-  private String filePath;
+  private VirtualFile file;
   private int lineStart;
   private int lineEnd;
   private History history;
@@ -29,23 +31,26 @@ public class ReviewItem implements Serializable
   private String desc;
   private String resolutionComment;
   private ReviewPriority priority;
+  private ReviewCategory category;
   private Status status;
   private String codeAlternative;
   private List<ReviewItem> relations;
 
-  public ReviewItem()
+  public ReviewItem(Review review)
   {
+    this.review = review;
     history = new History();
+
   }
 
-  public String getFilePath()
+  public VirtualFile getFile()
   {
-    return filePath;
+    return file;
   }
 
-  public void setFilePath(String filePath)
+  public void setFile(VirtualFile file)
   {
-    this.filePath = filePath;
+    this.file = file;
   }
 
   public int getLineStart()
@@ -78,12 +83,14 @@ public class ReviewItem implements Serializable
     this.history = history;
   }
 
-  public Review getReview()
+  public
+  @NotNull
+  Review getReview()
   {
     return review;
   }
 
-  public void setReview(Review review)
+  public void setReview(@NotNull Review review)
   {
     this.review = review;
   }
@@ -148,6 +155,16 @@ public class ReviewItem implements Serializable
     this.priority = priority;
   }
 
+  public ReviewCategory getCategory()
+  {
+    return category;
+  }
+
+  public void setCategory(ReviewCategory category)
+  {
+    this.category = category;
+  }
+
   public Status getStatus()
   {
     return status;
@@ -209,7 +226,7 @@ public class ReviewItem implements Serializable
     {
       return false;
     }
-    if (filePath != null ? !filePath.equals(that.filePath) : that.filePath != null)
+    if (file != null ? !file.equals(that.file) : that.file != null)
     {
       return false;
     }
@@ -257,11 +274,10 @@ public class ReviewItem implements Serializable
   @Override
   public int hashCode()
   {
-    int result = filePath != null ? filePath.hashCode() : 0;
+    int result = file != null ? file.hashCode() : 0;
     result = 31 * result + lineStart;
     result = 31 * result + lineEnd;
     result = 31 * result + (history != null ? history.hashCode() : 0);
-    result = 31 * result + (review != null ? review.hashCode() : 0);
     result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
     result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
     result = 31 * result + (title != null ? title.hashCode() : 0);
@@ -278,7 +294,7 @@ public class ReviewItem implements Serializable
   public String toString()
   {
     return new ToStringBuilder(this).
-      append("filePath", filePath).
+      append("file", file).
       append("lineStart", lineStart).
       append("lineEnd", lineEnd).
       append("history", history).

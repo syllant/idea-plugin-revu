@@ -1,60 +1,106 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE idea-plugin PUBLIC
-  "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+        "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin version="2" url="http://idea-revu.googlecode.com/">
-  <application-components>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.config.impl.ReviewExternalizerXmlImpl
-      </implementation-class>
-    </component>
-  </application-components>
-  <id>org.sylfra.idea.plugins.revu</id>
-  <name>revu</name>
-  <description><![CDATA[
+    <id>org.sylfra.idea.plugins.revu</id>
+    <name>revu</name>
+    <description><![CDATA[
 <html>
   Team Code Reviewer for Intellij IDEA
 </html>
     ]]></description>
-  <category>xml</category>
-  <version>1.1</version>
-  <vendor email="sylfradev@yahoo.fr" url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
-  </vendor>
-  <change-notes><![CDATA[
+    <category>xml</category>
+    <version>1.1</version>
+    <vendor email="sylfradev@yahoo.fr" url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
+    </vendor>
+    <change-notes><![CDATA[
 <html>
   First public release
 </html>
 ]]></change-notes>
-  <idea-version since-build="8000"/>
-  <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
+    <idea-version since-build="8000"/>
+    <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 
-  <project-components>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.RevuPlugin</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent
-      </implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.settings.RevuSettingsConfigurable
-      </implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.business.ReviewManager
-      </implementation-class>
-    </component>
-  </project-components>
+    <application-components>
+    </application-components>
 
-  <extensions xmlns="com.intellij">
-  </extensions>
+    <project-components>
+        <component>
+            <implementation-class>org.sylfra.idea.plugins.revu.RevuPlugin</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent
+            </implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.sylfra.idea.plugins.revu.business.ReviewManager
+            </implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.sylfra.idea.plugins.revu.settings.RevuSettingsConfigurable
+            </implementation-class>
+        </component>
+        <component>
+            <interface-class>org.sylfra.idea.plugins.revu.config.IReviewExternalizer</interface-class>
+            <implementation-class>org.sylfra.idea.plugins.revu.config.impl.ReviewExternalizerXmlImpl
+            </implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager
+            </implementation-class>
+        </component>
+    </project-components>
 
-  <actions>
-    <group id="revu" popup="true">
-      <action id="revu.CreateReviewItem"
-              class="org.sylfra.idea.plugins.revu.ui.actions.CreateReviewItemAction" text="Create"
-              icon="/actions/sync.png"/>
-      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
-    </group>
-  </actions>
+    <extensions defaultExtensionNs="" xmlns="com.intellij">
+    </extensions>
+
+    <actions>
+        <action id="revu.CreateReview"
+                class="org.sylfra.idea.plugins.revu.ui.actions.CreateReviewAction"
+                text="Create review"
+                icon="/general/add.png"/>
+        <action id="revu.CreateReviewItem"
+                class="org.sylfra.idea.plugins.revu.ui.actions.CreateReviewItemAction"
+                text="Add review item"
+                icon="/general/add.png">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="revu.JumpToSourceAction"
+                class="org.sylfra.idea.plugins.revu.ui.actions.JumpToSourceAction"
+                text="Jump to Source"
+                icon="/general/autoscrollToSource.png">
+            <keyboard-shortcut first-keystroke="F4" keymap="$default"/>
+        </action>
+        <action id="revu.RemoveReviewItem"
+                class="org.sylfra.idea.plugins.revu.ui.actions.RemoveReviewItemAction"
+                text="Remove review item"
+                icon="/general/remove.png"/>
+        <action id="revu.AutoscrollToSourceAction"
+                class="org.sylfra.idea.plugins.revu.ui.actions.ToggleAutoscrollToSourceAction"
+                text="Autoscroll to Source"
+                icon="/general/autoscrollToSource.png"/>
+        <action id="revu.TmpSaveReviewAction"
+                class="org.sylfra.idea.plugins.revu.ui.actions.TmpSaveReviewAction"
+                text="Save"
+                icon="/actions/menu-saveall.png"/>
+
+        <group id="revu.toolWindow.allReviews" popup="true">
+            <reference ref="revu.CreateReview"/>
+            <reference ref="revu.TmpSaveReviewAction"/>
+            <reference ref="PreviousOccurence"/>
+            <reference ref="NextOccurence"/>
+            <reference ref="revu.AutoscrollToSourceAction"/>
+        </group>
+
+        <group id="revu.toolWindow.review" popup="true">
+            <reference ref="revu.CreateReviewItem"/>
+            <reference ref="revu.RemoveReviewItem"/>
+            <reference ref="revu.TmpSaveReviewAction"/>
+            <reference ref="PreviousOccurence"/>
+            <reference ref="NextOccurence"/>
+            <reference ref="revu.AutoscrollToSourceAction"/>
+        </group>
+    </actions>
 
 </idea-plugin>

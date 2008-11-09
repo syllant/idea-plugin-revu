@@ -1,6 +1,6 @@
 package org.sylfra.idea.plugins.revu.business;
 
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.Review;
 
 /**
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
@@ -8,5 +8,7 @@ import org.sylfra.idea.plugins.revu.model.ReviewItem;
  */
 public interface IReviewListener
 {
-  void itemAdded(ReviewItem item);
+  void reviewAdded(Review review);
+
+  void reviewDeleted(Review review);
 }
