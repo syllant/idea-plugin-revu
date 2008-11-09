@@ -8,6 +8,8 @@ import org.sylfra.idea.plugins.revu.model.User;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
@@ -27,7 +29,9 @@ class UserConverter extends AbstractConverter
     writer.addAttribute("displayName", user.getDisplayName());
     writer.addAttribute("login", user.getLogin());
     writer.addAttribute("password", user.getPassword());
-    writer.addAttribute("roles", ConverterUtils.toString(user.getRoles(), true));
+
+    SortedSet<User.Role> roles = new TreeSet<User.Role>(user.getRoles());
+    writer.addAttribute("roles", ConverterUtils.toString(roles, true));
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)

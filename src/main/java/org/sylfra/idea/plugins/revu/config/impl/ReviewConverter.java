@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -9,8 +10,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.model.ReviewReferential;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
@@ -47,7 +47,10 @@ class ReviewConverter extends AbstractConverter
 
     // Items
     writer.startNode("items");
-    for (List<ReviewItem> items : review.getItemsByFilePath().values())
+    SortedMap<VirtualFile, List<ReviewItem>> itemsByFiles
+      = new TreeMap<VirtualFile, List<ReviewItem>>(new VirtualFileComparator());
+    itemsByFiles.putAll(review.getItemsByFiles());
+    for (List<ReviewItem> items : itemsByFiles.values())
     {
       for (ReviewItem item : items)
       {
@@ -65,7 +68,7 @@ class ReviewConverter extends AbstractConverter
     String active = reader.getAttribute("active");
 
     Review review = new Review();
-    context.put(CONTEXT_KEY_REVIEW, review);
+    context.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, review);
 
     review.setTitle(title);
     review.setActive("true".equals(active));
@@ -101,5 +104,13 @@ class ReviewConverter extends AbstractConverter
     }
 
     return review;
+  }
+
+  private class VirtualFileComparator implements Comparator<VirtualFile>
+  {
+    public int compare(VirtualFile o1, VirtualFile o2)
+    {
+      return o1.getPath().compareTo(o2.getPath());
+    }
   }
 }

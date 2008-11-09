@@ -1,9 +1,10 @@
 package org.sylfra.idea.plugins.revu.model;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.business.IReviewListener;
+import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
 
 import java.io.Serializable;
 import java.util.*;
@@ -19,14 +20,14 @@ public class Review implements Serializable
   private String desc;
   private boolean active;
   private ReviewReferential reviewReferential;
-  private Map<String, List<ReviewItem>> itemsByFilePath;
-  private final transient List<IReviewListener> reviewListeners;
+  private Map<VirtualFile, List<ReviewItem>> itemsByFiles;
+  private final transient List<IReviewItemListener> reviewItemListeners;
 
   public Review()
   {
     history = new History();
-    itemsByFilePath = new HashMap<String, List<ReviewItem>>();
-    reviewListeners = new LinkedList<IReviewListener>();
+    itemsByFiles = new HashMap<VirtualFile, List<ReviewItem>>();
+    reviewItemListeners = new LinkedList<IReviewItemListener>();
     reviewReferential = new ReviewReferential();
   }
 
@@ -84,53 +85,82 @@ public class Review implements Serializable
   }
 
   @NotNull
-  public Map<String, List<ReviewItem>> getItemsByFilePath()
+  public Map<VirtualFile, List<ReviewItem>> getItemsByFiles()
   {
-    return Collections.unmodifiableMap(itemsByFilePath);
+    return Collections.unmodifiableMap(itemsByFiles);
   }
 
   public void setItems(@NotNull List<ReviewItem> items)
   {
-    itemsByFilePath.clear();
+    itemsByFiles.clear();
     for (ReviewItem item : items)
     {
-      List<ReviewItem> fileItems = itemsByFilePath.get(item.getFilePath());
+      List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
       if (fileItems == null)
       {
         fileItems = new ArrayList<ReviewItem>();
-        itemsByFilePath.put(item.getFilePath(), fileItems);
+        itemsByFiles.put(item.getFile(), fileItems);
       }
       fileItems.add(item);
     }
   }
 
   @Nullable
-  public List<ReviewItem> getItems(String filePath)
+  public List<ReviewItem> getItems(VirtualFile file)
   {
-    List<ReviewItem> fileItems = itemsByFilePath.get(filePath);
+    List<ReviewItem> fileItems = itemsByFiles.get(file);
     return (fileItems == null) ? null : Collections.unmodifiableList(fileItems);
+  }
+
+  @Nullable
+  public List<ReviewItem> getItems()
+  {
+    List<ReviewItem> result = new ArrayList<ReviewItem>();
+
+    for (List<ReviewItem> items : itemsByFiles.values())
+    {
+      for (ReviewItem item : items)
+      {
+        result.add(item);
+      }
+    }
+
+    return result;
   }
 
   public void addItem(@NotNull ReviewItem item)
   {
-    String filePath = item.getFilePath();
-    List<ReviewItem> fileItems = itemsByFilePath.get(filePath);
+    List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
     if (fileItems == null)
     {
       fileItems = new ArrayList<ReviewItem>();
-      itemsByFilePath.put(filePath, fileItems);
+      itemsByFiles.put(item.getFile(), fileItems);
     }
     fileItems.add(item);
 
-    for (IReviewListener listener : reviewListeners)
+    for (IReviewItemListener listener : reviewItemListeners)
     {
       listener.itemAdded(item);
     }
   }
 
-  public void addReviewListener(@NotNull IReviewListener listener)
+  public void removeItem(@NotNull ReviewItem item)
   {
-    reviewListeners.add(listener);
+    List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
+    if (fileItems != null)
+    {
+      fileItems.remove(item);
+    }
+
+    for (IReviewItemListener listener : reviewItemListeners)
+    {
+      listener.itemDeleted(item);
+    }
+  }
+
+  public void addReviewItemListener(@NotNull IReviewItemListener listener)
+  {
+    reviewItemListeners.add(listener);
   }
 
   @Override
@@ -159,13 +189,13 @@ public class Review implements Serializable
     {
       return false;
     }
-    if (itemsByFilePath != null ? !itemsByFilePath.equals(review.itemsByFilePath) :
-      review.itemsByFilePath != null)
+    if (itemsByFiles != null ? !itemsByFiles.equals(review.itemsByFiles) :
+      review.itemsByFiles != null)
     {
       return false;
     }
-    if (reviewListeners != null ? !reviewListeners.equals(review.reviewListeners) :
-      review.reviewListeners != null)
+    if (reviewItemListeners != null ? !reviewItemListeners.equals(review.reviewItemListeners) :
+      review.reviewItemListeners != null)
     {
       return false;
     }
@@ -189,8 +219,8 @@ public class Review implements Serializable
     result = 31 * result + (title != null ? title.hashCode() : 0);
     result = 31 * result + (desc != null ? desc.hashCode() : 0);
     result = 31 * result + (active ? 1 : 0);
-    result = 31 * result + (itemsByFilePath != null ? itemsByFilePath.hashCode() : 0);
-    result = 31 * result + (reviewListeners != null ? reviewListeners.hashCode() : 0);
+    result = 31 * result + (itemsByFiles != null ? itemsByFiles.hashCode() : 0);
+    result = 31 * result + (reviewItemListeners != null ? reviewItemListeners.hashCode() : 0);
     result = 31 * result + (reviewReferential != null ? reviewReferential.hashCode() : 0);
     return result;
   }
@@ -203,8 +233,8 @@ public class Review implements Serializable
       append("title", title).
       append("desc", desc).
       append("active", active).
-      append("itemsByFilePath", itemsByFilePath).
-      append("reviewListeners", reviewListeners).
+      append("itemsByFiles", itemsByFiles).
+      append("reviewItemListeners", reviewItemListeners).
       append("reviewReferential", reviewReferential).
       toString();
   }

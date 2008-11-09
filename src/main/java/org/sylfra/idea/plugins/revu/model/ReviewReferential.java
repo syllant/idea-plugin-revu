@@ -9,19 +9,17 @@ import java.util.*;
 
 public class ReviewReferential implements Serializable
 {
-  private List<ReviewPriority> priorities;
+  private Map<String, ReviewCategory> categoriesByName;
   private Map<String, ReviewPriority> prioritiesByName;
-  private Set<User> users;
   private Map<User.Role, List<User>> usersByRole;
   private Map<String, User> usersByLogin;
 
   public ReviewReferential()
   {
-    priorities = new ArrayList<ReviewPriority>();
+    categoriesByName = new HashMap<String, ReviewCategory>();
     prioritiesByName = new HashMap<String, ReviewPriority>();
-    users = new HashSet<User>();
-    usersByRole = new HashMap<User.Role, List<User>>();
     usersByLogin = new HashMap<String, User>();
+    usersByRole = new HashMap<User.Role, List<User>>();
   }
 
   @NotNull
@@ -30,9 +28,46 @@ public class ReviewReferential implements Serializable
     return Collections.unmodifiableMap(prioritiesByName);
   }
 
-  public void setPriorities(@NotNull List<ReviewPriority> priorities)
+  public void setPriorities(@NotNull Set<ReviewPriority> priorities)
   {
-    this.priorities = priorities;
+    this.prioritiesByName.clear();
+    for (ReviewPriority priority : priorities)
+    {
+      this.prioritiesByName.put(priority.getName(), priority);
+    }
+  }
+
+  @Nullable
+  public ReviewPriority getPriority(@NotNull String priorityName)
+  {
+    return prioritiesByName.get(priorityName);
+  }
+
+  @NotNull
+  public Map<String, ReviewCategory> getCategoriesByName()
+  {
+    return Collections.unmodifiableMap(categoriesByName);
+  }
+
+  public void setCategories(@NotNull Set<ReviewCategory> categories)
+  {
+    this.categoriesByName.clear();
+    for (ReviewCategory category : categories)
+    {
+      this.categoriesByName.put(category.getName(), category);
+    }
+  }
+
+  @Nullable
+  public ReviewCategory getCategory(@NotNull String categoryName)
+  {
+    return categoriesByName.get(categoryName);
+  }
+
+  @NotNull
+  public Map<String, User> getUsersByLogin()
+  {
+    return Collections.unmodifiableMap(usersByLogin);
   }
 
   @NotNull
@@ -43,42 +78,11 @@ public class ReviewReferential implements Serializable
 
   public void setUsers(@NotNull Set<User> users)
   {
-    this.users = users;
-  }
-
-  @NotNull
-  public Map<String, User> getUsersByLogin()
-  {
-    return Collections.unmodifiableMap(usersByLogin);
-  }
-
-  @Nullable
-  public User getUser(@NotNull String login)
-  {
-    return usersByLogin.get(login);
-  }
-
-  @Nullable
-  public ReviewPriority getPriority(@NotNull String priorityName)
-  {
-    return prioritiesByName.get(priorityName);
-  }
-
-  public void consolidate()
-  {
-    // Priorities
-    prioritiesByName.clear();
-    for (ReviewPriority priority : priorities)
-    {
-      prioritiesByName.put(priority.getName(), priority);
-    }
-
-    // Users
-    usersByLogin.clear();
-    usersByRole.clear();
+    this.usersByLogin.clear();
+    this.usersByRole.clear();
     for (User user : users)
     {
-      usersByLogin.put(user.getLogin(), user);
+      this.usersByLogin.put(user.getLogin(), user);
       for (User.Role role : user.getRoles())
       {
         List<User> usersForRole = usersByRole.get(role);
@@ -91,6 +95,12 @@ public class ReviewReferential implements Serializable
         usersForRole.add(user);
       }
     }
+  }
+
+  @Nullable
+  public User getUser(@NotNull String login)
+  {
+    return usersByLogin.get(login);
   }
 
   @Override
@@ -107,6 +117,11 @@ public class ReviewReferential implements Serializable
 
     ReviewReferential that = (ReviewReferential) o;
 
+    if (categoriesByName != null ? !categoriesByName.equals(that.categoriesByName) :
+      that.categoriesByName != null)
+    {
+      return false;
+    }
     if (prioritiesByName != null ? !prioritiesByName.equals(that.prioritiesByName) :
       that.prioritiesByName != null)
     {
@@ -127,7 +142,8 @@ public class ReviewReferential implements Serializable
   @Override
   public int hashCode()
   {
-    int result = prioritiesByName != null ? prioritiesByName.hashCode() : 0;
+    int result = categoriesByName != null ? categoriesByName.hashCode() : 0;
+    result = 31 * result + (prioritiesByName != null ? prioritiesByName.hashCode() : 0);
     result = 31 * result + (usersByRole != null ? usersByRole.hashCode() : 0);
     result = 31 * result + (usersByLogin != null ? usersByLogin.hashCode() : 0);
     return result;

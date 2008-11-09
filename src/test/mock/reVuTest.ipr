@@ -20,7 +20,6 @@
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
-        <option name="USE_SAME_INDENTS" value="false" />
         <option name="BRACE_STYLE" value="2" />
         <option name="CLASS_BRACE_STYLE" value="2" />
         <option name="METHOD_BRACE_STYLE" value="2" />
@@ -359,6 +358,14 @@
   <component name="XPathView.XPathProjectComponent">
     <history />
     <find-history />
+  </component>
+  <component name="reVuSettings">
+    <option name="autoScrollToSource" value="true" />
+    <option name="reviewFiles">
+      <list>
+        <option value="$PROJECT_DIR$/reviews/review.xml" />
+      </list>
+    </option>
   </component>
 </project>
 

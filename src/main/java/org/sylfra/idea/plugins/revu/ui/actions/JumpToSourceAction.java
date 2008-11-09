@@ -15,7 +15,7 @@ import org.sylfra.idea.plugins.revu.model.ReviewItem;
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class CreateReviewItemAction extends AnAction
+public class JumpToSourceAction extends AnAction
 {
   public void actionPerformed(AnActionEvent e)
   {
@@ -28,14 +28,7 @@ public class CreateReviewItemAction extends AnAction
     assert (review != null);
 
     ReviewItem item = new ReviewItem(review);
-    item.setTitle("[title] test-" + editor.getSelectionModel().getSelectionStart());
-    item.setDesc("[desc] test\ntest-" + editor.getSelectionModel().getSelectionStart());
-    item.setFile(virtualFile);
-    item.setLineStart(
-      editor.getDocument().getLineNumber(editor.getSelectionModel().getSelectionStart()));
-    item
-      .setLineEnd(editor.getDocument().getLineNumber(editor.getSelectionModel().getSelectionEnd()));
 
-    review.addItem(item);
+//    editor.getScrollingModel().
   }
 }

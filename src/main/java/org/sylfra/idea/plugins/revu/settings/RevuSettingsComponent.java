@@ -4,6 +4,9 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Manage plugin settings
  *
@@ -15,17 +18,19 @@ import com.intellij.openapi.components.Storage;
   storages = {
     @Storage(
       id = "reVu",
-      file = "$PROJECT_FILE$/../reVu.xml"
+      file = "$PROJECT_FILE$"
     )}
 )
 public class RevuSettingsComponent
   implements PersistentStateComponent<RevuSettings>
 {
   private RevuSettings settings;
+  private List<IRevuSettingsListener> listeners;
 
   public RevuSettingsComponent()
   {
     settings = getDefaultSettings();
+    listeners = new LinkedList<IRevuSettingsListener>();
   }
 
   /**
@@ -54,5 +59,15 @@ public class RevuSettingsComponent
   public void loadState(RevuSettings object)
   {
     settings = object;
+
+    for (IRevuSettingsListener listener : listeners)
+    {
+      listener.settingsChanged(settings);
+    }
+  }
+
+  public void addListener(IRevuSettingsListener listener)
+  {
+    listeners.add(listener);
   }
 }

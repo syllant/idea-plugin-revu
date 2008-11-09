@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemTabbedPane">
+  <grid id="27dc6" binding="contentPane" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <tabbedpane id="db6a7" binding="tabbedPane">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="151f6" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.reviewitem.main.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <nested-form id="3e817" form-file="org/sylfra/idea/plugins/revu/ui/forms/reviewitem/ReviewItemMainForm.form" binding="mainForm" custom-create="true">
+                <constraints border-constraint="Center"/>
+              </nested-form>
+            </children>
+          </grid>
+          <grid id="ce791" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.reviewitem.history.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <nested-form id="2a58" form-file="org/sylfra/idea/plugins/revu/ui/forms/reviewitem/ReviewItemHistoryForm.form" binding="historyForm" custom-create="true">
+                <constraints border-constraint="Center"/>
+              </nested-form>
+            </children>
+          </grid>
+          <grid id="4baea" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.reviewitem.preview.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <nested-form id="c4d5d" form-file="org/sylfra/idea/plugins/revu/ui/forms/reviewitem/ReviewItemPreviewForm.form" binding="previewForm" custom-create="true">
+                <constraints border-constraint="Center"/>
+              </nested-form>
+            </children>
+          </grid>
+        </children>
+      </tabbedpane>
+    </children>
+  </grid>
+</form>
