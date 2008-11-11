@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Locale;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewExternalizerXmlImplTest extends IdeaTestCase
@@ -140,15 +140,14 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
   private ReviewItem createReviewItem(Review review, int i)
   {
     ReviewReferential referential = review.getReviewReferential();
-    ReviewItem item = new ReviewItem(review);
+    ReviewItem item = new ReviewItem();
+    item.setReview(review);
 
     item.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
     item.setLineStart(i);
     item.setLineEnd(i * i + 1);
-    item.setPriority(
-      referential.getPriority("priority" + i % referential.getPrioritiesByName().size()));
-    item.setCategory(
-      referential.getCategory("category" + i % referential.getCategoriesByName().size()));
+    item.setPriority(referential.getPriority("priority" + i % referential.getPrioritiesByName().size()));
+    item.setCategory(referential.getCategory("category" + i % referential.getCategoriesByName().size()));
     item.setStatus(ReviewItem.Status.TO_RESOLVE);
     item.setDesc("Test item review " + i + ". Test item review " + i + ".");
     item.setTitle("Test item review " + i + ".");

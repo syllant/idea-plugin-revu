@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.RevuKeys;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuToolWindowManager implements ProjectComponent, IReviewListener
@@ -45,10 +46,19 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       ? RevuBundle.message("toolwindow.allReviews.title")
       : RevuBundle.message("toolwindow.review.title", review.getTitle());
 
-    Content content = contentFactory.createContent(
-      new ReviewBrowsingForm(project, review).getContentPane(), title, true);
+    ReviewBrowsingForm reviewBrowsingForm = new ReviewBrowsingForm(project, review);
+    Content content = contentFactory.createContent(reviewBrowsingForm.getContentPane(), title, true);
+    content.putUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY, reviewBrowsingForm);
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
+  }
+
+  @Nullable
+  public ReviewBrowsingForm getSelectedReviewBrowsingForm()
+  {
+    Content selectedContent = toolwindow.getContentManager().getSelectedContent();
+
+    return (selectedContent != null) ? selectedContent.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY) : null;
   }
 
   private void removeReviewTab(@Nullable Review review)

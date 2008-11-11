@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class CreateReviewAction extends AnAction

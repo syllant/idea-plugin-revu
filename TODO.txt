@@ -1,4 +1,27 @@
+- categories -> tags
+
+- permissions
+- Review
+  - private / public
+- source change management
+- project config UI
+  - referential
+    - categories
+    - priorities
+    - users
+  - reviews
+  - import / export
+- app config
+  - login
+- iws condig
+  - private review
+  - split orientation
+- notes management
+- review template / link (with warning if template is linked from outside project)
+
 - export CSV
 - assign files
   - from VCS changes
 - create item from intention
+- filters
+- option do display items in tree instead of table

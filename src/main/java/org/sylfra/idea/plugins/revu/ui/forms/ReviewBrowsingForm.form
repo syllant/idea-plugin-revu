@@ -15,7 +15,7 @@
           <component id="9dd4f" class="javax.swing.JComponent" binding="toolbar" custom-create="true">
             <constraints border-constraint="West"/>
           </component>
-          <splitpane id="9c6d2">
+          <splitpane id="9c6d2" binding="splitPane">
             <constraints border-constraint="Center"/>
             <properties/>
             <border type="none"/>

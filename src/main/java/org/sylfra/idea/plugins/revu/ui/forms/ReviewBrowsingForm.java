@@ -17,12 +17,10 @@ import org.sylfra.idea.plugins.revu.ui.ReviewItemsTable;
 import org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemTabbedPane;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.util.ArrayList;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewBrowsingForm
@@ -33,6 +31,7 @@ public class ReviewBrowsingForm
   private ReviewItemsTable reviewItemsTable;
   private JComponent toolbar;
   private ReviewItemTabbedPane reviewItemTabbedPane;
+  private JSplitPane splitPane;
 
   public ReviewBrowsingForm(@NotNull Project project, @Nullable Review review)
   {
@@ -45,27 +44,43 @@ public class ReviewBrowsingForm
     return contentPane;
   }
 
+  public JSplitPane getSplitPane()
+  {
+    return splitPane;
+  }
+
   private void createUIComponents()
   {
     final java.util.List<ReviewItem> items = retrieveReviewItems();
 
     reviewItemTabbedPane = new ReviewItemTabbedPane(project);
 
-    reviewItemsTable = new ReviewItemsTable(project, items);
-    reviewItemsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+    reviewItemsTable = new ReviewItemsTable(project, items, review);
+    reviewItemsTable.setSelectionModel(new DefaultListSelectionModel()
     {
-      public void valueChanged(final ListSelectionEvent e)
+      @Override
+      protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
       {
-        if (!e.getValueIsAdjusting())
+        if (isAdjusting)
         {
-          ReviewItem current = reviewItemsTable.getSelectedObject();
-          if (current != null)
+          if (!reviewItemSelectionBeforeChange())
           {
-            reviewItemTabbedPane.updateUI(current);
+            return;
           }
         }
+        else
+        {
+          reviewItemSelectionAfterChange();
+        }
+        super.fireValueChanged(firstIndex, lastIndex, isAdjusting);
       }
     });
+
+    if (reviewItemsTable.getRowCount() > 0)
+    {
+      reviewItemsTable.getSelectionModel().setSelectionInterval(0, 0);
+      reviewItemSelectionAfterChange();
+    }
 
     RevuSettingsComponent settingsComponent = ServiceManager.getService(project,
       RevuSettingsComponent.class);
@@ -75,6 +90,21 @@ public class ReviewBrowsingForm
     autoScrollToSourceHandler.install(reviewItemsTable);
 
     toolbar = createToolbar().getComponent();
+  }
+
+  private boolean reviewItemSelectionBeforeChange()
+  {
+    ReviewItem current = reviewItemTabbedPane.getReviewItem();
+    return (current == null) || reviewItemTabbedPane.updateData(current);
+  }
+
+  private void reviewItemSelectionAfterChange()
+  {
+    ReviewItem current = reviewItemsTable.getSelectedObject();
+    if (current != null)
+    {
+      reviewItemTabbedPane.updateUI(current);
+    }
   }
 
   private java.util.List<ReviewItem> retrieveReviewItems()
@@ -94,6 +124,7 @@ public class ReviewBrowsingForm
     {
       items = review.getItems();
     }
+
     return items;
   }
 

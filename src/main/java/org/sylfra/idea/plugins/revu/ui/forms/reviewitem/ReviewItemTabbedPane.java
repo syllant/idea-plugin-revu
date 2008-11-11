@@ -9,7 +9,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewItemTabbedPane extends AbstractReviewItemForm
@@ -27,15 +27,25 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
     {
       public void stateChanged(ChangeEvent e)
       {
-        if (previewForm.getContentPane().equals(tabbedPane.getSelectedComponent()))
+        if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
         {
-          if ((reviewItem != null) && (!reviewItem.equals(previewForm.getReviewItem())))
+          if (!reviewItem.equals(previewForm.getReviewItem()))
           {
             previewForm.updateUI(reviewItem);
           }
         }
       }
     });
+  }
+
+  public JComponent getPreferredFocusedComponent()
+  {
+    return mainForm.getPreferredFocusedComponent();
+  }
+
+  public void internalValidateInput()
+  {
+    mainForm.internalValidateInput();
   }
 
   @NotNull
@@ -48,7 +58,11 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
   {
     mainForm.updateUI(reviewItem);
     historyForm.updateUI(reviewItem);
-    previewForm.updateUI(reviewItem);
+
+    if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
+    {
+      previewForm.updateUI(reviewItem);
+    }
   }
 
   public void internalUpdateData(@NotNull ReviewItem reviewItemToUpdate)

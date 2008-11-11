@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="25374" layout-manager="FlowLayout" hgap="0" vgap="5" flow-align="0">
+      <grid id="25374" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="140" height="11"/>
@@ -55,7 +55,7 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="313c2" layout-manager="FlowLayout" hgap="0" vgap="5" flow-align="0">
+      <grid id="313c2" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="140" height="11"/>

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewItemPreviewForm extends AbstractReviewItemForm
@@ -26,6 +26,15 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
   public ReviewItemPreviewForm(@NotNull Project project)
   {
     super(project);
+  }
+
+  public JComponent getPreferredFocusedComponent()
+  {
+    return usagePreviewPanel;
+  }
+
+  public void internalValidateInput()
+  {
   }
 
   @NotNull
@@ -47,11 +56,6 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
   @Nullable
   List<UsageInfo> buildUsageInfos()
   {
-    if (reviewItem == null)
-    {
-      return null;
-    }
-
     PsiFile psiFile = RevuUtils.getPsiFile(project, reviewItem);
     if (psiFile == null)
     {
@@ -77,5 +81,15 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
   private void createUIComponents()
   {
     usagePreviewPanel = new UsagePreviewPanel(project);
+  }
+
+  public void dispose()
+  {
+    usagePreviewPanel.dispose();
+  }
+
+  protected boolean isModified(@NotNull ReviewItem reviewItem)
+  {
+    return false;
   }
 }

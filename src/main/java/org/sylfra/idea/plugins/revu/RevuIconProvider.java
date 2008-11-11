@@ -25,7 +25,9 @@ public abstract class RevuIconProvider
     REVU("revu"),
     REVU_LARGE("revuLarge"),
     EDIT_CONFIG("editConfig"),
-    GUTTER_COMMENT("gutterComment");
+    GUTTER_REVU_ITEM("gutterReviewItem"),
+    GUTTER_REVU_ITEMS("gutterReviewItems");
+    
     private final String imgName;
 
     IconRef(String imgName)

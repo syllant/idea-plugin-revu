@@ -11,7 +11,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewItemHistoryForm extends AbstractReviewItemForm
@@ -30,6 +30,11 @@ public class ReviewItemHistoryForm extends AbstractReviewItemForm
     super(project);
   }
 
+  protected boolean isModified(@NotNull ReviewItem reviewItem)
+  {
+    return false;
+  }
+
   @NotNull
   public JPanel getContentPane()
   {
@@ -46,6 +51,15 @@ public class ReviewItemHistoryForm extends AbstractReviewItemForm
       ? RevuBundle.EMPTY_FIELD : reviewItem.getHistory().getLastUpdatedBy().getDisplayName());
     lbLastUpdatedOn.setText((reviewItem == null)
       ? RevuBundle.EMPTY_FIELD : DATE_FORMATTER.format(new Date(reviewItem.getHistory().getLastUpdatedOn())));
+  }
+
+  public JComponent getPreferredFocusedComponent()
+  {
+    return null;
+  }
+
+  public void internalValidateInput()
+  {
   }
 
   protected void internalUpdateData(@Nullable ReviewItem reviewItemToUpdate)

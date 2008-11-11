@@ -6,7 +6,8 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.ui.GutterRenderer;
+import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.ui.GutterManager;
 
 /**
  * The main application component available as a singleton and providing convenient methods
@@ -20,8 +21,7 @@ public class RevuPlugin implements ProjectComponent
   public static final String PLUGIN_NAME = "reVu";
   public static final String PLUGIN_ID = "org.sylfra.idea.plugins.revu";
 
-  private static final Logger LOGGER =
-    Logger.getInstance(RevuPlugin.class.getName());
+  private static final Logger LOGGER = Logger.getInstance(RevuPlugin.class.getName());
 
   private Project project;
 
@@ -45,7 +45,7 @@ public class RevuPlugin implements ProjectComponent
    */
   public void initComponent()
   {
-    EditorFactory.getInstance().addEditorFactoryListener(new GutterRenderer(project));
+    EditorFactory.getInstance().addEditorFactoryListener(new GutterManager(project));
   }
 
   /**
@@ -61,5 +61,15 @@ public class RevuPlugin implements ProjectComponent
 
   public void projectClosed()
   {
+  }
+
+  // @TODO : define in application settings
+  public User getUser()
+  {
+    User user = new User();
+    user.setDisplayName("user3");
+    user.setLogin("u3");
+    user.setPassword("p3");
+    return user;
   }
 }
