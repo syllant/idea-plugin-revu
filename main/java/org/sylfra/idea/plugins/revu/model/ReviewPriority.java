@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewPriority implements Serializable, Comparable<ReviewPriority>
@@ -41,9 +41,12 @@ public class ReviewPriority implements Serializable, Comparable<ReviewPriority>
     this.name = name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int compareTo(ReviewPriority o)
   {
-    return (order > o.order) ? -1 : ((order == o.order) ? 0 : -1);
+    return order - o.order;
   }
 
   @Override

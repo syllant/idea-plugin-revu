@@ -13,7 +13,7 @@ import org.sylfra.idea.plugins.revu.model.ReviewReferential;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 class ReviewConverter extends AbstractConverter

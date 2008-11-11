@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewManager implements ProjectComponent, IRevuSettingsListener
@@ -44,22 +44,23 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
     settingsChanged(settingsComponent.getState());
   }
 
-  public Collection<Review> getReviews()
+  public List<Review> getReviews()
   {
-    return Collections.unmodifiableCollection(reviews.values());
+    return Collections.unmodifiableList(new ArrayList<Review>(reviews.values()));
   }
 
-  public Review getActiveReview()
+  public List<Review> getReviews(boolean active)
   {
+    List<Review> result = new ArrayList<Review>();
     for (Review review : reviews.values())
     {
-      if (review.isActive())
+      if (review.isActive() == active)
       {
-        return review;
+        result.add(review);
       }
     }
 
-    return null;
+    return Collections.unmodifiableList(result);
   }
 
   public void projectOpened()
@@ -87,6 +88,11 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
   public void settingsChanged(RevuSettings settings)
   {
     load(settings);
+  }
+
+  public void addReviewListener(IReviewListener listener)
+  {
+    reviewListeners.add(listener);
   }
 
   public void addReview(VirtualFile f, Review review)

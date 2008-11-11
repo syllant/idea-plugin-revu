@@ -22,7 +22,7 @@ public class RevuBundle
   private static final String BUNDLE = "org.sylfra.idea.plugins.revu.resources.Bundle";
 
   @NonNls
-  public static final String EMPTY_FIELD = "...";
+  public static final String EMPTY_FIELD = "";
 
   /**
    * Returns the message got the specified key, formatted with specified params

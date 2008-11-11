@@ -3,14 +3,13 @@ package org.sylfra.idea.plugins.revu.model;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
 
 import java.io.Serializable;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class Review implements Serializable
@@ -105,14 +104,14 @@ public class Review implements Serializable
     }
   }
 
-  @Nullable
+  @NotNull
   public List<ReviewItem> getItems(VirtualFile file)
   {
     List<ReviewItem> fileItems = itemsByFiles.get(file);
-    return (fileItems == null) ? null : Collections.unmodifiableList(fileItems);
+    return (fileItems == null) ? new ArrayList<ReviewItem>(0) : Collections.unmodifiableList(fileItems);
   }
 
-  @Nullable
+  @NotNull
   public List<ReviewItem> getItems()
   {
     List<ReviewItem> result = new ArrayList<ReviewItem>();
@@ -155,6 +154,14 @@ public class Review implements Serializable
     for (IReviewItemListener listener : reviewItemListeners)
     {
       listener.itemDeleted(item);
+    }
+  }
+
+  public void fireItemUpdated(@NotNull ReviewItem item)
+  {
+    for (IReviewItemListener listener : reviewItemListeners)
+    {
+      listener.itemUpdated(item);
     }
   }
 

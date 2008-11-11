@@ -2,13 +2,14 @@ package org.sylfra.idea.plugins.revu.model;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewItem implements Serializable
@@ -18,6 +19,13 @@ public class ReviewItem implements Serializable
     TO_RESOLVE,
     RESOLVED,
     CLOSED
+  }
+
+  public static enum LocationType
+  {
+    GLOBAL,
+    FILE,
+    LINE_RANGE
   }
 
   private VirtualFile file;
@@ -36,11 +44,11 @@ public class ReviewItem implements Serializable
   private String codeAlternative;
   private List<ReviewItem> relations;
 
-  public ReviewItem(Review review)
+  public ReviewItem()
   {
-    this.review = review;
     history = new History();
-
+    lineStart = -1;
+    lineEnd = -1;
   }
 
   public VirtualFile getFile()
@@ -83,14 +91,12 @@ public class ReviewItem implements Serializable
     this.history = history;
   }
 
-  public
-  @NotNull
-  Review getReview()
+  public Review getReview()
   {
     return review;
   }
 
-  public void setReview(@NotNull Review review)
+  public void setReview(Review review)
   {
     this.review = review;
   }
@@ -145,22 +151,24 @@ public class ReviewItem implements Serializable
     this.resolutionComment = resolutionComment;
   }
 
+  @Nullable
   public ReviewPriority getPriority()
   {
     return priority;
   }
 
-  public void setPriority(ReviewPriority priority)
+  public void setPriority(@Nullable ReviewPriority priority)
   {
     this.priority = priority;
   }
 
+  @Nullable
   public ReviewCategory getCategory()
   {
     return category;
   }
 
-  public void setCategory(ReviewCategory category)
+  public void setCategory(@Nullable ReviewCategory category)
   {
     this.category = category;
   }
@@ -193,6 +201,21 @@ public class ReviewItem implements Serializable
   public void setRelations(List<ReviewItem> relations)
   {
     this.relations = relations;
+  }
+
+  public LocationType getLocationType()
+  {
+    if (file == null)
+    {
+      return LocationType.GLOBAL;
+    }
+
+    if (lineStart == -1)
+    {
+      return LocationType.FILE;
+    }
+
+    return LocationType.LINE_RANGE;
   }
 
   @Override
@@ -309,5 +332,13 @@ public class ReviewItem implements Serializable
       append("codeAlternative", codeAlternative).
       append("relations", relations).
       toString();
+  }
+
+  public static final class ComparatorCreatedOn implements Comparator<ReviewItem>
+  {
+    public int compare(ReviewItem o1, ReviewItem o2)
+    {
+      return (int) (o1.getHistory().getCreatedOn() - o2.getHistory().getCreatedOn());
+    }
   }
 }

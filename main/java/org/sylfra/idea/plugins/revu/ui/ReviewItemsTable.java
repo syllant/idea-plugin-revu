@@ -3,29 +3,40 @@ package org.sylfra.idea.plugins.revu.ui;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
+import com.intellij.ui.PopupHandler;
 import com.intellij.ui.table.TableView;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
+import com.intellij.util.ui.SortableColumnModel;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
+import org.sylfra.idea.plugins.revu.business.ReviewManager;
+import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewItemsTable extends TableView<ReviewItem>
@@ -33,10 +44,25 @@ public class ReviewItemsTable extends TableView<ReviewItem>
 {
   private final Project project;
 
-  public ReviewItemsTable(@NotNull Project project, List<ReviewItem> items)
+  public ReviewItemsTable(@NotNull Project project, List<ReviewItem> items, @Nullable Review review)
   {
-    super(new ReviewItemTableModel(items));
+    super(new ReviewItemTableModel(project, items, review));
     this.project = project;
+
+    PopupHandler.installPopupHandler(this, "revu.reviewItemTable.popup", "reviewItemTable");
+
+    // Double-Click
+    addMouseListener(new MouseAdapter()
+    {
+      @Override
+      public void mouseClicked(MouseEvent e)
+      {
+        if (e.getClickCount() == 2)
+        {
+          ActionUtil.execute("revu.JumpToSourceAction", e, ReviewItemsTable.this, "reviewItemTable", 0);
+        }
+      }
+    });
   }
 
   public boolean hasNextOccurence()
@@ -101,12 +127,23 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       ReviewItem currentItem = getSelectedObject();
       if (currentItem != null)
       {
+        // @TODO why -2 and not -1 ?!
         OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentItem.getFile(),
-          currentItem.getLineStart());
+          currentItem.getLineStart() - 2, 0);
         return new Navigatable[]{fileDescriptor};
       }
 
       return null;
+    }
+
+    if (RevuDataKeys.REVIEW_ITEM.getName().equals(dataId))
+    {
+      return getSelectedObject();
+    }
+
+    if (RevuDataKeys.REVIEW_ITEM_ARRAY.getName().equals(dataId))
+    {
+      return getSelection();
     }
 
     return null;
@@ -122,7 +159,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
         {
           public String valueOf(ReviewItem reviewItem)
           {
-            return reviewItem.getPriority().getName();
+            return (reviewItem.getPriority() == null) ? "" : reviewItem.getPriority().getName();
           }
 
           @Override
@@ -132,7 +169,9 @@ public class ReviewItemsTable extends TableView<ReviewItem>
             {
               public int compare(ReviewItem o1, ReviewItem o2)
               {
-                return o1.getPriority().getName().compareTo(o2.getPriority().getName());
+                String p1 = (o1.getPriority() == null) ? "" : o1.getPriority().getName();
+                String p2 = (o2.getPriority() == null) ? "" : o2.getPriority().getName();
+                return p1.compareTo(p2);
               }
             };
           }
@@ -243,15 +282,31 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       };
     private final java.util.List<ReviewItem> items;
 
-    public ReviewItemTableModel(java.util.List<ReviewItem> items)
+    public ReviewItemTableModel(Project project, java.util.List<ReviewItem> items, Review review)
     {
       super(COLUMN_INFOS, items, 0);
       this.items = items;
+
       setSortable(true);
+
+      if (review != null)
+      {
+        review.addReviewItemListener(this);
+      }
+      else
+      {
+        Collection<Review> reviews = ServiceManager.getService(project, ReviewManager.class).getReviews();
+        for (Review aReview : reviews)
+        {
+          aReview.addReviewItemListener(this);
+        }
+      }
     }
 
     public void itemAdded(ReviewItem item)
     {
+      items.add(item);
+      resort(items);
       int index = items.indexOf(item);
       fireTableRowsInserted(index, index);
     }
@@ -259,8 +314,35 @@ public class ReviewItemsTable extends TableView<ReviewItem>
     public void itemDeleted(ReviewItem item)
     {
       int index = items.indexOf(item);
+      items.remove(item);
       fireTableRowsDeleted(index, index);
     }
-  }
 
+    public void itemUpdated(ReviewItem item)
+    {
+      int index = items.indexOf(item);
+      fireTableRowsUpdated(index, index);
+    }
+
+    // Already defined in ListTableModel, but private...
+    private void resort(List<ReviewItem> items)
+    {
+      int sortedColumnIndex = getSortedColumnIndex();
+      if ((sortedColumnIndex >= 0) && (sortedColumnIndex < COLUMN_INFOS.length))
+      {
+        final ColumnInfo columnInfo = COLUMN_INFOS[sortedColumnIndex];
+        if (columnInfo.isSortable())
+        {
+          //noinspection unchecked
+          columnInfo.sort(items);
+          if (getSortingType() == SortableColumnModel.SORT_DESCENDING)
+          {
+            reverseModelItems(items);
+          }
+
+          fireTableDataChanged();
+        }
+      }
+    }
+  }
 }

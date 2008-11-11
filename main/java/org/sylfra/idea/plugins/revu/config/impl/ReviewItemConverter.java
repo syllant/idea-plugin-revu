@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.model.History;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 class ReviewItemConverter extends AbstractConverter
@@ -31,8 +31,14 @@ class ReviewItemConverter extends AbstractConverter
     writer.addAttribute("filePath", filePath);
     writer.addAttribute("lineStart", String.valueOf(reviewItem.getLineStart()));
     writer.addAttribute("lineEnd", String.valueOf(reviewItem.getLineEnd()));
-    writer.addAttribute("category", reviewItem.getCategory().getName());
-    writer.addAttribute("priority", reviewItem.getPriority().getName());
+    if (reviewItem.getCategory() != null)
+    {
+      writer.addAttribute("category", reviewItem.getCategory().getName());
+    }
+    if (reviewItem.getPriority() != null)
+    {
+      writer.addAttribute("priority", reviewItem.getPriority().getName());
+    }
     writer.addAttribute("status", reviewItem.getStatus().toString().toLowerCase());
 
     // History
@@ -56,7 +62,8 @@ class ReviewItemConverter extends AbstractConverter
     String priority = reader.getAttribute("priority");
     String status = reader.getAttribute("status");
 
-    ReviewItem reviewItem = new ReviewItem(getReview(context));
+    ReviewItem reviewItem = new ReviewItem();
+    reviewItem.setReview(getReview(context));
 
     Project project = getProject(context);
     VirtualFile file = RevuUtils.findFileFromRelativeFile(project, filePath);

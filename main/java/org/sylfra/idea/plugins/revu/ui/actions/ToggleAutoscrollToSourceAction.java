@@ -9,7 +9,7 @@ import org.sylfra.idea.plugins.revu.settings.RevuSettings;
 import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ToggleAutoscrollToSourceAction extends ToggleAction

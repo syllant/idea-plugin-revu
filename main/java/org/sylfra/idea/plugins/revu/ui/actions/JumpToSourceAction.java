@@ -3,32 +3,42 @@ package org.sylfra.idea.plugins.revu.ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.sylfra.idea.plugins.revu.business.ReviewManager;
-import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import com.intellij.pom.Navigatable;
+import com.intellij.util.OpenSourceUtil;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class JumpToSourceAction extends AnAction
 {
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
-    Editor editor = e.getData(DataKeys.EDITOR);
-    VirtualFile virtualFile = e.getData(DataKeys.VIRTUAL_FILE);
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+    if (vFile != null)
+    {
+      if (FileTypeManager.getInstance().getFileTypeByFile(vFile) == FileTypes.UNKNOWN)
+      {
+        return;
+      }
+    }
 
-    Review review = reviewManager.getActiveReview();
-    assert (review != null);
+    Navigatable[] navigatables = e.getData(PlatformDataKeys.NAVIGATABLE_ARRAY);
+    if (navigatables != null)
+    {
+      for (Navigatable navigatable : navigatables)
+      {
+        if (!navigatable.canNavigateToSource())
+        {
+          return;
+        }
+      }
+    }
 
-    ReviewItem item = new ReviewItem(review);
-
-//    editor.getScrollingModel().
+    OpenSourceUtil.openSourcesFrom(e.getDataContext(), false);
   }
 }

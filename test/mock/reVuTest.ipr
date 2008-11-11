@@ -360,7 +360,6 @@
     <find-history />
   </component>
   <component name="reVuSettings">
-    <option name="autoScrollToSource" value="true" />
     <option name="reviewFiles">
       <list>
         <option value="$PROJECT_DIR$/reviews/review.xml" />

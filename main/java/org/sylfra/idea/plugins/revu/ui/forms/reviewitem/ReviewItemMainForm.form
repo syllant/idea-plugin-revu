@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemMainForm">
-  <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="7" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
@@ -10,21 +10,21 @@
     <children>
       <component id="c2511" class="javax.swing.JTextArea" binding="taDesc">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="50"/>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="250" height="50"/>
           </grid>
         </constraints>
         <properties/>
       </component>
       <component id="db060" class="javax.swing.JComboBox" binding="cbPriority">
         <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
       <component id="b1f76" class="javax.swing.JLabel">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="c2511"/>
@@ -33,26 +33,30 @@
           <verticalTextPosition value="0"/>
         </properties>
       </component>
-      <component id="fd19a" class="javax.swing.JTextField" binding="tfTitle">
+      <component id="2d3a4" class="javax.swing.JTextArea" binding="taTitle">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="250" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <lineWrap value="false"/>
+          <rows value="2"/>
+        </properties>
       </component>
       <component id="5862a" class="javax.swing.JLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="fd19a"/>
+          <font style="1"/>
+          <labelFor value="2d3a4"/>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.title.label"/>
         </properties>
       </component>
       <component id="c86ca" class="javax.swing.JLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="db060"/>
@@ -61,51 +65,117 @@
       </component>
       <component id="91927" class="javax.swing.JComboBox" binding="cbCategory">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="fc7e7" class="javax.swing.JComboBox" binding="cbStatus">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>
       <component id="54b45" class="javax.swing.JLabel">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="91927"/>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.category.label"/>
         </properties>
       </component>
-      <component id="d45ad" class="javax.swing.JLabel">
+      <component id="ed125" class="javax.swing.JLabel">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
+          <font style="1"/>
+          <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.review.label"/>
+        </properties>
+      </component>
+      <component id="66336" class="javax.swing.JComboBox" binding="cbReview">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="890ae" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font style="1"/>
+          <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.location.label"/>
+          <verticalTextPosition value="0"/>
+        </properties>
+      </component>
+      <grid id="22065" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="c78a5" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="63f35" class="javax.swing.JRadioButton" binding="rbLocationGlobal">
+                <constraints/>
+                <properties>
+                  <actionCommand value="GLOBAL"/>
+                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.location.global.text"/>
+                  <verticalAlignment value="1"/>
+                </properties>
+              </component>
+              <component id="3fe2c" class="javax.swing.JRadioButton" binding="rbLocationFile">
+                <constraints/>
+                <properties>
+                  <actionCommand value="FILE"/>
+                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.location.file.text"/>
+                </properties>
+              </component>
+              <component id="51aa7" class="javax.swing.JRadioButton" binding="rbLocationLineRange">
+                <constraints/>
+                <properties>
+                  <actionCommand value="LINE_RANGE"/>
+                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.location.range.text"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <component id="c9c5d" class="javax.swing.JLabel" binding="lbLocation">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <foreground color="-10066330"/>
+              <text value="..."/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="d45ad" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font style="1"/>
           <labelFor value="fc7e7"/>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.status.label"/>
         </properties>
       </component>
-      <component id="890ae" class="javax.swing.JLabel">
+      <component id="fc7e7" class="javax.swing.JComboBox" binding="cbStatus">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.reviewitem.main.location.label"/>
-        </properties>
-      </component>
-      <component id="c9c5d" class="javax.swing.JLabel" binding="lbLocation">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <foreground color="-10066330"/>
-          <text value="..."/>
-        </properties>
+        <properties/>
       </component>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="bgLocation" bound="true">
+      <member id="3fe2c"/>
+      <member id="51aa7"/>
+      <member id="63f35"/>
+    </group>
+  </buttonGroups>
 </form>

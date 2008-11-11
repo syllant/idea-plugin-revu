@@ -20,13 +20,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * Note: Should have used {@link com.intellij.ui.AutoScrollToSourceHandler}, but this class does not support tables
+ *
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public final class CustomAutoScrollToSourceHandler
 {
   private RevuSettings revuSettings;
-  private Alarm myAutoScrollAlarm;
+  private Alarm autoScrollAlarm;
 
   public CustomAutoScrollToSourceHandler(RevuSettings revuSettings)
   {
@@ -35,7 +37,7 @@ public final class CustomAutoScrollToSourceHandler
 
   public void install(final ReviewItemsTable table)
   {
-    myAutoScrollAlarm = new Alarm();
+    autoScrollAlarm = new Alarm();
     table.addMouseListener(new MouseAdapter()
     {
       public void mouseClicked(MouseEvent e)
@@ -65,15 +67,15 @@ public final class CustomAutoScrollToSourceHandler
 
   public void cancelAllRequests()
   {
-    if (myAutoScrollAlarm != null)
+    if (autoScrollAlarm != null)
     {
-      myAutoScrollAlarm.cancelAllRequests();
+      autoScrollAlarm.cancelAllRequests();
     }
   }
 
   public void onMouseClicked(final Component component)
   {
-    myAutoScrollAlarm.cancelAllRequests();
+    autoScrollAlarm.cancelAllRequests();
     if (isAutoScrollMode())
     {
       ApplicationManager.getApplication().invokeLater(new Runnable()
@@ -108,8 +110,8 @@ public final class CustomAutoScrollToSourceHandler
       return;
     }
 
-    myAutoScrollAlarm.cancelAllRequests();
-    myAutoScrollAlarm.addRequest(
+    autoScrollAlarm.cancelAllRequests();
+    autoScrollAlarm.addRequest(
       new Runnable()
       {
         public void run()
