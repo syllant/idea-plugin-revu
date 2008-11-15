@@ -997,9 +997,6 @@
     <properties />
     <groups />
   </component>
-  <component name="uidesigner-configuration">
-    <option name="DEFAULT_LAYOUT_MANAGER" value="BorderLayout" />
-  </component>
   <UsedPathMacros>
     <macro name="MAVEN_REPOSITORY" />
   </UsedPathMacros>

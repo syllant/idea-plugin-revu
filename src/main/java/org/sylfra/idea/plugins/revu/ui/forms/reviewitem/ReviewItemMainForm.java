@@ -8,6 +8,8 @@ import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -166,14 +168,28 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     updateError(taTitle, "".equals(taTitle.getText().trim()));
     updateError(cbReview, (!(cbReview.getSelectedItem() instanceof Review)));
     updateError(cbStatus, (!(cbStatus.getSelectedItem() instanceof ReviewItem.Status)));
+
+    // Check is user is declared in selected review
+    if (cbReview.getSelectedItem() instanceof Review)
+    {
+      Review review = (Review) cbReview.getSelectedItem();
+
+      RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+      User user = review.getReviewReferential().getUser(appSettings.getLogin());
+
+      updateError(cbReview, user == null);
+    }
   }
 
   private void configureUI()
   {
+    RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+
     cbStatus.setModel(new DefaultComboBoxModel(buildComboItemsArray(Arrays.asList(ReviewItem.Status.values()))));
 
     ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
-    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true))));
+    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true, 
+      appSettings.getLogin()))));
     cbReview.setRenderer(new DefaultListCellRenderer()
     {
       public Component getListCellRendererComponent(JList list, Object value, int index,

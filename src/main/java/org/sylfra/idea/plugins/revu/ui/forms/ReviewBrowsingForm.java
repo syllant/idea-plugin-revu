@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
-import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.CustomAutoScrollToSourceHandler;
 import org.sylfra.idea.plugins.revu.ui.ReviewItemsTable;
 import org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemTabbedPane;
@@ -82,11 +82,11 @@ public class ReviewBrowsingForm
       reviewItemSelectionAfterChange();
     }
 
-    RevuSettingsComponent settingsComponent = ServiceManager.getService(project,
-      RevuSettingsComponent.class);
+    RevuWorkspaceSettingsComponent workspaceSettingsComponent = ServiceManager.getService(project,
+      RevuWorkspaceSettingsComponent.class);
 
     CustomAutoScrollToSourceHandler autoScrollToSourceHandler
-      = new CustomAutoScrollToSourceHandler(settingsComponent.getState());
+      = new CustomAutoScrollToSourceHandler(workspaceSettingsComponent.getState());
     autoScrollToSourceHandler.install(reviewItemsTable);
 
     toolbar = createToolbar().getComponent();

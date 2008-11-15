@@ -5,8 +5,8 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import org.sylfra.idea.plugins.revu.settings.RevuSettings;
-import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -16,18 +16,18 @@ public class ToggleAutoscrollToSourceAction extends ToggleAction
 {
   public boolean isSelected(AnActionEvent e)
   {
-    RevuSettings revuSettings = retrieveSettings(e);
-    return ((revuSettings != null) && (revuSettings.isAutoScrollToSource()));
+    RevuWorkspaceSettings revuWorkspaceSettings = retrieveSettings(e);
+    return ((revuWorkspaceSettings != null) && (revuWorkspaceSettings.isAutoScrollToSource()));
   }
 
   public void setSelected(AnActionEvent e, boolean state)
   {
-    RevuSettings revuSettings = retrieveSettings(e);
+    RevuWorkspaceSettings revuWorkspaceSettings = retrieveSettings(e);
 
-    revuSettings.setAutoScrollToSource(!revuSettings.isAutoScrollToSource());
+    revuWorkspaceSettings.setAutoScrollToSource(!revuWorkspaceSettings.isAutoScrollToSource());
   }
 
-  private RevuSettings retrieveSettings(AnActionEvent e)
+  private RevuWorkspaceSettings retrieveSettings(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
     if (project == null)
@@ -35,9 +35,9 @@ public class ToggleAutoscrollToSourceAction extends ToggleAction
       return null;
     }
 
-    RevuSettingsComponent settingsComponent = ServiceManager.getService(project,
-      RevuSettingsComponent.class);
+    RevuWorkspaceSettingsComponent projectSettingsComponent = ServiceManager.getService(project,
+      RevuWorkspaceSettingsComponent.class);
 
-    return settingsComponent.getState();
+    return projectSettingsComponent.getState();
   }
 }

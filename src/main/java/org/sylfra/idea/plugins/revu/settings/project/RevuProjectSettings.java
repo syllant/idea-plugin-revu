@@ -1,4 +1,6 @@
-package org.sylfra.idea.plugins.revu.settings;
+package org.sylfra.idea.plugins.revu.settings.project;
+
+import org.sylfra.idea.plugins.revu.settings.IRevuSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,24 +11,13 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuSettings
+public class RevuProjectSettings implements IRevuSettings
 {
-  private boolean autoScrollToSource;
   private List<String> reviewFiles;
 
-  public RevuSettings()
+  public RevuProjectSettings()
   {
     reviewFiles = new ArrayList<String>();
-  }
-
-  public boolean isAutoScrollToSource()
-  {
-    return autoScrollToSource;
-  }
-
-  public void setAutoScrollToSource(boolean autoScrollToSource)
-  {
-    this.autoScrollToSource = autoScrollToSource;
   }
 
   public List<String> getReviewFiles()

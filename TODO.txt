@@ -1,9 +1,6 @@
-- categories -> tags
-
-- permissions
 - Review
   - private / public
-- source change management
+  - review template / link (with warning if template is linked from outside project)
 - project config UI
   - referential
     - categories
@@ -11,17 +8,27 @@
     - users
   - reviews
   - import / export
-- app config
-  - login
 - iws condig
   - private review
+- loading error management
+  - if error -> open review file
+  - XSD
+- permissions
+  - project config & review form disabled until user set login
+- source change management
+  -> attach VCS version ?
+  -> show line gutter marker
   - split orientation
 - notes management
-- review template / link (with warning if template is linked from outside project)
+- icon
+- doc
+- categories -> tags
 
-- export CSV
 - assign files
   - from VCS changes
-- create item from intention
 - filters
+
+- export CSV
+- create item from intention
 - option do display items in tree instead of table
+  -> grouped by files/packages/modules

@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
@@ -66,5 +67,16 @@ public class RevuUtils
     }
 
     return null;
+  }
+
+  @NotNull
+  public static String z(@Nullable String s)
+  {
+    if ((s == null) || ("".equals(s)))
+    {
+      return "";
+    }
+    
+    return DigestUtils.md5Hex(s + RevuPlugin.PLUGIN_NAME);
   }
 }
