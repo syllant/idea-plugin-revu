@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.GutterManager;
 
 /**
@@ -61,15 +60,5 @@ public class RevuPlugin implements ProjectComponent
 
   public void projectClosed()
   {
-  }
-
-  // @TODO : define in application settings
-  public User getUser()
-  {
-    User user = new User();
-    user.setDisplayName("user3");
-    user.setLogin("u3");
-    user.setPassword("p3");
-    return user;
   }
 }

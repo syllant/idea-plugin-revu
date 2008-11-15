@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.Alarm;
 import com.intellij.util.OpenSourceUtil;
-import org.sylfra.idea.plugins.revu.settings.RevuSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -27,12 +27,12 @@ import java.awt.event.MouseEvent;
  */
 public final class CustomAutoScrollToSourceHandler
 {
-  private RevuSettings revuSettings;
+  private RevuWorkspaceSettings revuWorkspaceSettings;
   private Alarm autoScrollAlarm;
 
-  public CustomAutoScrollToSourceHandler(RevuSettings revuSettings)
+  public CustomAutoScrollToSourceHandler(RevuWorkspaceSettings revuWorkspaceSettings)
   {
-    this.revuSettings = revuSettings;
+    this.revuWorkspaceSettings = revuWorkspaceSettings;
   }
 
   public void install(final ReviewItemsTable table)
@@ -90,7 +90,7 @@ public final class CustomAutoScrollToSourceHandler
 
   private boolean isAutoScrollMode()
   {
-    return revuSettings.isAutoScrollToSource();
+    return revuWorkspaceSettings.isAutoScrollToSource();
   }
 
   private void onSelectionChanged(final Component component)

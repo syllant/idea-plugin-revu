@@ -4,7 +4,7 @@ package org.sylfra.idea.plugins.revu.settings;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public interface IRevuSettingsListener
+public interface IRevuSettingsListener<T extends IRevuSettings>
 {
-  void settingsChanged(RevuSettings settings);
+  void settingsChanged(T settings);
 }

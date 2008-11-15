@@ -12,8 +12,8 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
-import org.sylfra.idea.plugins.revu.settings.RevuSettings;
-import org.sylfra.idea.plugins.revu.settings.RevuSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
+import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.util.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewManager implements ProjectComponent, IRevuSettingsListener
+public class ReviewManager implements ProjectComponent, IRevuSettingsListener<RevuProjectSettings>
 {
   private static final Logger LOGGER = Logger.getInstance(ReviewManager.class.getName());
 
@@ -38,10 +38,10 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
     reviews = new HashMap<VirtualFile, Review>();
     reviewListeners = new LinkedList<IReviewListener>();
 
-    RevuSettingsComponent settingsComponent = ServiceManager.getService(project,
-      RevuSettingsComponent.class);
-    settingsComponent.addListener(this);
-    settingsChanged(settingsComponent.getState());
+    RevuProjectSettingsComponent projectSettingsComponent = ServiceManager.getService(project,
+      RevuProjectSettingsComponent.class);
+    projectSettingsComponent.addListener(this);
+    settingsChanged(projectSettingsComponent.getState());
   }
 
   public List<Review> getReviews()
@@ -51,10 +51,16 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
 
   public List<Review> getReviews(boolean active)
   {
+    return getReviews(active, null);  
+  }
+
+  public List<Review> getReviews(boolean active, String userLogin)
+  {
     List<Review> result = new ArrayList<Review>();
     for (Review review : reviews.values())
     {
-      if (review.isActive() == active)
+      if ((review.isActive() == active)
+        && ((userLogin == null) || (review.getReviewReferential().getUser(userLogin) != null)))
       {
         result.add(review);
       }
@@ -85,9 +91,9 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
   {
   }
 
-  public void settingsChanged(RevuSettings settings)
+  public void settingsChanged(RevuProjectSettings projectSettings)
   {
-    load(settings);
+    load(projectSettings);
   }
 
   public void addReviewListener(IReviewListener listener)
@@ -98,9 +104,9 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
   public void addReview(VirtualFile f, Review review)
   {
     reviews.put(f, review);
-    RevuSettingsComponent settingsComponent =
-      ServiceManager.getService(project, RevuSettingsComponent.class);
-    settingsComponent.getState().getReviewFiles().add(f.getPath());
+    RevuProjectSettingsComponent projectSettingsComponent =
+      ServiceManager.getService(project, RevuProjectSettingsComponent.class);
+    projectSettingsComponent.getState().getReviewFiles().add(f.getPath());
 
     for (IReviewListener listener : reviewListeners)
     {
@@ -108,7 +114,7 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
     }
   }
 
-  public void load(RevuSettings settings)
+  public void load(RevuProjectSettings projectSettings)
   {
     IReviewExternalizer reviewExternalizer =
       ServiceManager.getService(project, IReviewExternalizer.class);
@@ -119,7 +125,7 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
     {
       Map.Entry<VirtualFile, Review> entry = it.next();
       VirtualFile file = entry.getKey();
-      if (!settings.getReviewFiles().contains(file))
+      if (!projectSettings.getReviewFiles().contains(file))
       {
         Review review = entry.getValue();
 
@@ -133,7 +139,7 @@ public class ReviewManager implements ProjectComponent, IRevuSettingsListener
     }
 
     // Add new reviews
-    for (String filePath : settings.getReviewFiles())
+    for (String filePath : projectSettings.getReviewFiles())
     {
       VirtualFile file = LocalFileSystem.getInstance().findFileByPath(filePath);
       if (!reviews.containsKey(file))
