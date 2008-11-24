@@ -17,7 +17,8 @@ public class User implements Comparable<User>
   public static enum Role
   {
     ADMIN,
-    RECIPIENT
+    REVIEWER,
+    AUTHOR
   }
 
   public final static User UNKNOWN = new User("<unknown>", null, "<unknown>");
@@ -42,24 +43,24 @@ public class User implements Comparable<User>
     this.roles = new HashSet<User.Role>(Arrays.asList(roles));
   }
 
-  @NotNull
+
   public String getDisplayName()
   {
     return displayName;
   }
 
-  public void setDisplayName(@NotNull String displayName)
+  public void setDisplayName( String displayName)
   {
     this.displayName = displayName;
   }
 
-  @NotNull
+
   public String getLogin()
   {
     return login;
   }
 
-  public void setLogin(@NotNull String login)
+  public void setLogin( String login)
   {
     this.login = login;
   }
@@ -75,18 +76,18 @@ public class User implements Comparable<User>
     this.password = password;
   }
 
-  @NotNull
+
   public Set<Role> getRoles()
   {
     return roles;
   }
 
-  public void setRoles(@NotNull Set<Role> roles)
+  public void setRoles( Set<Role> roles)
   {
     this.roles = roles;
   }
 
-  @NotNull
+  
   public void addRole(Role role)
   {
     roles.add(role);

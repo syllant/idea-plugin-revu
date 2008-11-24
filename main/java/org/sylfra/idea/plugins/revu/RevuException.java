@@ -13,6 +13,11 @@ public class RevuException extends Exception
     super(message, cause);
   }
 
+  public RevuException(Throwable cause)
+  {
+    super(cause);
+  }
+
   public RevuException(String message)
   {
     super(message);

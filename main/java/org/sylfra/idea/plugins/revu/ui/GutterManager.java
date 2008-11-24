@@ -1,7 +1,6 @@
 package org.sylfra.idea.plugins.revu.ui;
 
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.EditorFactoryAdapter;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
@@ -41,7 +40,7 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
     this.project = project;
     renderersByFiles = new HashMap<VirtualFile, Map<Integer, CustomGutterIconRenderer>>();
 
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     reviewManager.addReviewListener(this);
 
     for (Review review : reviewManager.getReviews())
@@ -58,7 +57,7 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
     VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
     List<ReviewItem> items = new ArrayList<ReviewItem>();
 
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     for (Review review : reviewManager.getReviews())
     {
       if (review.isActive())
@@ -141,6 +140,11 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
   {
   }
 
+  public void reviewChanged(Review review)
+  {
+    // @TODO
+  }
+
   public void reviewAdded(Review review)
   {
     review.addReviewItemListener(this);
@@ -203,9 +207,9 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
           .append(item.getHistory().getCreatedBy().getDisplayName())
           .append("</b> - <i>")
           .append(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
-            new Date(item.getHistory().getCreatedOn())))
+            item.getHistory().getCreatedOn()))
           .append("</i><br/>")
-          .append(item.getTitle());
+          .append(item.getSummary());
         if (it.hasNext())
         {
           buffer.append("<hr/>");
@@ -239,7 +243,7 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
           for (ReviewItem reviewItem : itemsWithRangeHighlighters.keySet())
           {
             AnAction action = buildActionProxy(templateAction, reviewItem);
-            action.getTemplatePresentation().setText(reviewItem.getTitle());
+            action.getTemplatePresentation().setText(reviewItem.getSummary());
             action.getTemplatePresentation().setIcon(null);
             actionGroup.add(action);
           }

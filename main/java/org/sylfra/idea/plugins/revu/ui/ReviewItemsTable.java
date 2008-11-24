@@ -4,7 +4,6 @@ import com.intellij.ide.OccurenceNavigator;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
@@ -180,7 +179,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
         {
           public String valueOf(ReviewItem reviewItem)
           {
-            return reviewItem.getTitle();
+            return reviewItem.getSummary();
           }
 
           @Override
@@ -232,7 +231,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
         {
           public Date valueOf(ReviewItem reviewItem)
           {
-            return new Date(reviewItem.getHistory().getCreatedOn());
+            return reviewItem.getHistory().getCreatedOn();
           }
 
           @Override
@@ -274,7 +273,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
             {
               public int compare(ReviewItem o1, ReviewItem o2)
               {
-                return (int) (o1.getHistory().getCreatedOn() - o2.getHistory().getCreatedOn());
+                return o1.getHistory().getCreatedOn().compareTo(o2.getHistory().getCreatedOn());
               }
             };
           }
@@ -295,7 +294,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       }
       else
       {
-        Collection<Review> reviews = ServiceManager.getService(project, ReviewManager.class).getReviews();
+        Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
         for (Review aReview : reviews)
         {
           aReview.addReviewItemListener(this);

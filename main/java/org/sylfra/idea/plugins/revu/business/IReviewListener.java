@@ -8,6 +8,8 @@ import org.sylfra.idea.plugins.revu.model.Review;
  */
 public interface IReviewListener
 {
+  void reviewChanged(Review review);
+
   void reviewAdded(Review review);
 
   void reviewDeleted(Review review);

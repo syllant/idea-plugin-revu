@@ -15,7 +15,7 @@ import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
  * @version $Id$
  */
 @State(
-  name = "reVuSettings",
+  name = "revuProjectSettings",
   storages = {
     @Storage(
       id = "reVu",
@@ -33,4 +33,13 @@ public class RevuProjectSettingsComponent extends AbstractRevuSettingsComponent<
     return new RevuProjectSettings();
   }
 
+  public RevuProjectSettings getState()
+  {
+    return internalGetState();
+  }
+
+  public void loadState(RevuProjectSettings state)
+  {
+    internalLoadState(state);
+  }
 }

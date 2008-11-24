@@ -5,6 +5,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
 
+import javax.swing.*;
+
 /**
  * Manage plugin settings
  *
@@ -15,7 +17,7 @@ import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
  * @version $Id$
  */
 @State(
-  name = "reVuSettings",
+  name = "revuWorkspaceSettings",
   storages = {
     @Storage(
       id = "reVu",
@@ -30,6 +32,18 @@ public class RevuWorkspaceSettingsComponent extends AbstractRevuSettingsComponen
    */
   public RevuWorkspaceSettings buildDefaultSettings()
   {
-    return new RevuWorkspaceSettings();
+    RevuWorkspaceSettings result = new RevuWorkspaceSettings();
+    result.setToolWindowSplitOrientation(String.valueOf(JSplitPane.HORIZONTAL_SPLIT));
+    return result;
+  }
+
+  public RevuWorkspaceSettings getState()
+  {
+    return internalGetState();
+  }
+
+  public void loadState(RevuWorkspaceSettings state)
+  {
+    internalLoadState(state);
   }
 }

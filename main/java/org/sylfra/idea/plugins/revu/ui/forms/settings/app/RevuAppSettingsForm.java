@@ -1,25 +1,21 @@
-package org.sylfra.idea.plugins.revu.ui;
+package org.sylfra.idea.plugins.revu.ui.forms.settings.app;
 
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.actions.UpdataPasswordActionListener;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Used to interface settings inside Settings panel
@@ -36,28 +32,15 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 
   public RevuAppSettingsForm()
   {
-    bnUpdatePassword.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
+    UpdataPasswordActionListener updataPasswordActionListener = new UpdataPasswordActionListener(
+      new UpdataPasswordActionListener.IPasswordReceiver()
       {
-        InputValidator inputValidator = new InputValidator()
+        public void setPassword(@Nullable String password)
         {
-          public boolean checkInput(String inputString)
-          {
-            return true;
-          }
-
-          public boolean canClose(String inputString)
-          {
-            return true;
-          }
-        };
-
-        password = Messages.showInputDialog(contentPane,
-          RevuBundle.message("dialog.updatePassword.password.label"),
-          RevuBundle.message("dialog.updatePassword.title"), null, "", inputValidator);
-      }
-    });
+          RevuAppSettingsForm.this.password = password;
+        }
+      });
+    bnUpdatePassword.addActionListener(updataPasswordActionListener);
   }
 
   /**
@@ -166,4 +149,5 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
   public void disposeUIResources()
   {
   }
+
 }

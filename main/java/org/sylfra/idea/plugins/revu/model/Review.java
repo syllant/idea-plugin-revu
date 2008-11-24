@@ -5,6 +5,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
@@ -12,13 +13,15 @@ import java.util.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class Review implements Serializable
+public class Review implements Serializable, IHistoryHolder
 {
+  private File file;
   private History history;
   private String title;
   private String desc;
+  private boolean shared;
   private boolean active;
-  private ReviewReferential reviewReferential;
+  private DataReferential dataReferential;
   private Map<VirtualFile, List<ReviewItem>> itemsByFiles;
   private final transient List<IReviewItemListener> reviewItemListeners;
 
@@ -27,18 +30,37 @@ public class Review implements Serializable
     history = new History();
     itemsByFiles = new HashMap<VirtualFile, List<ReviewItem>>();
     reviewItemListeners = new LinkedList<IReviewItemListener>();
-    reviewReferential = new ReviewReferential();
+    dataReferential = new DataReferential();
   }
 
-  @NotNull
+  public File getFile()
+  {
+    return file;
+  }
+
+  public void setFile(File file)
+  {
+    this.file = file;
+  }
+
   public History getHistory()
   {
     return history;
   }
 
-  public void setHistory(@NotNull History history)
+  public void setHistory(History history)
   {
     this.history = history;
+  }
+
+  public boolean isShared()
+  {
+    return shared;
+  }
+
+  public void setShared(boolean shared)
+  {
+    this.shared = shared;
   }
 
   public boolean isActive()
@@ -51,13 +73,12 @@ public class Review implements Serializable
     this.active = active;
   }
 
-  @NotNull
   public String getTitle()
   {
     return title;
   }
 
-  public void setTitle(@NotNull String title)
+  public void setTitle(String title)
   {
     this.title = title;
   }
@@ -73,14 +94,14 @@ public class Review implements Serializable
   }
 
   @NotNull
-  public ReviewReferential getReviewReferential()
+  public DataReferential getReviewReferential()
   {
-    return reviewReferential;
+    return dataReferential;
   }
 
-  public void setReviewReferential(@NotNull ReviewReferential reviewReferential)
+  public void setReviewReferential(DataReferential dataReferential)
   {
-    this.reviewReferential = reviewReferential;
+    this.dataReferential = dataReferential;
   }
 
   @NotNull
@@ -89,7 +110,7 @@ public class Review implements Serializable
     return Collections.unmodifiableMap(itemsByFiles);
   }
 
-  public void setItems(@NotNull List<ReviewItem> items)
+  public void setItems(List<ReviewItem> items)
   {
     itemsByFiles.clear();
     for (ReviewItem item : items)
@@ -127,7 +148,7 @@ public class Review implements Serializable
     return result;
   }
 
-  public void addItem(@NotNull ReviewItem item)
+  public void addItem(ReviewItem item)
   {
     List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
     if (fileItems == null)
@@ -143,7 +164,7 @@ public class Review implements Serializable
     }
   }
 
-  public void removeItem(@NotNull ReviewItem item)
+  public void removeItem(ReviewItem item)
   {
     List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
     if (fileItems != null)
@@ -157,7 +178,7 @@ public class Review implements Serializable
     }
   }
 
-  public void fireItemUpdated(@NotNull ReviewItem item)
+  public void fireItemUpdated(ReviewItem item)
   {
     for (IReviewItemListener listener : reviewItemListeners)
     {
@@ -165,7 +186,7 @@ public class Review implements Serializable
     }
   }
 
-  public void addReviewItemListener(@NotNull IReviewItemListener listener)
+  public void addReviewItemListener(IReviewItemListener listener)
   {
     reviewItemListeners.add(listener);
   }
@@ -188,6 +209,10 @@ public class Review implements Serializable
     {
       return false;
     }
+    if (shared != review.shared)
+    {
+      return false;
+    }
     if (desc != null ? !desc.equals(review.desc) : review.desc != null)
     {
       return false;
@@ -206,8 +231,8 @@ public class Review implements Serializable
     {
       return false;
     }
-    if (reviewReferential != null ? !reviewReferential.equals(review.reviewReferential) :
-      review.reviewReferential != null)
+    if (dataReferential != null ? !dataReferential.equals(review.dataReferential) :
+      review.dataReferential != null)
     {
       return false;
     }
@@ -226,9 +251,10 @@ public class Review implements Serializable
     result = 31 * result + (title != null ? title.hashCode() : 0);
     result = 31 * result + (desc != null ? desc.hashCode() : 0);
     result = 31 * result + (active ? 1 : 0);
+    result = 31 * result + (shared ? 1 : 0);
     result = 31 * result + (itemsByFiles != null ? itemsByFiles.hashCode() : 0);
     result = 31 * result + (reviewItemListeners != null ? reviewItemListeners.hashCode() : 0);
-    result = 31 * result + (reviewReferential != null ? reviewReferential.hashCode() : 0);
+    result = 31 * result + (dataReferential != null ? dataReferential.hashCode() : 0);
     return result;
   }
 
@@ -242,7 +268,7 @@ public class Review implements Serializable
       append("active", active).
       append("itemsByFiles", itemsByFiles).
       append("reviewItemListeners", reviewItemListeners).
-      append("reviewReferential", reviewReferential).
+      append("dataReferential", dataReferential).
       toString();
   }
 }

@@ -16,6 +16,8 @@ import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -72,15 +74,52 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
   {
   }
 
-  public Review load(InputStream stream) throws RevuException
+  public void load(@NotNull Review review, @NotNull InputStream stream) throws RevuException
   {
     checkXStream();
 
-    return (Review) xstream.unmarshal(new XppDriver().createReader(stream), null,
-      xstreamDataHolder);
+    xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, review);
+
+    try
+    {
+      xstream.unmarshal(new XppDriver().createReader(stream), null, xstreamDataHolder);
+    }
+    catch (Exception e)
+    {
+      LOGGER.warn(e);
+      throw new RevuException(e);
+    }
   }
 
-  public void save(Review review, OutputStream stream) throws RevuException
+  public void save(@NotNull Review review) throws RevuException
+  {
+    OutputStream out = null;
+    try
+    {
+      out = new FileOutputStream(review.getFile());
+      save(review, out);
+    }
+    catch (IOException e)
+    {
+      throw new RevuException("Failed to serialize review: " + review, e);
+    }
+    finally
+    {
+      try
+      {
+        if (out != null)
+        {
+          out.close();
+        }
+      }
+      catch (IOException e)
+      {
+        LOGGER.warn("Failed to serialize review: " + review, e);
+      }
+    }
+  }
+
+  public void save(@NotNull Review review, @NotNull OutputStream stream) throws RevuException
   {
     checkXStream();
 
@@ -90,6 +129,8 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       writer = new IndentingXMLStreamWriter(
         XMLOutputFactory.newInstance().createXMLStreamWriter(stream, "UTF-8"));
       writer.writeStartDocument("UTF-8", "1.0");
+      // @TODO XSD namespace
+      xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, null);
       xstream.marshal(review, new XppDriver().createWriter(stream), xstreamDataHolder);
     }
     catch (XMLStreamException e)
@@ -110,14 +151,14 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       xstream.setClassLoader(getClass().getClassLoader());
 
       xstream.alias("review", Review.class);
-      xstream.alias("review", Review.class);
 
       xstream.registerConverter(new HistoryConverter());
       xstream.registerConverter(new ReviewConverter());
       xstream.registerConverter(new ReviewItemConverter());
-      xstream.registerConverter(new ReviewCategoryConverter());
+      xstream.registerConverter(new ReviewItemCategoryConverter());
+      xstream.registerConverter(new ReviewItemResolutionTypeConverter());
       xstream.registerConverter(new ReviewPriorityConverter());
-      xstream.registerConverter(new ReviewReferentialConverter());
+      xstream.registerConverter(new DataReferentialConverter());
       xstream.registerConverter(new UserConverter());
 
       xstreamDataHolder = xstream.newDataHolder();

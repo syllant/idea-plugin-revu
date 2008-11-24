@@ -12,15 +12,8 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewItem implements Serializable
+public class ReviewItem implements Serializable, IHistoryHolder
 {
-  public static enum Status
-  {
-    TO_RESOLVE,
-    RESOLVED,
-    CLOSED
-  }
-
   public static enum LocationType
   {
     GLOBAL,
@@ -35,12 +28,13 @@ public class ReviewItem implements Serializable
   private Review review;
   private User resolver;
   private List<User> recipients;
-  private String title;
+  private String summary;
   private String desc;
   private String resolutionComment;
-  private ReviewPriority priority;
-  private ReviewCategory category;
-  private Status status;
+  private ItemPriority priority;
+  private ItemCategory category;
+  private ItemResolutionType resolutionType;
+  private ItemResolutionStatus resolutionStatus;
   private String codeAlternative;
   private List<ReviewItem> relations;
 
@@ -121,14 +115,14 @@ public class ReviewItem implements Serializable
     this.recipients = recipients;
   }
 
-  public String getTitle()
+  public String getSummary()
   {
-    return title;
+    return summary;
   }
 
-  public void setTitle(String title)
+  public void setSummary(String summary)
   {
-    this.title = title;
+    this.summary = summary;
   }
 
   public String getDesc()
@@ -152,35 +146,44 @@ public class ReviewItem implements Serializable
   }
 
   @Nullable
-  public ReviewPriority getPriority()
+  public ItemPriority getPriority()
   {
     return priority;
   }
 
-  public void setPriority(@Nullable ReviewPriority priority)
+  public void setPriority(@Nullable ItemPriority priority)
   {
     this.priority = priority;
   }
 
-  @Nullable
-  public ReviewCategory getCategory()
+  public ItemCategory getCategory()
   {
     return category;
   }
 
-  public void setCategory(@Nullable ReviewCategory category)
+  public void setCategory(ItemCategory category)
   {
     this.category = category;
   }
 
-  public Status getStatus()
+  public ItemResolutionType getResolutionType()
   {
-    return status;
+    return resolutionType;
   }
 
-  public void setStatus(Status status)
+  public void setResolutionType(ItemResolutionType resolutionType)
   {
-    this.status = status;
+    this.resolutionType = resolutionType;
+  }
+
+  public ItemResolutionStatus getResolutionStatus()
+  {
+    return resolutionStatus;
+  }
+
+  public void setResolutionStatus(ItemResolutionStatus resolutionStatus)
+  {
+    this.resolutionStatus = resolutionStatus;
   }
 
   public String getCodeAlternative()
@@ -221,75 +224,30 @@ public class ReviewItem implements Serializable
   @Override
   public boolean equals(Object o)
   {
-    if (this == o)
-    {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass())
-    {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
     ReviewItem that = (ReviewItem) o;
 
-    if (lineEnd != that.lineEnd)
-    {
+    if (lineEnd != that.lineEnd) return false;
+    if (lineStart != that.lineStart) return false;
+    if (category != null ? !category.equals(that.category) : that.category != null) return false;
+    if (codeAlternative != null ? !codeAlternative.equals(that.codeAlternative) : that.codeAlternative != null)
       return false;
-    }
-    if (lineStart != that.lineStart)
-    {
+    if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
+    if (file != null ? !file.equals(that.file) : that.file != null) return false;
+    if (history != null ? !history.equals(that.history) : that.history != null) return false;
+    if (priority != null ? !priority.equals(that.priority) : that.priority != null) return false;
+    if (recipients != null ? !recipients.equals(that.recipients) : that.recipients != null) return false;
+    if (relations != null ? !relations.equals(that.relations) : that.relations != null) return false;
+    if (resolutionComment != null ? !resolutionComment.equals(that.resolutionComment) : that.resolutionComment != null)
       return false;
-    }
-    if (codeAlternative != null ? !codeAlternative.equals(that.codeAlternative) :
-      that.codeAlternative != null)
-    {
+    if (resolutionStatus != that.resolutionStatus) return false;
+    if (resolutionType != null ? !resolutionType.equals(that.resolutionType) : that.resolutionType != null)
       return false;
-    }
-    if (desc != null ? !desc.equals(that.desc) : that.desc != null)
-    {
-      return false;
-    }
-    if (file != null ? !file.equals(that.file) : that.file != null)
-    {
-      return false;
-    }
-    if (history != null ? !history.equals(that.history) : that.history != null)
-    {
-      return false;
-    }
-    if (priority != null ? !priority.equals(that.priority) : that.priority != null)
-    {
-      return false;
-    }
-    if (recipients != null ? !recipients.equals(that.recipients) : that.recipients != null)
-    {
-      return false;
-    }
-    if (relations != null ? !relations.equals(that.relations) : that.relations != null)
-    {
-      return false;
-    }
-    if (resolutionComment != null ? !resolutionComment.equals(that.resolutionComment) :
-      that.resolutionComment != null)
-    {
-      return false;
-    }
-    if (resolver != null ? !resolver.equals(that.resolver) : that.resolver != null)
-    {
-      return false;
-    }
-    if (review != null ? !review.equals(that.review) : that.review != null)
-    {
-      return false;
-    }
-    if (status != that.status)
-    {
-      return false;
-    }
-    if (title != null ? !title.equals(that.title) : that.title != null)
-    {
-      return false;
-    }
+    if (resolver != null ? !resolver.equals(that.resolver) : that.resolver != null) return false;
+    if (review != null ? !review.getFile().equals(that.review.getFile()) : that.review != null) return false;
+    if (summary != null ? !summary.equals(that.summary) : that.summary != null) return false;
 
     return true;
   }
@@ -301,13 +259,16 @@ public class ReviewItem implements Serializable
     result = 31 * result + lineStart;
     result = 31 * result + lineEnd;
     result = 31 * result + (history != null ? history.hashCode() : 0);
+    result = 31 * result + (((review != null) && (review.getFile() != null)) ? review.getFile().hashCode() : 0);
     result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
     result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
-    result = 31 * result + (title != null ? title.hashCode() : 0);
+    result = 31 * result + (summary != null ? summary.hashCode() : 0);
     result = 31 * result + (desc != null ? desc.hashCode() : 0);
     result = 31 * result + (resolutionComment != null ? resolutionComment.hashCode() : 0);
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
-    result = 31 * result + (status != null ? status.hashCode() : 0);
+    result = 31 * result + (category != null ? category.hashCode() : 0);
+    result = 31 * result + (resolutionType != null ? resolutionType.hashCode() : 0);
+    result = 31 * result + (resolutionStatus != null ? resolutionStatus.hashCode() : 0);
     result = 31 * result + (codeAlternative != null ? codeAlternative.hashCode() : 0);
     result = 31 * result + (relations != null ? relations.hashCode() : 0);
     return result;
@@ -324,11 +285,12 @@ public class ReviewItem implements Serializable
       append("review", review).
       append("resolver", resolver).
       append("recipients", recipients).
-      append("title", title).
+      append("summary", summary).
       append("desc", desc).
       append("resolutionComment", resolutionComment).
       append("priority", priority).
-      append("status", status).
+      append("resolutionStatus", resolutionStatus).
+      append("resolutionType", resolutionType).
       append("codeAlternative", codeAlternative).
       append("relations", relations).
       toString();
@@ -338,7 +300,7 @@ public class ReviewItem implements Serializable
   {
     public int compare(ReviewItem o1, ReviewItem o2)
     {
-      return (int) (o1.getHistory().getCreatedOn() - o2.getHistory().getCreatedOn());
+      return o1.getHistory().getCreatedOn().compareTo(o2.getHistory().getCreatedOn());
     }
   }
 }

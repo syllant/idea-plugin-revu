@@ -6,12 +6,19 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.sylfra.idea.plugins.revu.model.History;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 class HistoryConverter extends AbstractConverter
 {
+  private final static DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+
   public boolean canConvert(Class type)
   {
     return History.class.equals(type);
@@ -23,8 +30,11 @@ class HistoryConverter extends AbstractConverter
 
     writer.addAttribute("createdBy", history.getCreatedBy().getLogin());
     writer.addAttribute("lastUpdatedBy", history.getLastUpdatedBy().getLogin());
-    writer.addAttribute("createdOn", String.valueOf(history.getCreatedOn()));
-    writer.addAttribute("lastUpdatedOn", String.valueOf(history.getLastUpdatedOn()));
+    synchronized (DATE_FORMATTER)
+    {
+      writer.addAttribute("createdOn", DATE_FORMATTER.format(history.getCreatedOn()));
+      writer.addAttribute("lastUpdatedOn", DATE_FORMATTER.format(history.getLastUpdatedOn()));
+    }
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
@@ -44,13 +54,32 @@ class HistoryConverter extends AbstractConverter
     {
       history.setLastUpdatedBy(retrieveUser(context, lastUpdatedBy));
     }
-    if (createdOn != null)
+    synchronized (DATE_FORMATTER)
     {
-      history.setCreatedOn(Long.parseLong(createdOn));
-    }
-    if (lastUpdatedOn != null)
-    {
-      history.setLastUpdatedOn(Long.parseLong(lastUpdatedOn));
+      if (createdOn != null)
+      {
+        try
+        {
+          history.setCreatedOn(DATE_FORMATTER.parse(createdOn));
+        }
+        catch (ParseException e)
+        {
+          history.setCreatedOn(new Date());
+          logger.warn("Found bad date: " + createdOn + ". Will use current date.");
+        }
+      }
+      if (lastUpdatedOn != null)
+      {
+        try
+        {
+          history.setLastUpdatedOn(DATE_FORMATTER.parse(lastUpdatedOn));
+        }
+        catch (ParseException e)
+        {
+          history.setLastUpdatedOn(new Date());
+          logger.warn("Found bad date: " + lastUpdatedOn + ". Will use current date.");
+        }
+      }
     }
 
     return history;

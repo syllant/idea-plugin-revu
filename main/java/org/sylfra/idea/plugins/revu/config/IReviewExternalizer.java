@@ -12,7 +12,9 @@ import java.io.OutputStream;
  */
 public interface IReviewExternalizer
 {
-  Review load(InputStream stream) throws RevuException;
+  void load(Review review, InputStream stream) throws RevuException;
+
+  void save(Review review) throws RevuException;
 
   void save(Review review, OutputStream stream) throws RevuException;
 }

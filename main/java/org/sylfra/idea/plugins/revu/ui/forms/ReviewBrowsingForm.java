@@ -2,15 +2,15 @@ package org.sylfra.idea.plugins.revu.ui.forms;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.CustomAutoScrollToSourceHandler;
 import org.sylfra.idea.plugins.revu.ui.ReviewItemsTable;
@@ -18,6 +18,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemTabbedPane;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -37,6 +38,9 @@ public class ReviewBrowsingForm
   {
     this.project = project;
     this.review = review;
+
+    RevuWorkspaceSettings workspaceSettings = project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
+    splitPane.setOrientation(Integer.parseInt(workspaceSettings.getToolWindowSplitOrientation()));    
   }
 
   public JPanel getContentPane()
@@ -51,7 +55,7 @@ public class ReviewBrowsingForm
 
   private void createUIComponents()
   {
-    final java.util.List<ReviewItem> items = retrieveReviewItems();
+    final List<ReviewItem> items = retrieveReviewItems();
 
     reviewItemTabbedPane = new ReviewItemTabbedPane(project);
 
@@ -63,14 +67,14 @@ public class ReviewBrowsingForm
       {
         if (isAdjusting)
         {
-          if (!reviewItemSelectionBeforeChange())
+          if (!beforeChangeReviewItem())
           {
             return;
           }
         }
         else
         {
-          reviewItemSelectionAfterChange();
+          afterChangeReviewItem();
         }
         super.fireValueChanged(firstIndex, lastIndex, isAdjusting);
       }
@@ -79,10 +83,10 @@ public class ReviewBrowsingForm
     if (reviewItemsTable.getRowCount() > 0)
     {
       reviewItemsTable.getSelectionModel().setSelectionInterval(0, 0);
-      reviewItemSelectionAfterChange();
+      afterChangeReviewItem();
     }
 
-    RevuWorkspaceSettingsComponent workspaceSettingsComponent = ServiceManager.getService(project,
+    RevuWorkspaceSettingsComponent workspaceSettingsComponent = project.getComponent(
       RevuWorkspaceSettingsComponent.class);
 
     CustomAutoScrollToSourceHandler autoScrollToSourceHandler
@@ -92,13 +96,13 @@ public class ReviewBrowsingForm
     toolbar = createToolbar().getComponent();
   }
 
-  private boolean reviewItemSelectionBeforeChange()
+  private boolean beforeChangeReviewItem()
   {
-    ReviewItem current = reviewItemTabbedPane.getReviewItem();
+    ReviewItem current = reviewItemTabbedPane.getData();
     return (current == null) || reviewItemTabbedPane.updateData(current);
   }
 
-  private void reviewItemSelectionAfterChange()
+  private void afterChangeReviewItem()
   {
     ReviewItem current = reviewItemsTable.getSelectedObject();
     if (current != null)
@@ -107,14 +111,14 @@ public class ReviewBrowsingForm
     }
   }
 
-  private java.util.List<ReviewItem> retrieveReviewItems()
+  private List<ReviewItem> retrieveReviewItems()
   {
-    final java.util.List<ReviewItem> items;
+    final List<ReviewItem> items;
 
     if (review == null)
     {
       items = new ArrayList<ReviewItem>();
-      ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       for (Review review : reviewManager.getReviews())
       {
         items.addAll(review.getItems());
@@ -137,6 +141,6 @@ public class ReviewBrowsingForm
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction(toolbarId);
 
     return ActionManager.getInstance()
-      .createActionToolbar(RevuPlugin.PLUGIN_NAME, actionGroup, false);
+      .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false);
   }
 }

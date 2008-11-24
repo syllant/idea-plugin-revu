@@ -8,6 +8,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.History;
+import org.sylfra.idea.plugins.revu.model.ItemResolutionStatus;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 
 /**
@@ -26,8 +27,8 @@ class ReviewItemConverter extends AbstractConverter
     ReviewItem reviewItem = (ReviewItem) source;
 
     Project project = getProject(context);
-    String filePath = RevuUtils.buildRelativePath(project, reviewItem);
-    writer.addAttribute("title", reviewItem.getTitle());
+    String filePath = RevuUtils.buildRelativePath(project, reviewItem.getFile());
+    writer.addAttribute("summary", reviewItem.getSummary());
     writer.addAttribute("filePath", filePath);
     writer.addAttribute("lineStart", String.valueOf(reviewItem.getLineStart()));
     writer.addAttribute("lineEnd", String.valueOf(reviewItem.getLineEnd()));
@@ -39,7 +40,8 @@ class ReviewItemConverter extends AbstractConverter
     {
       writer.addAttribute("priority", reviewItem.getPriority().getName());
     }
-    writer.addAttribute("status", reviewItem.getStatus().toString().toLowerCase());
+    writer.addAttribute("resolutionStatus", reviewItem.getResolutionStatus().toString().toLowerCase());
+    writer.addAttribute("resolutionType", reviewItem.getResolutionType().getName());
 
     // History
     writer.startNode("history");
@@ -54,13 +56,14 @@ class ReviewItemConverter extends AbstractConverter
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
-    String title = reader.getAttribute("title");
+    String summary = reader.getAttribute("summary");
     String filePath = reader.getAttribute("filePath");
     String lineStart = reader.getAttribute("lineStart");
     String lineEnd = reader.getAttribute("lineEnd");
     String category = reader.getAttribute("category");
     String priority = reader.getAttribute("priority");
-    String status = reader.getAttribute("status");
+    String resolutionStatus = reader.getAttribute("resolutionStatus");
+    String resolutionType = reader.getAttribute("resolutionType");
 
     ReviewItem reviewItem = new ReviewItem();
     reviewItem.setReview(getReview(context));
@@ -70,10 +73,11 @@ class ReviewItemConverter extends AbstractConverter
     reviewItem.setFile(file);
     reviewItem.setLineStart(Integer.parseInt(lineStart));
     reviewItem.setLineEnd(Integer.parseInt(lineEnd));
-    reviewItem.setCategory(getReview(context).getReviewReferential().getCategory(category));
-    reviewItem.setPriority(getReview(context).getReviewReferential().getPriority(priority));
-    reviewItem.setStatus(ReviewItem.Status.valueOf(status.toUpperCase()));
-    reviewItem.setTitle(title);
+    reviewItem.setCategory(getReview(context).getReviewReferential().getItemCategory(category));
+    reviewItem.setPriority(getReview(context).getReviewReferential().getItemPriority(priority));
+    reviewItem.setResolutionStatus(ItemResolutionStatus.valueOf(resolutionStatus.toUpperCase()));
+    reviewItem.setResolutionType(getReview(context).getReviewReferential().getItemResolutionType(resolutionType));
+    reviewItem.setSummary(summary);
 
     while (reader.hasMoreChildren())
     {

@@ -31,12 +31,13 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   private JComboBox cbPriority;
   private JTextArea taTitle;
   private JComboBox cbCategory;
-  private JComboBox cbStatus;
+  private JComboBox cbResolutionStatus;
   private JLabel lbLocation;
   private JComboBox cbReview;
   private JRadioButton rbLocationFile;
   private JRadioButton rbLocationGlobal;
   private JRadioButton rbLocationLineRange;
+  private JComboBox cbResolutionType;
   private ButtonGroup bgLocation;
 
   public ReviewItemMainForm(@NotNull Project project)
@@ -56,9 +57,9 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     return contentPane;
   }
 
-  protected void internalUpdateUI()
+  protected void internalUpdateUI(@NotNull ReviewItem reviewItem)
   {
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
 
     Collection<Review> reviews = reviewManager.getReviews(true);
 
@@ -68,10 +69,11 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     cbReview.setSelectedItem(defaultReview);
 
     taDesc.setText(reviewItem.getDesc());
-    taTitle.setText(reviewItem.getTitle());
+    taTitle.setText(reviewItem.getSummary());
     cbPriority.setSelectedItem(reviewItem.getPriority());
     cbCategory.setSelectedItem(reviewItem.getCategory());
-    cbStatus.setSelectedItem(reviewItem.getStatus());
+    cbResolutionStatus.setSelectedItem(reviewItem.getResolutionStatus());
+    cbResolutionType.setSelectedItem(reviewItem.getResolutionType());
 
     ReviewItem.LocationType locationType = reviewItem.getLocationType();
     rbLocationFile.setEnabled(!ReviewItem.LocationType.GLOBAL.equals(locationType));
@@ -82,6 +84,8 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
   private void updateLocation(ReviewItem.LocationType locationType)
   {
+    ReviewItem reviewItem = getData();
+
     String locationPath;
     switch (locationType)
     {
@@ -92,13 +96,14 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
       case FILE:
         rbLocationFile.setSelected(true);
-        locationPath = RevuUtils.buildRelativePath(project, reviewItem);
+        locationPath = RevuUtils.buildRelativePath(project, reviewItem.getFile());
         break;
 
       default:
         rbLocationLineRange.setSelected(true);
         locationPath = RevuBundle.message("form.reviewitem.main.location.range.path.text",
-          RevuUtils.buildRelativePath(project, reviewItem), reviewItem.getLineStart(), reviewItem.getLineEnd());
+          RevuUtils.buildRelativePath(project, reviewItem.getFile()), reviewItem.getLineStart(),
+          reviewItem.getLineEnd());
     }
 
     lbLocation.setText(locationPath);
@@ -107,14 +112,15 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   protected void internalUpdateData(ReviewItem reviewItemToUpdate)
   {
     Review review = (Review) cbReview.getSelectedItem();
-    
+
     reviewItemToUpdate.setReview(review);
 
     reviewItemToUpdate.setDesc(taDesc.getText());
-    reviewItemToUpdate.setTitle(taTitle.getText());
-    reviewItemToUpdate.setPriority((ReviewPriority) cbPriority.getSelectedItem());
-    reviewItemToUpdate.setCategory((ReviewCategory) cbCategory.getSelectedItem());
-    reviewItemToUpdate.setStatus((ReviewItem.Status) cbStatus.getSelectedItem());
+    reviewItemToUpdate.setSummary(taTitle.getText());
+    reviewItemToUpdate.setPriority((ItemPriority) cbPriority.getSelectedItem());
+    reviewItemToUpdate.setCategory((ItemCategory) cbCategory.getSelectedItem());
+    reviewItemToUpdate.setResolutionStatus((ItemResolutionStatus) cbResolutionStatus.getSelectedItem());
+    reviewItemToUpdate.setResolutionType((ItemResolutionType) cbResolutionType.getSelectedItem());
 
     // Location
     if (rbLocationGlobal.isSelected())
@@ -135,7 +141,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
       return true;
     }
 
-    if (!checkEquals(taTitle.getText(), reviewItem.getTitle()))
+    if (!checkEquals(taTitle.getText(), reviewItem.getSummary()))
     {
       return true;
     }
@@ -165,9 +171,9 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
   public void internalValidateInput()
   {
-    updateError(taTitle, "".equals(taTitle.getText().trim()));
-    updateError(cbReview, (!(cbReview.getSelectedItem() instanceof Review)));
-    updateError(cbStatus, (!(cbStatus.getSelectedItem() instanceof ReviewItem.Status)));
+    updateRequiredError(taTitle, "".equals(taTitle.getText().trim()));
+    updateRequiredError(cbReview, (!(cbReview.getSelectedItem() instanceof Review)));
+    updateRequiredError(cbResolutionStatus, (!(cbResolutionStatus.getSelectedItem() instanceof ItemResolutionStatus)));
 
     // Check is user is declared in selected review
     if (cbReview.getSelectedItem() instanceof Review)
@@ -177,7 +183,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
       RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
       User user = review.getReviewReferential().getUser(appSettings.getLogin());
 
-      updateError(cbReview, user == null);
+      updateRequiredError(cbReview, user == null);
     }
   }
 
@@ -185,11 +191,12 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   {
     RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
 
-    cbStatus.setModel(new DefaultComboBoxModel(buildComboItemsArray(Arrays.asList(ReviewItem.Status.values()))));
+    cbResolutionStatus.setModel(new DefaultComboBoxModel(buildComboItemsArray(
+      Arrays.asList(ItemResolutionStatus.values()), true)));
 
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
-    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true, 
-      appSettings.getLogin()))));
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true,
+      appSettings.getLogin()), true)));
     cbReview.setRenderer(new DefaultListCellRenderer()
     {
       public Component getListCellRendererComponent(JList list, Object value, int index,
@@ -219,7 +226,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         }
         else
         {
-          value = ((ReviewPriority) value).getName();
+          value = ((ItemPriority) value).getName();
         }
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
@@ -237,13 +244,13 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         }
         else
         {
-          value = ((ReviewCategory) value).getName();
+          value = ((ItemCategory) value).getName();
         }
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
     });
 
-    cbStatus.setRenderer(new DefaultListCellRenderer()
+    cbResolutionStatus.setRenderer(new DefaultListCellRenderer()
     {
       public Component getListCellRendererComponent(JList list, Object value, int index,
         boolean isSelected, boolean cellHasFocus)
@@ -254,8 +261,26 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         }
         else
         {
-          ReviewItem.Status status = (ReviewItem.Status) value;
+          ItemResolutionStatus status = (ItemResolutionStatus) value;
           value = RevuBundle.message("general.status." + status.toString().toLowerCase() + ".text");
+        }
+
+        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      }
+    });
+
+    cbResolutionType.setRenderer(new DefaultListCellRenderer()
+    {
+      public Component getListCellRendererComponent(JList list, Object value, int index,
+        boolean isSelected, boolean cellHasFocus)
+      {
+        if (value == null)
+        {
+          value = RevuBundle.message("general.selectComboValue.text");
+        }
+        else
+        {
+          value = ((ItemResolutionType) value).getName();
         }
 
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -269,19 +294,23 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         Object selectedReview = cbReview.getSelectedItem();
         if (selectedReview instanceof Review)
         {
-          ReviewReferential referential = ((Review) selectedReview).getReviewReferential();
+          DataReferential referential = ((Review) selectedReview).getReviewReferential();
 
           cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<ReviewPriority>(referential.getPrioritiesByName().values()))));
+            new TreeSet<ItemPriority>(referential.getItemPrioritiesByName().values()), true)));
 
           cbCategory.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<ReviewCategory>(referential.getCategoriesByName().values()))));
+            new TreeSet<ItemCategory>(referential.getItemCategoriesByName().values()), true)));
+
+          cbResolutionType.setModel(new DefaultComboBoxModel(buildComboItemsArray(
+            new TreeSet<ItemResolutionType>(referential.getItemResolutionTypesByName().values()), false)));
         }
         else
         {
           // "[Select a value]" String is selected
-          cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0))));
-          cbCategory.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0))));
+          cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
+          cbCategory.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
+          cbResolutionType.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), false)));
         }
       }
     });
@@ -306,13 +335,17 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     private ReviewComboBoxModel(Object[] objects)
     {
       super(objects);
-      ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       reviewManager.addReviewListener(this);
     }
 
     public void reviewAdded(Review review)
     {
       super.addElement(review);
+    }
+
+    public void reviewChanged(Review review)
+    {
     }
 
     public void reviewDeleted(Review review)

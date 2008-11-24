@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<review title="Test review" active="true">
-    <referential>
-        <priorities>
-            <priority order="1" name="priority1"/>
-            <priority order="2" name="priority2"/>
-            <priority order="3" name="priority3"/>
-        </priorities>
-        <categories>
-            <category name="category1"/>
-            <category name="category2"/>
-        </categories>
-        <users>
-            <user displayName="user1" login="u1" password="p1" roles="admin"/>
-            <user displayName="user2" login="u2" password="p2" roles="admin,recipient"/>
-            <user displayName="user3" login="u3" password="p3" roles="recipient"/>
-        </users>
-    </referential>
-    <history createdBy="u1" lastUpdatedBy="u2" createdOn="1201820400000" lastUpdatedOn="1204326000000"/>
-    <desc>A test review. A test review. A test review. A test review. A test review.</desc>
-    <items>
-        <item title="Test item review 1" filePath="Test-1.java" lineStart="1" lineEnd="2" category="category1"
-              priority="priority1" status="to_resolve">
-            <history createdBy="u2" lastUpdatedBy="u3" createdOn="1204326000000" lastUpdatedOn="1207000800000"/>
-            <desc>Test item review 1. Test item review 1.</desc>
-        </item>
-        <item title="Test item review 2" filePath="Test-2.java" lineStart="2" lineEnd="5" category="category2"
-              priority="priority2" status="to_resolve">
-            <history createdBy="u3" lastUpdatedBy="u1" createdOn="1207000800000" lastUpdatedOn="1201820400000"/>
-            <desc>Test item review 2. Test item review 2.</desc>
-        </item>
-    </items>
+<review xmlns="http://plugins.intellij.net/revu"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd"
+        title="Test review" active="true" shared="true">
+  <referential>
+    <priorities>
+      <priority order="1" name="priority1"/>
+      <priority order="2" name="priority2"/>
+      <priority order="3" name="priority3"/>
+    </priorities>
+    <categories>
+      <category name="category1"/>
+      <category name="category2"/>
+    </categories>
+    <resolutionTypes>
+      <resolutionType name="resolutionType1"/>
+      <resolutionType name="resolutionType2"/>
+    </resolutionTypes>
+    <users>
+      <user displayName="user1" login="u1" password="p1" roles="admin"/>
+      <user displayName="user2" login="u2" password="p2" roles="admin,reviewer"/>
+      <user displayName="user3" login="u3" password="p3" roles="reviewer,author"/>
+    </users>
+  </referential>
+  <history createdBy="u1" lastUpdatedBy="u2" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
+  <desc>A test review. A test review. A test review. A test review. A test review.</desc>
+  <items>
+    <item summary="Test item review 1" filePath="Test-1.java" lineStart="1" lineEnd="2" category="category1"
+          priority="priority1" resolutionStatus="to_resolve" resolutionType="resolutionType1">
+      <history createdBy="u2" lastUpdatedBy="u3" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-02-02T12:00:00"/>
+      <desc>Test item review 1. Test item review 1.</desc>
+    </item>
+    <item summary="Test item review 2" filePath="Test-2.java" lineStart="2" lineEnd="5" category="category2"
+          priority="priority2" resolutionStatus="to_resolve" resolutionType="resolutionType2">
+      <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-02-01T12:00:00" lastUpdatedOn="2008-03-02T12:00:00"/>
+      <desc>Test item review 2. Test item review 2.</desc>
+    </item>
+  </items>
 </review>
