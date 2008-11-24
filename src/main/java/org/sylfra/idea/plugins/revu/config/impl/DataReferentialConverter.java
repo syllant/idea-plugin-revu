@@ -4,10 +4,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.sylfra.idea.plugins.revu.model.ReviewCategory;
-import org.sylfra.idea.plugins.revu.model.ReviewPriority;
-import org.sylfra.idea.plugins.revu.model.ReviewReferential;
-import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.model.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,22 +15,28 @@ import java.util.TreeSet;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-class ReviewReferentialConverter extends AbstractConverter
+class DataReferentialConverter extends AbstractConverter
 {
   public boolean canConvert(Class type)
   {
-    return ReviewReferential.class.equals(type);
+    return DataReferential.class.equals(type);
   }
 
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context)
   {
-    ReviewReferential referential = (ReviewReferential) source;
+    DataReferential referential = (DataReferential) source;
+
+    // @TODO referential link
+//    if (referential.getLinkedFile() != null)
+//    {
+//      writer.addAttribute("link", referential.getLinkedFile().getPath());
+//    }
 
     // Priorities
     writer.startNode("priorities");
-    SortedSet<ReviewPriority> priorities = new TreeSet<ReviewPriority>(
-      referential.getPrioritiesByName().values());
-    for (ReviewPriority priority : priorities)
+    SortedSet<ItemPriority> priorities = new TreeSet<ItemPriority>(
+      referential.getItemPrioritiesByName().values());
+    for (ItemPriority priority : priorities)
     {
       writer.startNode("priority");
       context.convertAnother(priority);
@@ -43,12 +46,24 @@ class ReviewReferentialConverter extends AbstractConverter
 
     // Categories
     writer.startNode("categories");
-    SortedSet<ReviewCategory> categories = new TreeSet<ReviewCategory>(
-      referential.getCategoriesByName().values());
-    for (ReviewCategory category : categories)
+    SortedSet<ItemCategory> categories = new TreeSet<ItemCategory>(
+      referential.getItemCategoriesByName().values());
+    for (ItemCategory category : categories)
     {
       writer.startNode("category");
       context.convertAnother(category);
+      writer.endNode();
+    }
+    writer.endNode();
+
+    // Resolution types
+    writer.startNode("resolutionTypes");
+    SortedSet<ItemResolutionType> resolutionTypes = new TreeSet<ItemResolutionType>(
+      referential.getItemResolutionTypesByName().values());
+    for (ItemResolutionType resolutionType : resolutionTypes)
+    {
+      writer.startNode("resolutionType");
+      context.convertAnother(resolutionType);
       writer.endNode();
     }
     writer.endNode();
@@ -67,32 +82,43 @@ class ReviewReferentialConverter extends AbstractConverter
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
-    ReviewReferential referential = new ReviewReferential();
+    DataReferential referential = new DataReferential();
 
     while (reader.hasMoreChildren())
     {
       reader.moveDown();
       if ("priorities".equals(reader.getNodeName()))
       {
-        Set<ReviewPriority> priorities = new HashSet<ReviewPriority>();
+        Set<ItemPriority> priorities = new HashSet<ItemPriority>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
-          priorities.add((ReviewPriority) context.convertAnother(priorities, ReviewPriority.class));
+          priorities.add((ItemPriority) context.convertAnother(priorities, ItemPriority.class));
           reader.moveUp();
         }
-        referential.setPriorities(priorities);
+        referential.setItemPriorities(priorities);
       }
       else if ("categories".equals(reader.getNodeName()))
       {
-        Set<ReviewCategory> categories = new HashSet<ReviewCategory>();
+        Set<ItemCategory> categories = new HashSet<ItemCategory>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
-          categories.add((ReviewCategory) context.convertAnother(categories, ReviewCategory.class));
+          categories.add((ItemCategory) context.convertAnother(categories, ItemCategory.class));
           reader.moveUp();
         }
-        referential.setCategories(categories);
+        referential.setItemCategories(categories);
+      }
+      else if ("resolutionTypes".equals(reader.getNodeName()))
+      {
+        Set<ItemResolutionType> itemResolutionTypes = new HashSet<ItemResolutionType>();
+        while (reader.hasMoreChildren())
+        {
+          reader.moveDown();
+          itemResolutionTypes.add((ItemResolutionType) context.convertAnother(itemResolutionTypes, ItemResolutionType.class));
+          reader.moveUp();
+        }
+        referential.setItemResolutionTypes(itemResolutionTypes);
       }
       else if ("users".equals(reader.getNodeName()))
       {

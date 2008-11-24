@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xs="http://plugins.intellij.net/revu"
+            targetNamespace="http://plugins.intellij.net/revu"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="1.1">
+
+  <xsd:element name="review">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:referential"/>
+        <xsd:element ref="xs:history"/>
+        <xsd:element ref="xs:desc"/>
+        <xsd:element ref="xs:items"/>
+      </xsd:sequence>
+      <xsd:attribute name="title" type="xsd:string" use="required"/>
+      <xsd:attribute name="active" type="xsd:boolean" use="required"/>
+      <xsd:attribute name="shared" type="xsd:boolean" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="referential">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:priorities"/>
+        <xsd:element ref="xs:categories"/>
+        <xsd:element ref="xs:resolutionTypes"/>
+        <xsd:element ref="xs:users"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="priorities">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:priority" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="categories">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:category" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="resolutionTypes">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:resolutionType" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="users">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:user" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="priority">
+    <xsd:complexType>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="order" type="xsd:byte" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="category">
+    <xsd:complexType>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="resolutionType">
+    <xsd:complexType>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="user">
+    <xsd:complexType>
+      <xsd:attribute name="displayName" type="xsd:string" use="required"/>
+      <xsd:attribute name="login" type="xsd:string" use="required"/>
+      <xsd:attribute name="password" type="xsd:string" use="required"/>
+      <xsd:attribute name="roles" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="history">
+    <xsd:complexType>
+      <xsd:attribute name="createdBy" type="xsd:string" use="required"/>
+      <xsd:attribute name="lastUpdatedBy" type="xsd:string" use="required"/>
+      <xsd:attribute name="createdOn" type="xsd:dateTime" use="required"/>
+      <xsd:attribute name="lastUpdatedOn" type="xsd:dateTime" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="desc">
+    <xsd:complexType mixed="true" />
+  </xsd:element>
+
+  <xsd:element name="items">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:item" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="item">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:history"/>
+        <xsd:element ref="xs:desc"/>
+      </xsd:sequence>
+      <xsd:attribute name="summary" type="xsd:string" use="required"/>
+      <xsd:attribute name="filePath" type="xsd:string" use="required"/>
+      <xsd:attribute name="lineStart" type="xsd:int" use="required"/>
+      <xsd:attribute name="lineEnd" type="xsd:int" use="required"/>
+      <xsd:attribute name="category" type="xsd:string" use="required"/>
+      <xsd:attribute name="priority" type="xsd:string" use="required"/>
+      <xsd:attribute name="resolutionStatus" type="xs:resolutionStatus" use="required"/>
+      <xsd:attribute name="resolutionType" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="resolutionStatus">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="to_resolve"/>
+      <xsd:enumeration value="resolved"/>
+      <xsd:enumeration value="reopened"/>
+      <xsd:enumeration value="closed"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+</xsd:schema>

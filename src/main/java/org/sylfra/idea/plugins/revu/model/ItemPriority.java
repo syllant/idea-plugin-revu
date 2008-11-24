@@ -9,12 +9,16 @@ import java.io.Serializable;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewPriority implements Serializable, Comparable<ReviewPriority>
+public class ItemPriority implements Serializable, INamedHolder, Comparable<ItemPriority>
 {
   private byte order;
   private String name;
 
-  public ReviewPriority(byte order, String name)
+  public ItemPriority()
+  {
+  }
+
+  public ItemPriority(byte order, String name)
   {
     this.order = order;
     this.name = name;
@@ -44,7 +48,7 @@ public class ReviewPriority implements Serializable, Comparable<ReviewPriority>
   /**
    * {@inheritDoc}
    */
-  public int compareTo(ReviewPriority o)
+  public int compareTo(ItemPriority o)
   {
     return order - o.order;
   }
@@ -61,7 +65,7 @@ public class ReviewPriority implements Serializable, Comparable<ReviewPriority>
       return false;
     }
 
-    ReviewPriority priority = (ReviewPriority) o;
+    ItemPriority priority = (ItemPriority) o;
 
     if (order != priority.order)
     {

@@ -3,12 +3,14 @@ package org.sylfra.idea.plugins.revu.model;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
+
 public class History
 {
   private User createdBy;
   private User lastUpdatedBy;
-  private long createdOn;
-  private long lastUpdatedOn;
+  private Date createdOn;
+  private Date lastUpdatedOn;
 
   @NotNull
   public User getCreatedBy()
@@ -32,22 +34,22 @@ public class History
     this.lastUpdatedBy = lastUpdatedBy;
   }
 
-  public long getCreatedOn()
+  public Date getCreatedOn()
   {
     return createdOn;
   }
 
-  public void setCreatedOn(long createdOn)
+  public void setCreatedOn(Date createdOn)
   {
     this.createdOn = createdOn;
   }
 
-  public long getLastUpdatedOn()
+  public Date getLastUpdatedOn()
   {
     return lastUpdatedOn;
   }
 
-  public void setLastUpdatedOn(long lastUpdatedOn)
+  public void setLastUpdatedOn(Date lastUpdatedOn)
   {
     this.lastUpdatedOn = lastUpdatedOn;
   }
@@ -55,34 +57,17 @@ public class History
   @Override
   public boolean equals(Object o)
   {
-    if (this == o)
-    {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass())
-    {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
     History history = (History) o;
 
-    if (createdOn != history.createdOn)
-    {
+    if (createdBy != null ? !createdBy.equals(history.createdBy) : history.createdBy != null) return false;
+    if (createdOn != null ? !createdOn.equals(history.createdOn) : history.createdOn != null) return false;
+    if (lastUpdatedBy != null ? !lastUpdatedBy.equals(history.lastUpdatedBy) : history.lastUpdatedBy != null)
       return false;
-    }
-    if (lastUpdatedOn != history.lastUpdatedOn)
-    {
+    if (lastUpdatedOn != null ? !lastUpdatedOn.equals(history.lastUpdatedOn) : history.lastUpdatedOn != null)
       return false;
-    }
-    if (createdBy != null ? !createdBy.equals(history.createdBy) : history.createdBy != null)
-    {
-      return false;
-    }
-    if (lastUpdatedBy != null ? !lastUpdatedBy.equals(history.lastUpdatedBy) :
-      history.lastUpdatedBy != null)
-    {
-      return false;
-    }
 
     return true;
   }
@@ -92,8 +77,8 @@ public class History
   {
     int result = createdBy != null ? createdBy.hashCode() : 0;
     result = 31 * result + (lastUpdatedBy != null ? lastUpdatedBy.hashCode() : 0);
-    result = 31 * result + (int) (createdOn ^ (createdOn >>> 32));
-    result = 31 * result + (int) (lastUpdatedOn ^ (lastUpdatedOn >>> 32));
+    result = 31 * result + (createdOn != null ? createdOn.hashCode() : 0);
+    result = 31 * result + (lastUpdatedOn != null ? lastUpdatedOn.hashCode() : 0);
     return result;
   }
 

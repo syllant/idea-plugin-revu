@@ -3,7 +3,6 @@ package org.sylfra.idea.plugins.revu.ui.actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
@@ -35,7 +34,7 @@ public class ToggleAutoscrollToSourceAction extends ToggleAction
       return null;
     }
 
-    RevuWorkspaceSettingsComponent projectSettingsComponent = ServiceManager.getService(project,
+    RevuWorkspaceSettingsComponent projectSettingsComponent = project.getComponent(
       RevuWorkspaceSettingsComponent.class);
 
     return projectSettingsComponent.getState();

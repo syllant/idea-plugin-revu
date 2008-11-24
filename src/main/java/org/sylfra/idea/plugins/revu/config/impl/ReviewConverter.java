@@ -5,10 +5,10 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.sylfra.idea.plugins.revu.model.DataReferential;
 import org.sylfra.idea.plugins.revu.model.History;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
-import org.sylfra.idea.plugins.revu.model.ReviewReferential;
 
 import java.util.*;
 
@@ -29,6 +29,7 @@ class ReviewConverter extends AbstractConverter
 
     writer.addAttribute("title", review.getTitle());
     writer.addAttribute("active", String.valueOf(review.isActive()));
+    writer.addAttribute("shared", String.valueOf(review.isShared()));
 
     // Referential
     writer.startNode("referential");
@@ -66,12 +67,13 @@ class ReviewConverter extends AbstractConverter
   {
     String title = reader.getAttribute("title");
     String active = reader.getAttribute("active");
+    String shared = reader.getAttribute("shared");
 
-    Review review = new Review();
-    context.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, review);
-
+    Review review = getReview(context);
+    
     review.setTitle(title);
     review.setActive("true".equals(active));
+    review.setShared("true".equals(shared));
 
     while (reader.hasMoreChildren())
     {
@@ -97,8 +99,8 @@ class ReviewConverter extends AbstractConverter
       }
       else if ("referential".equals(reader.getNodeName()))
       {
-        review.setReviewReferential((ReviewReferential)
-          context.convertAnother(review, ReviewReferential.class));
+        review.setReviewReferential((DataReferential)
+          context.convertAnother(review, DataReferential.class));
       }
       reader.moveUp();
     }

@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.ui.forms.IUpdatableForm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,7 @@ public class ReviewItemDialog extends DialogWrapper
   private ReviewItemMainForm createMainForm;
   private CardLayout cardLayout;
   private JPanel centerPanel;
-  private IReviewItemForm currentForm;
+  private IUpdatableForm<ReviewItem> currentForm;
 
   public ReviewItemDialog(Project project)
   {

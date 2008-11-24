@@ -1,7 +1,6 @@
 package org.sylfra.idea.plugins.revu.ui;
 
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -40,6 +39,11 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   private void addReviewTab(@Nullable Review review)
   {
+    if (project == null)
+    {
+      return;
+    }
+    
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
     String title = (review == null)
@@ -74,7 +78,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     toolwindow.setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.REVU));
 
     addReviewTab(null);
-    ReviewManager reviewManager = ServiceManager.getService(project, ReviewManager.class);
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     for (Review review : reviewManager.getReviews())
     {
       addReviewTab(review);
@@ -97,6 +101,11 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void disposeComponent()
   {
+  }
+
+  public void reviewChanged(Review review)
+  {
+    // @TODO
   }
 
   public void reviewAdded(Review review)

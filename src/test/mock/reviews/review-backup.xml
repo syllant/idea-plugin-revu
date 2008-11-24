@@ -20,7 +20,7 @@
            lastUpdatedOn="1204326000000"/>
   <desc>A test review. A test review. A test review. A test review. A test review.</desc>
   <items>
-    <item title="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" category="category1"
+    <item summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" category="category1"
           priority="priority1" status="to_resolve">
       <history createdBy="u2" lastUpdatedBy="u3" createdOn="1204326000000"
                lastUpdatedOn="1207000800000"/>
@@ -28,13 +28,13 @@
         Test item review 1. Test item review 1. Test item review 1. Test item review 1.
       </desc>
     </item>
-    <item title="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" category="category2"
+    <item summary="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" category="category2"
           priority="priority2" status="to_resolve">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="1207000800000"
                lastUpdatedOn="1201820400000"/>
       <desc>Test item review 2. Test item review 2.</desc>
     </item>
-    <item title="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28"
+    <item summary="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28"
           category="category2"
           priority="priority2" status="to_resolve">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="1207000800000"

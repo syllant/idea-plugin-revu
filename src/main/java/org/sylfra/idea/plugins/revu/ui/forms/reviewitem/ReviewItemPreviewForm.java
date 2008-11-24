@@ -43,7 +43,7 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
     return contentPane;
   }
 
-  public void internalUpdateUI()
+  public void internalUpdateUI(ReviewItem data)
   {
     usagePreviewPanel.updateLayout(buildUsageInfos());
   }
@@ -52,10 +52,11 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
   {
   }
 
-  private
   @Nullable
-  List<UsageInfo> buildUsageInfos()
+  private List<UsageInfo> buildUsageInfos()
   {
+    ReviewItem reviewItem = getData();
+
     PsiFile psiFile = RevuUtils.getPsiFile(project, reviewItem);
     if (psiFile == null)
     {
@@ -88,8 +89,9 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
     usagePreviewPanel.dispose();
   }
 
-  protected boolean isModified(@NotNull ReviewItem reviewItem)
+  public boolean isModified(@NotNull ReviewItem reviewItem)
   {
     return false;
   }
+
 }

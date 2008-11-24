@@ -1,6 +1,7 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.IdeaTestCase;
 import org.apache.tools.ant.util.FileUtils;
 import org.sylfra.idea.plugins.revu.RevuException;
@@ -12,9 +13,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -22,6 +25,8 @@ import java.util.Locale;
  */
 public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 {
+  private final static DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+
   @Override
   protected void setUp() throws Exception
   {
@@ -48,21 +53,34 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     ReviewExternalizerXmlImpl impl = new ReviewExternalizerXmlImpl(getProject());
     try
     {
-      Review review =
-        impl.load(getClass().getClassLoader().getResourceAsStream("/review-test-unit.xml"));
+      Review review = new Review();
+      impl.load(review, getClass().getClassLoader().getResourceAsStream("review-test-unit.xml"));
 
       Review sampleReview = buildSampleReview();
 
+      // Note: assertions are redundant but allow to debug errors more easily
+
       // Referential
-      assertEquals(review.getReviewReferential().getPrioritiesByName(),
-        sampleReview.getReviewReferential().getPrioritiesByName());
+      assertEquals(review.getReviewReferential().getItemPrioritiesByName(),
+        sampleReview.getReviewReferential().getItemPrioritiesByName());
       assertEquals(review.getReviewReferential().getUsersByRole(),
         sampleReview.getReviewReferential().getUsersByRole());
+      assertEquals(review.getReviewReferential().getItemPrioritiesByName(),
+        sampleReview.getReviewReferential().getItemPrioritiesByName());
+      assertEquals(review.getReviewReferential().getItemResolutionTypesByName(),
+        sampleReview.getReviewReferential().getItemResolutionTypesByName());
       assertEquals(review.getReviewReferential(),
         sampleReview.getReviewReferential());
 
       // Items
-      assertEquals(review.getItemsByFiles(), sampleReview.getItemsByFiles());
+      Map<VirtualFile,List<ReviewItem>> actualItems = review.getItemsByFiles();
+      Map<VirtualFile, List<ReviewItem>> expectedItems = sampleReview.getItemsByFiles();
+      assertEquals(actualItems.size(), expectedItems.size());
+      for (Map.Entry<VirtualFile, List<ReviewItem>> entry : actualItems.entrySet())
+      {
+        assertEquals(entry.getValue(), expectedItems.get(entry.getKey()));
+      }
+      assertEquals(actualItems, expectedItems);
 
       // Whole review
       assertEquals(review, sampleReview);
@@ -100,27 +118,33 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
   private Review buildSampleReview()
   {
-    ReviewReferential referential = new ReviewReferential();
+    DataReferential referential = new DataReferential();
 
     // Users
     User user1 = new User("u1", "p1", "user1", User.Role.ADMIN);
-    User user2 = new User("u2", "p2", "user2", User.Role.ADMIN, User.Role.RECIPIENT);
-    User user3 = new User("u3", "p3", "user3", User.Role.RECIPIENT);
+    User user2 = new User("u2", "p2", "user2", User.Role.ADMIN, User.Role.REVIEWER);
+    User user3 = new User("u3", "p3", "user3", User.Role.REVIEWER, User.Role.AUTHOR);
 
     referential.setUsers(new HashSet<User>(Arrays.asList(user1, user2, user3)));
 
     // Priorities
-    ReviewPriority priority1 = new ReviewPriority((byte) 1, "priority1");
-    ReviewPriority priority2 = new ReviewPriority((byte) 2, "priority2");
-    ReviewPriority priority3 = new ReviewPriority((byte) 3, "priority3");
-    referential.setPriorities(new HashSet<ReviewPriority>(
+    ItemPriority priority1 = new ItemPriority((byte) 1, "priority1");
+    ItemPriority priority2 = new ItemPriority((byte) 2, "priority2");
+    ItemPriority priority3 = new ItemPriority((byte) 3, "priority3");
+    referential.setItemPriorities(new HashSet<ItemPriority>(
       Arrays.asList(priority1, priority2, priority3)));
 
     // Categories
-    ReviewCategory category1 = new ReviewCategory("category1");
-    ReviewCategory category2 = new ReviewCategory("category2");
-    referential.setCategories(new HashSet<ReviewCategory>(
+    ItemCategory category1 = new ItemCategory("category1");
+    ItemCategory category2 = new ItemCategory("category2");
+    referential.setItemCategories(new HashSet<ItemCategory>(
       Arrays.asList(category1, category2)));
+
+    // Resolution status
+    ItemResolutionType itemResolutionType1 = new ItemResolutionType("resolutionType1");
+    ItemResolutionType itemResolutionType2 = new ItemResolutionType("resolutionType2");
+    referential.setItemResolutionTypes(new HashSet<ItemResolutionType>(
+      Arrays.asList(itemResolutionType1, itemResolutionType2)));
 
     // Review
     Review review = new Review();
@@ -128,6 +152,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     review.setTitle("Test review");
     review.setDesc("A test review. A test review. A test review. A test review. A test review.");
     review.setActive(true);
+    review.setShared(true);
     review.setHistory(createHistory(referential, 0, 1));
 
     // Items
@@ -139,24 +164,25 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
   private ReviewItem createReviewItem(Review review, int i)
   {
-    ReviewReferential referential = review.getReviewReferential();
+    DataReferential referential = review.getReviewReferential();
     ReviewItem item = new ReviewItem();
     item.setReview(review);
 
     item.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
     item.setLineStart(i);
     item.setLineEnd(i * i + 1);
-    item.setPriority(referential.getPriority("priority" + i % referential.getPrioritiesByName().size()));
-    item.setCategory(referential.getCategory("category" + i % referential.getCategoriesByName().size()));
-    item.setStatus(ReviewItem.Status.TO_RESOLVE);
+    item.setPriority(referential.getItemPriority("priority" + i % referential.getItemPrioritiesByName().size()));
+    item.setCategory(referential.getItemCategory("category" + i % referential.getItemCategoriesByName().size()));
+    item.setResolutionStatus(ItemResolutionStatus.TO_RESOLVE);
+    item.setResolutionType(referential.getItemResolutionType("resolutionType" + i % referential.getItemResolutionTypesByName().size()));
     item.setDesc("Test item review " + i + ". Test item review " + i + ".");
-    item.setTitle("Test item review " + i + ".");
+    item.setSummary("Test item review " + i + ".");
     item.setHistory(createHistory(referential, i, i + 1));
 
     return item;
   }
 
-  private History createHistory(ReviewReferential referential, int createdByNb, int lastUpdatedByNb)
+  private History createHistory(DataReferential referential, int createdByNb, int lastUpdatedByNb)
   {
     createdByNb = createdByNb % referential.getUsersByLogin().size() + 1;
     lastUpdatedByNb = lastUpdatedByNb % referential.getUsersByLogin().size() + 1;
@@ -168,10 +194,8 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
     try
     {
-      DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.ENGLISH);
-      history.setCreatedOn(dateFormatter.parse("0" + (createdByNb + 1) + "/01/2008").getTime());
-      history
-        .setLastUpdatedOn(dateFormatter.parse("0" + (lastUpdatedByNb + 1) + "/01/2008").getTime());
+      history.setCreatedOn(DATE_FORMATTER.parse("2008-0" + (createdByNb - 1) + "-01T12:00:00"));
+      history.setLastUpdatedOn(DATE_FORMATTER.parse("2008-0" + (lastUpdatedByNb - 1) + "-02T12:00:00"));
     }
     catch (ParseException e)
     {

@@ -1,15 +1,13 @@
 package org.sylfra.idea.plugins.revu.settings;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> implements PersistentStateComponent<T>
+public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings>
 {
   private T settings;
   protected List<IRevuSettingsListener<T>> listeners;
@@ -30,7 +28,7 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> imp
   /**
    * {@inheritDoc}
    */
-  public T getState()
+  public T internalGetState()
   {
     return settings;
   }
@@ -38,7 +36,7 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> imp
   /**
    * {@inheritDoc}
    */
-  public void loadState(T object)
+  public void internalLoadState(T object)
   {
     settings = object;
 

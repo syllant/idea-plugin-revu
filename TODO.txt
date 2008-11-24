@@ -1,34 +1,30 @@
+- referential table add : check if exists
 - Review
-  - private / public
   - review template / link (with warning if template is linked from outside project)
 - project config UI
-  - referential
-    - categories
-    - priorities
-    - users
-  - reviews
   - import / export
-- iws condig
-  - private review
-- loading error management
-  - if error -> open review file
-  - XSD
+- open invalid review file at startup
 - permissions
   - project config & review form disabled until user set login
 - source change management
   -> attach VCS version ?
   -> show line gutter marker
-  - split orientation
-- notes management
 - icon
 - doc
-- categories -> tags
+- message instead of form when no review / no item
+- review item assignedTo (multiple)
+- errorSubmitter
 
+- notes management
 - assign files
   - from VCS changes
-- filters
+- table items filters
+- column selector
+- categories -> tags
 
 - export CSV
 - create item from intention
 - option do display items in tree instead of table
   -> grouped by files/packages/modules
+
+- <referential extends="">

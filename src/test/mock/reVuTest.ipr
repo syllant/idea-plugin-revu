@@ -69,6 +69,7 @@
     <option name="myForwardDirection" value="false" />
   </component>
   <component name="DependencyValidationManager">
+    <scope name="Review 'Test review'" pattern="" />
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
   <component name="EclipseCompilerSettings">
@@ -359,10 +360,10 @@
     <history />
     <find-history />
   </component>
-  <component name="reVuSettings">
+  <component name="revuProjectSettings">
     <option name="reviewFiles">
       <list>
-        <option value="$PROJECT_DIR$/reviews/review.xml" />
+        <option value="D:\_syfranco\perso\dev\revu\src\test\mock\reviews\review.xml" />
       </list>
     </option>
   </component>

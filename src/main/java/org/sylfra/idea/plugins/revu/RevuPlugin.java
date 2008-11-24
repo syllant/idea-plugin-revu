@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu;
 
+import com.intellij.javaee.ExternalResourceManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
@@ -45,7 +46,12 @@ public class RevuPlugin implements ProjectComponent
   public void initComponent()
   {
     EditorFactory.getInstance().addEditorFactoryListener(new GutterManager(project));
-  }
+
+    ExternalResourceManager.getInstance().addStdResource(
+      "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
+      "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd",
+      RevuPlugin.class);
+}
 
   /**
    * {@inheritDoc}
