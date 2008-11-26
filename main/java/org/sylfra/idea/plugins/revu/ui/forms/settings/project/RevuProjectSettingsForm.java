@@ -232,7 +232,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
       catch (RevuException e)
       {
         throw new ConfigurationException(RevuBundle.message("plugin.revu.title"),
-          RevuBundle.message("externalizing.save.error.text", review.getFile().getPath()));
+          RevuBundle.message("statusPopup.externalizing.save.error.title.text", review.getFile().getPath()));
       }
     }
 

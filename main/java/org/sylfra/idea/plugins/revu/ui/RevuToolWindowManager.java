@@ -117,4 +117,9 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   {
     removeReviewTab(review);
   }
+
+  public ToolWindow getToolwindow()
+  {
+    return toolwindow;
+  }
 }

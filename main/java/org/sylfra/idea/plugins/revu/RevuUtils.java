@@ -37,6 +37,13 @@ public class RevuUtils
   }
 
   @NotNull
+  public static String buildRelativePath(@NotNull Project project, @NotNull File file)
+  {
+    VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(file);
+    return (vFile == null) ? buildCanonicalPath(file) : buildRelativePath(project, vFile);
+  }
+
+  @NotNull
   public static String buildCanonicalPath(@NotNull File file)
   {
     try
@@ -51,7 +58,7 @@ public class RevuUtils
   }
 
   @Nullable
-  public static VirtualFile findFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
+  public static VirtualFile findVFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
   {
     VirtualFile baseDir = project.getBaseDir();
     return (baseDir == null) ? null : LocalFileSystem.getInstance().findFileByPath(
@@ -59,9 +66,16 @@ public class RevuUtils
   }
 
   @Nullable
+  public static File findFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
+  {
+    VirtualFile baseDir = project.getBaseDir();
+    return (baseDir == null) ? null : new File(baseDir.getPath(), filePath);
+  }
+
+  @Nullable
   public static VirtualFile findFile(@NotNull String filePath)
   {
-    return  LocalFileSystem.getInstance().findFileByPath(filePath);
+    return LocalFileSystem.getInstance().findFileByPath(filePath);
   }
 
   @Nullable

@@ -69,14 +69,14 @@ class ReviewItemConverter extends AbstractConverter
     reviewItem.setReview(getReview(context));
 
     Project project = getProject(context);
-    VirtualFile file = RevuUtils.findFileFromRelativeFile(project, filePath);
+    VirtualFile file = RevuUtils.findVFileFromRelativeFile(project, filePath);
     reviewItem.setFile(file);
     reviewItem.setLineStart(Integer.parseInt(lineStart));
     reviewItem.setLineEnd(Integer.parseInt(lineEnd));
-    reviewItem.setCategory(getReview(context).getReviewReferential().getItemCategory(category));
-    reviewItem.setPriority(getReview(context).getReviewReferential().getItemPriority(priority));
+    reviewItem.setCategory(getReview(context).getDataReferential().getItemCategory(category));
+    reviewItem.setPriority(getReview(context).getDataReferential().getItemPriority(priority));
     reviewItem.setResolutionStatus(ItemResolutionStatus.valueOf(resolutionStatus.toUpperCase()));
-    reviewItem.setResolutionType(getReview(context).getReviewReferential().getItemResolutionType(resolutionType));
+    reviewItem.setResolutionType(getReview(context).getDataReferential().getItemResolutionType(resolutionType));
     reviewItem.setSummary(summary);
 
     while (reader.hasMoreChildren())

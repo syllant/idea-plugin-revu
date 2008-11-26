@@ -61,16 +61,16 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
       // Note: assertions are redundant but allow to debug errors more easily
 
       // Referential
-      assertEquals(review.getReviewReferential().getItemPrioritiesByName(),
-        sampleReview.getReviewReferential().getItemPrioritiesByName());
-      assertEquals(review.getReviewReferential().getUsersByRole(),
-        sampleReview.getReviewReferential().getUsersByRole());
-      assertEquals(review.getReviewReferential().getItemPrioritiesByName(),
-        sampleReview.getReviewReferential().getItemPrioritiesByName());
-      assertEquals(review.getReviewReferential().getItemResolutionTypesByName(),
-        sampleReview.getReviewReferential().getItemResolutionTypesByName());
-      assertEquals(review.getReviewReferential(),
-        sampleReview.getReviewReferential());
+      assertEquals(review.getDataReferential().getItemPrioritiesByName(),
+        sampleReview.getDataReferential().getItemPrioritiesByName());
+      assertEquals(review.getDataReferential().getUsersByRole(),
+        sampleReview.getDataReferential().getUsersByRole());
+      assertEquals(review.getDataReferential().getItemPrioritiesByName(),
+        sampleReview.getDataReferential().getItemPrioritiesByName());
+      assertEquals(review.getDataReferential().getItemResolutionTypesByName(),
+        sampleReview.getDataReferential().getItemResolutionTypesByName());
+      assertEquals(review.getDataReferential(),
+        sampleReview.getDataReferential());
 
       // Items
       Map<VirtualFile,List<ReviewItem>> actualItems = review.getItemsByFiles();
@@ -148,7 +148,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
     // Review
     Review review = new Review();
-    review.setReviewReferential(referential);
+    review.setDataReferential(referential);
     review.setTitle("Test review");
     review.setDesc("A test review. A test review. A test review. A test review. A test review.");
     review.setActive(true);
@@ -164,7 +164,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
   private ReviewItem createReviewItem(Review review, int i)
   {
-    DataReferential referential = review.getReviewReferential();
+    DataReferential referential = review.getDataReferential();
     ReviewItem item = new ReviewItem();
     item.setReview(review);
 

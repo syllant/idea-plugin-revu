@@ -25,6 +25,9 @@ public abstract class RevuIconProvider
     REVU("revu"),
     REVU_LARGE("revuLarge"),
     EDIT_CONFIG("editConfig"),
+    STATUS_BAR_INFO("statusBarInfo"),
+    STATUS_BAR_WARNING("statusBarWarning"),
+    STATUS_BAR_ERROR("statusBarError"),
     GUTTER_REVU_ITEM("gutterReviewItem"),
     GUTTER_REVU_ITEMS("gutterReviewItems");
     

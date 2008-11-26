@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarPopup">
+  <grid id="27dc6" binding="contentPane" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="89093" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="line">
+          <color awt-color="lightGray"/>
+        </border>
+        <children>
+          <scrollpane id="525e1">
+            <constraints border-constraint="Center"/>
+            <properties/>
+            <border type="none">
+              <size top="10" left="100" bottom="0" right="0"/>
+            </border>
+            <children>
+              <component id="10f1d" class="javax.swing.JEditorPane" binding="epDetails">
+                <constraints/>
+                <properties>
+                  <contentType value="text/html"/>
+                  <editable value="false"/>
+                  <text value="" noi18n="true"/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+          <grid id="7220c" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+            <constraints border-constraint="North"/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="8c9bc" class="javax.swing.JLabel" binding="lbTitle">
+                <constraints/>
+                <properties>
+                  <font style="1"/>
+                  <text value="Label"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <component id="fffd6" class="javax.swing.JLabel" binding="lbLink">
+            <constraints border-constraint="South"/>
+            <properties>
+              <horizontalAlignment value="0"/>
+              <preferredSize width="33" height="26"/>
+              <text value="action" noi18n="true"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="2553e" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+        <constraints border-constraint="North"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="85b88" class="javax.swing.JComponent" binding="tbPagination" custom-create="true">
+            <constraints/>
+          </component>
+          <component id="ebf11" class="javax.swing.JLabel" binding="lbPagination">
+            <constraints/>
+            <properties>
+              <text value="x of x" noi18n="true"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+    </children>
+  </grid>
+  <inspectionSuppressions>
+    <suppress inspection="MissingMnemonic" id="26e03"/>
+    <suppress inspection="NoLabelFor" id="525e1"/>
+  </inspectionSuppressions>
+</form>

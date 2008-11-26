@@ -33,7 +33,7 @@ class ReviewConverter extends AbstractConverter
 
     // Referential
     writer.startNode("referential");
-    context.convertAnother(review.getReviewReferential());
+    context.convertAnother(review.getDataReferential());
     writer.endNode();
 
     // History
@@ -99,7 +99,7 @@ class ReviewConverter extends AbstractConverter
       }
       else if ("referential".equals(reader.getNodeName()))
       {
-        review.setReviewReferential((DataReferential)
+        review.setDataReferential((DataReferential)
           context.convertAnother(review, DataReferential.class));
       }
       reader.moveUp();

@@ -1,11 +1,14 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
+import com.intellij.openapi.project.Project;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.*;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -26,11 +29,10 @@ class DataReferentialConverter extends AbstractConverter
   {
     DataReferential referential = (DataReferential) source;
 
-    // @TODO referential link
-//    if (referential.getLinkedFile() != null)
-//    {
-//      writer.addAttribute("link", referential.getLinkedFile().getPath());
-//    }
+    if (referential.getLinkedFile() != null)
+    {
+      writer.addAttribute("link", RevuUtils.buildRelativePath(getProject(context), referential.getLinkedFile()));
+    }
 
     // Priorities
     writer.startNode("priorities");
@@ -83,6 +85,14 @@ class DataReferentialConverter extends AbstractConverter
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
     DataReferential referential = new DataReferential();
+
+    String link = reader.getAttribute("link");
+    if (link != null)
+    {
+      Project project = getProject(context);
+      File file = RevuUtils.findFileFromRelativeFile(project, link);
+      referential.setLinkedFile(file);
+    }
 
     while (reader.hasMoreChildren())
     {

@@ -11,6 +11,7 @@ import java.util.*;
 public class DataReferential implements Serializable
 {
   private File linkedFile;
+  private DataReferential wrappedReferential;
   private Map<String, ItemCategory> itemCategoriesByName;
   private Map<String, ItemResolutionType> itemResolutionTypesByName;
   private Map<String, ItemPriority> itemPrioritiesByName;
@@ -24,6 +25,16 @@ public class DataReferential implements Serializable
     itemPrioritiesByName = new HashMap<String, ItemPriority>();
     usersByLogin = new HashMap<String, User>();
     usersByRole = new HashMap<User.Role, List<User>>();
+  }
+
+  public DataReferential getWrappedReferential()
+  {
+    return wrappedReferential;
+  }
+
+  public void setWrappedReferential(DataReferential wrappedReferential)
+  {
+    this.wrappedReferential = wrappedReferential;
   }
 
   public File getLinkedFile()
