@@ -126,6 +126,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     {
       appSettings.setPassword(RevuUtils.z(password));
     }
+    ServiceManager.getService(RevuAppSettingsComponent.class).loadState(appSettings);
   }
 
   /**

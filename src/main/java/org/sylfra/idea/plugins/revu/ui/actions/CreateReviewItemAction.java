@@ -42,7 +42,7 @@ public class CreateReviewItemAction extends AnAction
 
       Review review = item.getReview();
 
-      User user = review.getReviewReferential().getUser(RevuUtils.getCurrentUserLogin());
+      User user = review.getDataReferential().getUser(RevuUtils.getCurrentUserLogin());
       assert (user != null) : "User should be declared in review";
 
       History history = new History();

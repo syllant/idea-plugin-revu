@@ -110,7 +110,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
       return true;
     }
 
-    if (referentialForm.isModified(data.getReviewReferential()))
+    if (referentialForm.isModified(data.getDataReferential()))
     {
       return true;
     }
@@ -133,7 +133,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     ckActive.setSelected(this.data.isActive());
     ckShare.setSelected(this.data.isShared());
 
-    referentialForm.updateUI(this.data.getReviewReferential());
+    referentialForm.updateUI(this.data.getDataReferential());
     historyForm.updateUI(this.data);
   }
 
@@ -144,10 +144,10 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     data.setActive(ckActive.isSelected());
     data.setShared(ckShare.isSelected());
 
-    referentialForm.updateData(data.getReviewReferential());
+    referentialForm.updateData(data.getDataReferential());
     historyForm.updateData(data);
 
-    data.getHistory().setLastUpdatedBy(data.getReviewReferential().getUser(RevuUtils.getCurrentUserLogin()));
+    data.getHistory().setLastUpdatedBy(data.getDataReferential().getUser(RevuUtils.getCurrentUserLogin()));
     data.getHistory().setLastUpdatedOn(new Date());
   }
 

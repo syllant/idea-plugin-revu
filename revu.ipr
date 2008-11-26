@@ -89,6 +89,7 @@
       <entry name="?*.html" />
       <entry name="?*.dtd" />
       <entry name="?*.tld" />
+      <entry name="?*.xsd" />
     </wildcardResourcePatterns>
   </component>
   <component name="Cvs2Configuration">

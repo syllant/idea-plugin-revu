@@ -28,6 +28,7 @@
         <xsd:element ref="xs:resolutionTypes"/>
         <xsd:element ref="xs:users"/>
       </xsd:sequence>
+      <xsd:attribute name="link" type="xsd:string" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 

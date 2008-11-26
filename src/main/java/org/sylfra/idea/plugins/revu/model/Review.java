@@ -94,12 +94,12 @@ public class Review implements Serializable, IHistoryHolder
   }
 
   @NotNull
-  public DataReferential getReviewReferential()
+  public DataReferential getDataReferential()
   {
     return dataReferential;
   }
 
-  public void setReviewReferential(DataReferential dataReferential)
+  public void setDataReferential(DataReferential dataReferential)
   {
     this.dataReferential = dataReferential;
   }

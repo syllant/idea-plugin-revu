@@ -1,0 +1,13 @@
+Features:
+- no server required
+- no black box
+- simple
+- flexible management of:
+  - users
+  - categories
+  - priorities
+  - resolution types
+- review templates
+  - link management
+- keep original source line
+- private / shared reviews

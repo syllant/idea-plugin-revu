@@ -24,6 +24,7 @@ public class RevuPlugin implements ProjectComponent
   private static final Logger LOGGER = Logger.getInstance(RevuPlugin.class.getName());
 
   private Project project;
+  private GutterManager gutterManager;
 
   public RevuPlugin(Project project)
   {
@@ -45,8 +46,6 @@ public class RevuPlugin implements ProjectComponent
    */
   public void initComponent()
   {
-    EditorFactory.getInstance().addEditorFactoryListener(new GutterManager(project));
-
     ExternalResourceManager.getInstance().addStdResource(
       "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
       "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd",
@@ -62,9 +61,12 @@ public class RevuPlugin implements ProjectComponent
 
   public void projectOpened()
   {
+    gutterManager = new GutterManager(project);
+    EditorFactory.getInstance().addEditorFactoryListener(gutterManager);
   }
 
   public void projectClosed()
   {
+    EditorFactory.getInstance().removeEditorFactoryListener(gutterManager);
   }
 }

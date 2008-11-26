@@ -181,7 +181,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
       Review review = (Review) cbReview.getSelectedItem();
 
       RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
-      User user = review.getReviewReferential().getUser(appSettings.getLogin());
+      User user = review.getDataReferential().getUser(appSettings.getLogin());
 
       updateRequiredError(cbReview, user == null);
     }
@@ -294,7 +294,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         Object selectedReview = cbReview.getSelectedItem();
         if (selectedReview instanceof Review)
         {
-          DataReferential referential = ((Review) selectedReview).getReviewReferential();
+          DataReferential referential = ((Review) selectedReview).getDataReferential();
 
           cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
             new TreeSet<ItemPriority>(referential.getItemPrioritiesByName().values()), true)));

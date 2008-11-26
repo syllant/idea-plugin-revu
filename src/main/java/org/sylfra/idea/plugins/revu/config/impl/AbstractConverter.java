@@ -34,7 +34,7 @@ abstract class AbstractConverter implements Converter
   protected User retrieveUser(UnmarshallingContext context, String login)
   {
     Review review = getReview(context);
-    User user = review.getReviewReferential().getUser(login);
+    User user = review.getDataReferential().getUser(login);
 
     if (user == null)
     {

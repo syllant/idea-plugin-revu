@@ -62,7 +62,7 @@
       </implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.config.ReviewFileListener</implementation-class>
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent</implementation-class>
     </component>
   </project-components>
 
