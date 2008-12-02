@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.reviewitem;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
 
@@ -20,6 +21,7 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
   private ReviewItemMainForm mainForm;
   private ReviewItemPreviewForm previewForm;
   private HistoryForm historyForm;
+  private ReviewItem currentReviewItem;
 
   public ReviewItemTabbedPane(@NotNull Project project)
   {
@@ -30,12 +32,7 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
       {
         if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
         {
-          ReviewItem reviewItem = getData();
-
-          if (!reviewItem.equals(previewForm.getData()))
-          {
-            previewForm.updateUI(reviewItem);
-          }
+          previewForm.updateUI(currentReviewItem);
         }
       }
     });
@@ -57,22 +54,22 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
     return contentPane;
   }
 
-  public void internalUpdateUI(ReviewItem data)
+  public void internalUpdateUI(@Nullable ReviewItem data)
   {
-    ReviewItem reviewItem = getData();
+    currentReviewItem = data;
 
-    mainForm.updateUI(reviewItem);
-    historyForm.updateUI(reviewItem);
+    mainForm.updateUI(data);
+    historyForm.updateUI(data);
 
     if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
     {
-      previewForm.updateUI(reviewItem);
+      previewForm.updateUI(data);
     }
   }
 
-  public void internalUpdateData(@NotNull ReviewItem reviewItemToUpdate)
+  public void internalUpdateData(@NotNull ReviewItem data)
   {
-    mainForm.internalUpdateData(reviewItemToUpdate);
+    mainForm.internalUpdateData(data);
   }
 
   public boolean isModified(ReviewItem data)

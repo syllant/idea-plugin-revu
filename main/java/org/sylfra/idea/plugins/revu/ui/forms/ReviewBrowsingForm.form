@@ -17,7 +17,9 @@
           </component>
           <splitpane id="9c6d2" binding="splitPane">
             <constraints border-constraint="Center"/>
-            <properties/>
+            <properties>
+              <dividerLocation value="59"/>
+            </properties>
             <border type="none"/>
             <children>
               <nested-form id="443c3" form-file="org/sylfra/idea/plugins/revu/ui/forms/reviewitem/ReviewItemTabbedPane.form" binding="reviewItemTabbedPane" custom-create="true">
@@ -44,4 +46,7 @@
       </grid>
     </children>
   </grid>
+  <inspectionSuppressions>
+    <suppress inspection="NoLabelFor" id="1b390"/>
+  </inspectionSuppressions>
 </form>

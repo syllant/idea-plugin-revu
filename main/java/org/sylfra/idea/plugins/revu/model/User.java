@@ -12,7 +12,7 @@ import java.util.Set;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class User implements Comparable<User>
+public class User extends AbstractRevuEntity<User> implements Comparable<User>
 {
   public static enum Role
   {

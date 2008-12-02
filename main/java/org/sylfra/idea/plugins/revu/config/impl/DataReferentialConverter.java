@@ -1,14 +1,11 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
-import com.intellij.openapi.project.Project;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.*;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -29,15 +26,10 @@ class DataReferentialConverter extends AbstractConverter
   {
     DataReferential referential = (DataReferential) source;
 
-    if (referential.getLinkedFile() != null)
-    {
-      writer.addAttribute("link", RevuUtils.buildRelativePath(getProject(context), referential.getLinkedFile()));
-    }
-
     // Priorities
     writer.startNode("priorities");
     SortedSet<ItemPriority> priorities = new TreeSet<ItemPriority>(
-      referential.getItemPrioritiesByName().values());
+      referential.getItemPrioritiesByName(false).values());
     for (ItemPriority priority : priorities)
     {
       writer.startNode("priority");
@@ -49,7 +41,7 @@ class DataReferentialConverter extends AbstractConverter
     // Categories
     writer.startNode("categories");
     SortedSet<ItemCategory> categories = new TreeSet<ItemCategory>(
-      referential.getItemCategoriesByName().values());
+      referential.getItemCategoriesByName(false).values());
     for (ItemCategory category : categories)
     {
       writer.startNode("category");
@@ -61,7 +53,7 @@ class DataReferentialConverter extends AbstractConverter
     // Resolution types
     writer.startNode("resolutionTypes");
     SortedSet<ItemResolutionType> resolutionTypes = new TreeSet<ItemResolutionType>(
-      referential.getItemResolutionTypesByName().values());
+      referential.getItemResolutionTypesByName(false).values());
     for (ItemResolutionType resolutionType : resolutionTypes)
     {
       writer.startNode("resolutionType");
@@ -72,7 +64,7 @@ class DataReferentialConverter extends AbstractConverter
 
     // Users
     writer.startNode("users");
-    SortedSet<User> users = new TreeSet<User>(referential.getUsersByLogin().values());
+    SortedSet<User> users = new TreeSet<User>(referential.getUsersByLogin(false).values());
     for (User user : users)
     {
       writer.startNode("user");
@@ -84,15 +76,7 @@ class DataReferentialConverter extends AbstractConverter
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
-    DataReferential referential = new DataReferential();
-
-    String link = reader.getAttribute("link");
-    if (link != null)
-    {
-      Project project = getProject(context);
-      File file = RevuUtils.findFileFromRelativeFile(project, link);
-      referential.setLinkedFile(file);
-    }
+    DataReferential referential = new DataReferential(getReview(context));
 
     while (reader.hasMoreChildren())
     {

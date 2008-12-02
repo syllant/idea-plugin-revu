@@ -7,8 +7,8 @@ import com.intellij.usageView.UsageInfo;
 import com.intellij.usages.impl.UsagePreviewPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -45,17 +45,20 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
 
   public void internalUpdateUI(ReviewItem data)
   {
-    usagePreviewPanel.updateLayout(buildUsageInfos());
+    usagePreviewPanel.updateLayout(buildUsageInfos(data));
   }
 
-  protected void internalUpdateData(@Nullable ReviewItem reviewItemToUpdate)
+  protected void internalUpdateData(@NotNull ReviewItem reviewItemToUpdate)
   {
   }
 
   @Nullable
-  private List<UsageInfo> buildUsageInfos()
+  private List<UsageInfo> buildUsageInfos(@Nullable ReviewItem reviewItem)
   {
-    ReviewItem reviewItem = getData();
+    if (reviewItem == null)
+    {
+      return null;
+    }
 
     PsiFile psiFile = RevuUtils.getPsiFile(project, reviewItem);
     if (psiFile == null)

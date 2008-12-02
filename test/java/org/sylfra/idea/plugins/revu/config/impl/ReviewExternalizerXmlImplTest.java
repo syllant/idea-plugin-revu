@@ -61,14 +61,14 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
       // Note: assertions are redundant but allow to debug errors more easily
 
       // Referential
-      assertEquals(review.getDataReferential().getItemPrioritiesByName(),
-        sampleReview.getDataReferential().getItemPrioritiesByName());
-      assertEquals(review.getDataReferential().getUsersByRole(),
-        sampleReview.getDataReferential().getUsersByRole());
-      assertEquals(review.getDataReferential().getItemPrioritiesByName(),
-        sampleReview.getDataReferential().getItemPrioritiesByName());
-      assertEquals(review.getDataReferential().getItemResolutionTypesByName(),
-        sampleReview.getDataReferential().getItemResolutionTypesByName());
+      assertEquals(review.getDataReferential().getItemPrioritiesByName(true),
+        sampleReview.getDataReferential().getItemPrioritiesByName(true));
+      assertEquals(review.getDataReferential().getUsersByRole(true),
+        sampleReview.getDataReferential().getUsersByRole(true));
+      assertEquals(review.getDataReferential().getItemPrioritiesByName(true),
+        sampleReview.getDataReferential().getItemPrioritiesByName(true));
+      assertEquals(review.getDataReferential().getItemResolutionTypesByName(true),
+        sampleReview.getDataReferential().getItemResolutionTypesByName(true));
       assertEquals(review.getDataReferential(),
         sampleReview.getDataReferential());
 
@@ -118,7 +118,21 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
   private Review buildSampleReview()
   {
-    DataReferential referential = new DataReferential();
+    // Review
+    Review review = new Review();
+    DataReferential referential = new DataReferential(review);
+    review.setDataReferential(referential);
+
+    review.setTitle("Test review");
+    review.setDesc("A test review. A test review. A test review. A test review. A test review.");
+    review.setActive(true);
+    review.setShared(true);
+    review.setTemplate(false);
+    review.setHistory(createHistory(referential, 0, 1));
+
+    // Items
+    review.setItems(Arrays.asList(createReviewItem(review, 1),
+      createReviewItem(review, 2)));
 
     // Users
     User user1 = new User("u1", "p1", "user1", User.Role.ADMIN);
@@ -146,19 +160,6 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     referential.setItemResolutionTypes(new HashSet<ItemResolutionType>(
       Arrays.asList(itemResolutionType1, itemResolutionType2)));
 
-    // Review
-    Review review = new Review();
-    review.setDataReferential(referential);
-    review.setTitle("Test review");
-    review.setDesc("A test review. A test review. A test review. A test review. A test review.");
-    review.setActive(true);
-    review.setShared(true);
-    review.setHistory(createHistory(referential, 0, 1));
-
-    // Items
-    review.setItems(Arrays.asList(createReviewItem(review, 1),
-      createReviewItem(review, 2)));
-
     return review;
   }
 
@@ -171,10 +172,11 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     item.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
     item.setLineStart(i);
     item.setLineEnd(i * i + 1);
-    item.setPriority(referential.getItemPriority("priority" + i % referential.getItemPrioritiesByName().size()));
-    item.setCategory(referential.getItemCategory("category" + i % referential.getItemCategoriesByName().size()));
+    item.setPriority(referential.getItemPriority("priority" + i % referential.getItemPrioritiesByName(true).size()));
+    item.setCategory(referential.getItemCategory("category" + i % referential.getItemCategoriesByName(true).size()));
     item.setResolutionStatus(ItemResolutionStatus.TO_RESOLVE);
-    item.setResolutionType(referential.getItemResolutionType("resolutionType" + i % referential.getItemResolutionTypesByName().size()));
+    item.setResolutionType(referential.getItemResolutionType("resolutionType" + i % referential.getItemResolutionTypesByName(
+      true).size()));
     item.setDesc("Test item review " + i + ". Test item review " + i + ".");
     item.setSummary("Test item review " + i + ".");
     item.setHistory(createHistory(referential, i, i + 1));
@@ -184,8 +186,8 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
   private History createHistory(DataReferential referential, int createdByNb, int lastUpdatedByNb)
   {
-    createdByNb = createdByNb % referential.getUsersByLogin().size() + 1;
-    lastUpdatedByNb = lastUpdatedByNb % referential.getUsersByLogin().size() + 1;
+    createdByNb = createdByNb % referential.getUsersByLogin(true).size() + 1;
+    lastUpdatedByNb = lastUpdatedByNb % referential.getUsersByLogin(true).size() + 1;
 
     History history = new History();
 

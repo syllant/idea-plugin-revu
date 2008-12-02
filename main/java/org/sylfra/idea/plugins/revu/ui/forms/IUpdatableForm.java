@@ -13,15 +13,12 @@ import javax.swing.*;
 public interface IUpdatableForm<T> extends Disposable
 {
   @Nullable
-  T getData();
-
-  @Nullable
   JComponent getPreferredFocusedComponent();
 
   @NotNull
   JPanel getContentPane();
 
-  void updateUI(@NotNull T data);
+  void updateUI(@Nullable T data);
 
   boolean updateData(@NotNull T data);
 

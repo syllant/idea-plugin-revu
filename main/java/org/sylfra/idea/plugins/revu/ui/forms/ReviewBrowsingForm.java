@@ -98,7 +98,8 @@ public class ReviewBrowsingForm
 
   private boolean beforeChangeReviewItem()
   {
-    ReviewItem current = reviewItemTabbedPane.getData();
+    // @TODO check this
+    ReviewItem current = reviewItemsTable.getSelectedObject();
     return (current == null) || reviewItemTabbedPane.updateData(current);
   }
 
@@ -111,6 +112,16 @@ public class ReviewBrowsingForm
     }
   }
 
+  public void updateReview()
+  {
+    afterChangeReviewItem();
+  }
+
+  public void updateReviewItems()
+  {
+    reviewItemsTable.getListTableModel().setItems(retrieveReviewItems());
+  }
+
   private List<ReviewItem> retrieveReviewItems()
   {
     final List<ReviewItem> items;
@@ -121,7 +132,10 @@ public class ReviewBrowsingForm
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       for (Review review : reviewManager.getReviews())
       {
-        items.addAll(review.getItems());
+        if (review.isActive())
+        {
+          items.addAll(review.getItems());
+        }
       }
     }
     else

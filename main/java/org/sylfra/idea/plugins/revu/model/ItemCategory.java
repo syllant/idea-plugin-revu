@@ -4,7 +4,7 @@ package org.sylfra.idea.plugins.revu.model;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemCategory implements INamedHolder, Comparable<ItemCategory>
+public class ItemCategory  extends AbstractRevuEntity<ItemCategory> implements Comparable<ItemCategory>, INamedHolder
 {
   private String name;
 

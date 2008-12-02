@@ -12,7 +12,10 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.*;
+import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuException;
+import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.History;
@@ -22,6 +25,7 @@ import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,6 +42,7 @@ import java.util.List;
 public class RevuProjectSettingsForm implements ProjectComponent, Configurable
 {
   private final Project project;
+//  private final List<Review> originalReviews;
   private JPanel contentPane;
   private JList liReviews;
   private JComponent reviewToolBar;
@@ -46,6 +51,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
   public RevuProjectSettingsForm(@NotNull Project project)
   {
     this.project = project;
+//    originalReviews = new ArrayList<Review>();
     configureUI();
   }
 
@@ -87,7 +93,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
 
   private boolean updateReviewData()
   {
-    Review current = reviewForm.getData();
+    Review current = (Review) liReviews.getSelectedValue();
     return (current == null) || reviewForm.updateData(current);
   }
 
@@ -201,22 +207,27 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
   {
     if (!updateReviewData())
     {
-      return;
+      throw new ConfigurationException(
+        RevuBundle.message("settings.project.error.form.title.text"), RevuBundle.message("plugin.revu.title"));
     }
 
     IReviewExternalizer reviewExternalizer =
       project.getComponent(IReviewExternalizer.class);
 
-    // @TODO save only changed reviews
     int reviewCount = liReviews.getModel().getSize();
     List<String> projectReviewFiles = new ArrayList<String>();
     List<String> workspaceReviewFiles = new ArrayList<String>();
     for (int i = 0; i < reviewCount; i++)
     {
-      Review review = (Review) liReviews.getModel().getElementAt(i);
-      String reviewFilePath = RevuUtils.buildCanonicalPath(review.getFile());
+      Review currentReview = (Review) liReviews.getModel().getElementAt(i);
+      if (currentReview.isEmbedded())
+      {
+        continue;
+      }
+      
+      String reviewFilePath = RevuUtils.buildRelativePath(project, currentReview.getPath());
 
-      if (review.isShared())
+      if (currentReview.isShared())
       {
         projectReviewFiles.add(reviewFilePath);
       }
@@ -227,12 +238,13 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
 
       try
       {
-        reviewExternalizer.save(review);
+        reviewExternalizer.save(currentReview);
       }
       catch (RevuException e)
       {
-        throw new ConfigurationException(RevuBundle.message("plugin.revu.title"),
-          RevuBundle.message("statusPopup.externalizing.save.error.title.text", review.getFile().getPath()));
+        throw new ConfigurationException(
+          RevuBundle.message("settings.project.error.save.title.text", currentReview.getTitle(), e.getMessage()),
+          RevuBundle.message("plugin.revu.title"));
       }
     }
 
@@ -254,12 +266,16 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
    */
   public void reset()
   {
+    reviewForm.updateUI(null);
+//    originalReviews.clear();
+
     DefaultListModel liReviewsModel = new DefaultListModel();
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    for (Review review : reviewManager.getReviews(null))
+    for (Review review : reviewManager.getReviews(null, null))
     {
-      liReviewsModel.addElement(review);
+      // List stores shallow clones so changes may be properly canceled
+      liReviewsModel.addElement(review.clone());
     }
 
     liReviews.setModel(liReviewsModel);

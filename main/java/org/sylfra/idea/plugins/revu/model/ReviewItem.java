@@ -4,7 +4,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,7 +11,7 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewItem implements Serializable, IHistoryHolder
+public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHistoryHolder
 {
   public static enum LocationType
   {
@@ -246,7 +245,7 @@ public class ReviewItem implements Serializable, IHistoryHolder
     if (resolutionType != null ? !resolutionType.equals(that.resolutionType) : that.resolutionType != null)
       return false;
     if (resolver != null ? !resolver.equals(that.resolver) : that.resolver != null) return false;
-    if (review != null ? !review.getFile().equals(that.review.getFile()) : that.review != null) return false;
+    if (review != null ? !review.getPath().equals(that.review.getPath()) : that.review != null) return false;
     if (summary != null ? !summary.equals(that.summary) : that.summary != null) return false;
 
     return true;
@@ -259,7 +258,7 @@ public class ReviewItem implements Serializable, IHistoryHolder
     result = 31 * result + lineStart;
     result = 31 * result + lineEnd;
     result = 31 * result + (history != null ? history.hashCode() : 0);
-    result = 31 * result + (((review != null) && (review.getFile() != null)) ? review.getFile().hashCode() : 0);
+    result = 31 * result + (((review != null) && (review.getPath() != null)) ? review.getPath().hashCode() : 0);
     result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
     result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
     result = 31 * result + (summary != null ? summary.hashCode() : 0);

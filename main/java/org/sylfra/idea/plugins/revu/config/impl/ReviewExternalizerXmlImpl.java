@@ -96,12 +96,13 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
     OutputStream out = null;
     try
     {
-      out = new FileOutputStream(review.getFile());
+      out = new FileOutputStream(review.getPath());
       save(review, out);
     }
     catch (IOException e)
     {
-      throw new RevuException("Failed to serialize review: " + review, e);
+      LOGGER.warn(e);
+      throw new RevuException(e);
     }
     finally
     {
@@ -129,6 +130,8 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       writer = new IndentingXMLStreamWriter(
         XMLOutputFactory.newInstance().createXMLStreamWriter(stream, "UTF-8"));
       writer.writeStartDocument("UTF-8", "1.0");
+      writer.setDefaultNamespace("http://plugins.intellij.net/revu");
+//      writer.writeNamespace("http://plugins.intellij.net/revu", "http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd");
       // @TODO XSD namespace
       xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, null);
       xstream.marshal(review, new XppDriver().createWriter(stream), xstreamDataHolder);

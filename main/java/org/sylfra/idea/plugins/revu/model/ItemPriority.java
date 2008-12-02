@@ -3,13 +3,11 @@ package org.sylfra.idea.plugins.revu.model;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemPriority implements Serializable, INamedHolder, Comparable<ItemPriority>
+public class ItemPriority extends AbstractRevuEntity<ItemPriority> implements Comparable<ItemPriority>, INamedHolder
 {
   private byte order;
   private String name;

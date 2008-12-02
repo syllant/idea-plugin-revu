@@ -5,11 +5,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.ui.forms.reviewitem.ReviewItemDialog;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.Date;
 
@@ -36,7 +35,7 @@ public class CreateReviewItemAction extends AnAction
 
     ReviewItemDialog dialog = new ReviewItemDialog(project);
     dialog.show(item, true);
-    if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE)
+    if (dialog.isOK())
     {
       dialog.updateData(item);
 

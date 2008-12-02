@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu;
+package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -16,6 +16,7 @@ import com.intellij.psi.PsiManager;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
@@ -40,11 +41,30 @@ public class RevuUtils
   public static String buildRelativePath(@NotNull Project project, @NotNull File file)
   {
     VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(file);
-    return (vFile == null) ? buildCanonicalPath(file) : buildRelativePath(project, vFile);
+    return (vFile == null) ? buildAbsolutePath(file) : buildRelativePath(project, vFile);
   }
 
   @NotNull
-  public static String buildCanonicalPath(@NotNull File file)
+  public static String buildRelativePath(@NotNull Project project, @NotNull String path)
+  {
+    VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(path);
+    return (vFile == null) ? path : buildRelativePath(project, vFile);
+  }
+
+  @NotNull
+  public static String buildAbsolutePath(@NotNull Project project, @NotNull String path)
+  {
+    return buildAbsolutePath(findFileFromRelativePath(project, path));
+  }
+
+  @NotNull
+  public static String buildAbsolutePath(@NotNull String path)
+  {
+    return buildAbsolutePath(new File(path));
+  }
+
+  @NotNull
+  public static String buildAbsolutePath(@NotNull File file)
   {
     try
     {
@@ -65,11 +85,11 @@ public class RevuUtils
       baseDir.getPath() + "/" + filePath);
   }
 
-  @Nullable
-  public static File findFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
+  @NotNull
+  public static File findFileFromRelativePath(@NotNull Project project, @NotNull String filePath)
   {
     VirtualFile baseDir = project.getBaseDir();
-    return (baseDir == null) ? null : new File(baseDir.getPath(), filePath);
+    return new File(baseDir.getPath(), filePath);
   }
 
   @Nullable

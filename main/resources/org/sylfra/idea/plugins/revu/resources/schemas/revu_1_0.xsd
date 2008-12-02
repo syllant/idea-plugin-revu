@@ -12,11 +12,13 @@
         <xsd:element ref="xs:referential"/>
         <xsd:element ref="xs:history"/>
         <xsd:element ref="xs:desc"/>
-        <xsd:element ref="xs:items"/>
+        <xsd:element ref="xs:items" minOccurs="0"/>
       </xsd:sequence>
       <xsd:attribute name="title" type="xsd:string" use="required"/>
       <xsd:attribute name="active" type="xsd:boolean" use="required"/>
+      <xsd:attribute name="template" type="xsd:boolean" use="required"/>
       <xsd:attribute name="shared" type="xsd:boolean" use="required"/>
+      <xsd:attribute name="extends" type="xsd:string" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -26,9 +28,8 @@
         <xsd:element ref="xs:priorities"/>
         <xsd:element ref="xs:categories"/>
         <xsd:element ref="xs:resolutionTypes"/>
-        <xsd:element ref="xs:users"/>
+        <xsd:element ref="xs:users" minOccurs="0"/>
       </xsd:sequence>
-      <xsd:attribute name="link" type="xsd:string" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -108,7 +109,7 @@
   <xsd:element name="items">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="xs:item" maxOccurs="unbounded"/>
+        <xsd:element ref="xs:item" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

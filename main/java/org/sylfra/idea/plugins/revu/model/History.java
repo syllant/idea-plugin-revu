@@ -1,35 +1,32 @@
 package org.sylfra.idea.plugins.revu.model;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
-public class History
+public class History extends AbstractRevuEntity<History>
 {
   private User createdBy;
   private User lastUpdatedBy;
   private Date createdOn;
   private Date lastUpdatedOn;
 
-  @NotNull
   public User getCreatedBy()
   {
     return createdBy;
   }
 
-  public void setCreatedBy(@NotNull User createdBy)
+  public void setCreatedBy(User createdBy)
   {
     this.createdBy = createdBy;
   }
 
-  @NotNull
   public User getLastUpdatedBy()
   {
     return lastUpdatedBy;
   }
 
-  public void setLastUpdatedBy(@NotNull User lastUpdatedBy)
+  public void setLastUpdatedBy(User lastUpdatedBy)
   {
     this.lastUpdatedBy = lastUpdatedBy;
   }
@@ -52,6 +49,24 @@ public class History
   public void setLastUpdatedOn(Date lastUpdatedOn)
   {
     this.lastUpdatedOn = lastUpdatedOn;
+  }
+
+  @Override
+  public History clone()
+  {
+    History clone = super.clone();
+
+    if (lastUpdatedBy != null)
+    {
+      clone.setLastUpdatedBy(lastUpdatedBy.clone());
+    }
+
+    if (createdBy != null)
+    {
+      clone.setCreatedBy(createdBy.clone());
+    }
+
+    return clone;
   }
 
   @Override
