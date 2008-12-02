@@ -3,6 +3,7 @@ package org.sylfra.idea.plugins.revu.ui.forms;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -15,14 +16,20 @@ import java.util.Collection;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractUpdatableForm<T> implements IUpdatableForm<T>
+public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements IUpdatableForm<T>
 {
-  protected T data;
-  protected java.util.List<JComponent> errors;
+  protected final java.util.List<JComponent> errors;
+  protected final java.util.List<UpdatableFormListener<T>> listeners;
 
   protected AbstractUpdatableForm()
   {
     errors = new ArrayList<JComponent>();
+    listeners = new ArrayList<UpdatableFormListener<T>>();
+  }
+
+  public void addUpdatableFormListener(UpdatableFormListener<T> listener)
+  {
+    listeners.add(listener);
   }
 
   public boolean validateInput()
@@ -53,11 +60,14 @@ public abstract class AbstractUpdatableForm<T> implements IUpdatableForm<T>
     boolean hasErrorBorder = component.getBorder() instanceof ErrorBorder;
     if (hasError)
     {
-      if (!hasErrorBorder)
+      if (message != null)
       {
-        component.setBorder(new ErrorBorder(component));
+        if (!hasErrorBorder)
+        {
+          component.setBorder(new ErrorBorder(component));
+        }
+        component.setToolTipText(message);
       }
-      component.setToolTipText(message);
       errors.add(component);
     }
     else
@@ -80,34 +90,39 @@ public abstract class AbstractUpdatableForm<T> implements IUpdatableForm<T>
     return ((o1 == o2) || ((o1 != null) && (o1.equals(o2))));
   }
 
-  @Nullable
-  public T getData()
+  public final void updateUI(@Nullable T data)
   {
-    return data;
-  }
-
-  public final void updateUI(@NotNull T data)
-  {
-    this.data = data;
     errors.clear();
     internalUpdateUI(data);
     if (getPreferredFocusedComponent() != null)
     {
       getPreferredFocusedComponent().requestFocusInWindow();
     }
+
+    for (UpdatableFormListener<T> listener : listeners)
+    {
+      listener.uiUpdated(data);
+    }
   }
 
   public final boolean updateData(@NotNull T data)
   {
+    if (!isModified(data))
+    {
+      return true;
+    }
+
     if (!validateInput())
     {
       errors.get(0).requestFocusInWindow();
       return false;
     }
 
-    if (isModified(data))
+    internalUpdateData(data);
+
+    for (UpdatableFormListener<T> listener : listeners)
     {
-      internalUpdateData(data);
+      listener.dataUpdated(data);
     }
 
     return true;
@@ -117,7 +132,7 @@ public abstract class AbstractUpdatableForm<T> implements IUpdatableForm<T>
 
   protected abstract void internalValidateInput();
 
-  protected abstract void internalUpdateUI(@NotNull T data);
+  protected abstract void internalUpdateUI(@Nullable T data);
 
   protected abstract void internalUpdateData(@NotNull T data);
 
@@ -130,5 +145,11 @@ public abstract class AbstractUpdatableForm<T> implements IUpdatableForm<T>
       super(BorderFactory.createLineBorder(Color.RED, 1), component.getBorder());
       nestedBorder = component.getBorder();
     }
+  }
+
+  public static interface UpdatableFormListener<T>
+  {
+    void uiUpdated(@Nullable T data);
+    void dataUpdated(@NotNull T data);
   }
 }

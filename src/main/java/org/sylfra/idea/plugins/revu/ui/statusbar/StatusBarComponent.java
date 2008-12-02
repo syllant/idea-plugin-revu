@@ -8,11 +8,11 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.Colors;
+import com.intellij.ui.LightColors;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
@@ -24,6 +24,7 @@ import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -49,7 +49,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
   private boolean mustBlink;
   private StatusBarComponent.PopupNotifier popupNotifier;
 
-  public StatusBarComponent(Project project)
+  public StatusBarComponent(final Project project)
   {
     this.project = project;
     messages = new ArrayList<StatusBarMessage>();
@@ -64,6 +64,46 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
       }
     });
     popupNotifier = new PopupNotifier();
+
+    project.getComponent(ReviewManager.class).addReviewExternalizationListener(new IReviewExternalizationListener()
+    {
+      public void loadFailed(final String path, Exception exception)
+      {
+        final String details = ((exception.getLocalizedMessage() == null)
+          ? exception.toString() : exception.getLocalizedMessage());
+        final VirtualFile vFile = RevuUtils.findVFileFromRelativeFile(project, path);
+        ActionListener action = new ActionListener()
+        {
+          public void actionPerformed(ActionEvent e)
+          {
+            FileEditorManager.getInstance(project).openFile(vFile, true);
+          }
+        };
+        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
+          RevuBundle.message("friendlyError.externalizing.load.error.title.text"),
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", path, details),
+          ((vFile != null) && (vFile.exists()))
+            ? RevuBundle.message("friendlyError.externalizing.load.error.action.text") : null,
+          action));
+      }
+
+      public void saveFailed(Review review, Exception exception)
+      {
+        final String details = ((exception.getLocalizedMessage() == null)
+          ? exception.toString() : exception.getLocalizedMessage());
+        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
+          RevuBundle.message("friendlyError.externalizing.save.error.title.text"),
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getPath(), details)));
+      }
+
+      public void loadSucceeded(Review review)
+      {
+      }
+
+      public void saveSucceeded(Review review)
+      {
+      }
+    });
   }
 
   public void addMessage(StatusBarMessage message)
@@ -150,46 +190,6 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
     statusBar.addCustomIndicationComponent(this);
     WindowManager.getInstance().getFrame(project).repaint();
-
-    project.getComponent(ReviewManager.class).addReviewExternalizationListener(new IReviewExternalizationListener()
-    {
-      public void loadFailed(final File f, Exception exception)
-      {
-        final String details = ((exception.getLocalizedMessage() == null)
-          ? exception.toString() : exception.getLocalizedMessage());
-        ActionListener action = new ActionListener()
-        {
-          public void actionPerformed(ActionEvent e)
-          {
-            VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(f);
-            FileEditorManager.getInstance(project).openFile(vFile, true);
-          }
-        };
-        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
-          RevuBundle.message("statusPopup.externalizing.load.error.title.text"),
-          RevuBundle.message("statusPopup.externalizing.load.error.details.text", f.getPath(), details),
-          RevuBundle.message("statusPopup.externalizing.load.error.action.text"),
-          action));
-      }
-
-      public void saveFailed(Review review, Exception exception)
-      {
-        final String details = ((exception.getLocalizedMessage() == null)
-          ? exception.toString() : exception.getLocalizedMessage());
-        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
-          RevuBundle.message("statusPopup.externalizing.save.error.title.text"),
-          RevuBundle.message("statusPopup.externalizing.load.error.details.text",
-            review.getFile().getPath(), details)));
-      }
-
-      public void loadSucceeded(Review review)
-      {
-      }
-
-      public void saveSucceeded(Review review)
-      {
-      }
-    });
   }
 
   public void projectClosed()
@@ -212,9 +212,9 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
         if ((settings.getLogin() == null) || (settings.getLogin().equals("")))
         {
           addMessage(new StatusBarMessage(StatusBarMessage.Type.INFO,
-            RevuBundle.message("statusPopup.nologin.info.title.text"),
+            RevuBundle.message("friendlyError.nologin.info.title.text"),
             null,
-            RevuBundle.message("statusPopup.nologin.info.action.text"),
+            RevuBundle.message("friendlyError.nologin.info.action.text"),
             new ActionListener()
             {
               public void actionPerformed(ActionEvent e)
@@ -262,6 +262,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
     public PopupNotifier()
     {
       label = new JLabel();
+      label.setBorder(BorderFactory.createLineBorder(LightColors.BLUE));
       label.setForeground(Colors.DARK_BLUE);
       label.addMouseListener(new MouseAdapter()
       {

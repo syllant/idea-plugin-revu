@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.ItemPriority;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.ReferentialListHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,21 +47,25 @@ public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialFo
   }
 
   @Override
-  protected void internalUpdateData(@NotNull List<ItemPriority> data)
+  protected void internalUpdateData(@NotNull ReferentialListHolder<ItemPriority> data)
   {
     super.internalUpdateData(data);
-    
-    for (byte i = 0; i < data.size(); i++)
+
+    List<ItemPriority> priorities = data.getAllItems();
+    for (byte i = 0; i < priorities.size(); i++)
     {
-      ItemPriority itemPriority = data.get(i);
+      ItemPriority itemPriority = priorities.get(i);
       itemPriority.setOrder(i);
     }
   }
 
   @Override
-  protected void internalUpdateUI(@NotNull List<ItemPriority> data)
+  protected void internalUpdateUI(ReferentialListHolder<ItemPriority> data)
   {
-    Collections.sort(data);
+    if (data != null)
+    {
+      Collections.sort(data.getAllItems());
+    }
     super.internalUpdateUI(data);
   }
 }

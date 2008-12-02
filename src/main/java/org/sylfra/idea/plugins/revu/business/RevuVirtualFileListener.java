@@ -5,8 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileAdapter;
 import com.intellij.openapi.vfs.VirtualFileEvent;
 import org.sylfra.idea.plugins.revu.model.Review;
-
-import java.io.File;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
  * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
@@ -28,10 +27,10 @@ public class RevuVirtualFileListener extends VirtualFileAdapter
     {
       VirtualFile file = event.getFile();
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      Review review = reviewManager.getReview(new File(file.getPath()));
+      Review review = reviewManager.getReview(RevuUtils.buildRelativePath(project, file));
       if (review != null)
       {
-        reviewManager.reload(review, false);
+        reviewManager.load(review, false);
       }
     }
   }

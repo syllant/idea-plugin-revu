@@ -3,6 +3,7 @@ package org.sylfra.idea.plugins.revu.ui.forms;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.IHistoryHolder;
+import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.model.User;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.text.DateFormat;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class HistoryForm extends AbstractUpdatableForm<IHistoryHolder>
+public class HistoryForm<T extends IRevuEntity<T> & IHistoryHolder> extends AbstractUpdatableForm<T>
 {
   public static final DateFormat DATE_FORMATTER = DateFormat.getDateTimeInstance(
     DateFormat.LONG, DateFormat.LONG);
@@ -29,21 +30,23 @@ public class HistoryForm extends AbstractUpdatableForm<IHistoryHolder>
     return contentPane;
   }
 
-  protected void internalUpdateUI(@NotNull IHistoryHolder data)
+  protected void internalUpdateUI(T data)
   {
-    lbCreatedBy.setText(getUserName(data.getHistory().getCreatedBy()));
-    lbLastUpdatedBy.setText(getUserName(data.getHistory().getLastUpdatedBy()));
+    lbCreatedBy.setText((data == null) ? "" : getUserName(data.getHistory().getCreatedBy()));
+    lbLastUpdatedBy.setText((data == null) ? "" : getUserName(data.getHistory().getLastUpdatedBy()));
 
     synchronized (DATE_FORMATTER)
     {
-      lbCreatedOn.setText(DATE_FORMATTER.format(data.getHistory().getCreatedOn()));
-      lbLastUpdatedOn.setText(DATE_FORMATTER.format(data.getHistory().getLastUpdatedOn()));
+      lbCreatedOn.setText(((data == null) || (data.getHistory().getCreatedOn() == null))
+        ? "" : DATE_FORMATTER.format(data.getHistory().getCreatedOn()));
+      lbLastUpdatedOn.setText(((data == null) || (data.getHistory().getLastUpdatedOn() == null))
+        ? "" : DATE_FORMATTER.format(data.getHistory().getLastUpdatedOn()));
     }
   }
 
-  private String getUserName(@NotNull User user)
+  private String getUserName(@Nullable User user)
   {
-    return (user.getDisplayName() == null) ? user.getLogin() : user.getDisplayName();
+    return (user == null) ? "" : (user.getDisplayName() == null) ? user.getLogin() : user.getDisplayName();
   }
 
   public JComponent getPreferredFocusedComponent()
@@ -51,7 +54,7 @@ public class HistoryForm extends AbstractUpdatableForm<IHistoryHolder>
     return null;
   }
 
-  public boolean isModified(@NotNull IHistoryHolder data)
+  public boolean isModified(@NotNull T data)
   {
     return false;
   }
@@ -60,7 +63,7 @@ public class HistoryForm extends AbstractUpdatableForm<IHistoryHolder>
   {
   }
 
-  protected void internalUpdateData(@Nullable IHistoryHolder data)
+  protected void internalUpdateData(@Nullable T data)
   {
   }
 

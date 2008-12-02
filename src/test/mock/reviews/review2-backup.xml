@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" title="Test review2" template="false" active="true" shared="true">
+  <referential>
+    <priorities>
+      <priority order="1" name="priority1b"/>
+      <priority order="2" name="priority2b"/>
+      <priority order="4" name="priority3b"/>
+    </priorities>
+    <categories>
+      <category name="category1b"/>
+      <category name="category2b"/>
+    </categories>
+    <resolutionTypes>
+      <resolutionType name="resolutionType1b"/>
+      <resolutionType name="resolutionType2b"/>
+    </resolutionTypes>
+    <users>
+      <user displayName="aa" login="aa" password="" roles="admin"/>
+      <user displayName="user1b" login="u1b" password="p1" roles="admin"/>
+      <user displayName="user2b" login="u2b" password="p2" roles="admin,author"/>
+      <user displayName="user3b" login="u3b" password="p3" roles="reviewer,author"/>
+    </users>
+  </referential>
+  <history createdBy="u1b" lastUpdatedBy="aa" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-11-30T11:38:58"/>
+  <desc>A test review. A test review. A test review. A test review. A test review.</desc>
+  <items/>
+</review>

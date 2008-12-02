@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential;
 
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.INamedHolder;
+import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 
 import javax.swing.*;
@@ -10,7 +11,8 @@ import javax.swing.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractNameHolderDetailForm<T extends INamedHolder> extends AbstractUpdatableForm<T>
+public abstract class AbstractNameHolderDetailForm<T extends IRevuEntity<T> & INamedHolder>
+  extends AbstractUpdatableForm<T>
 {
   private JPanel contentPane;
   private JTextField tfName;
@@ -27,7 +29,7 @@ public abstract class AbstractNameHolderDetailForm<T extends INamedHolder> exten
 
   protected void internalUpdateUI(T data)
   {
-    tfName.setText(data.getName());
+    tfName.setText((data == null) ? "" : data.getName());
   }
 
   protected void internalUpdateData(@NotNull T data)

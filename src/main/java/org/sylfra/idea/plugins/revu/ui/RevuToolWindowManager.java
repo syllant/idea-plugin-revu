@@ -35,26 +35,39 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   {
     this.project = project;
     contentsByReviews = new HashMap<Review, Content>();
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    reviewManager.addReviewListener(this);
   }
 
   private void addReviewTab(@Nullable Review review)
   {
-    if (project == null)
-    {
-      return;
-    }
-    
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
-    String title = (review == null)
-      ? RevuBundle.message("toolwindow.allReviews.title")
-      : RevuBundle.message("toolwindow.review.title", review.getTitle());
-
     ReviewBrowsingForm reviewBrowsingForm = new ReviewBrowsingForm(project, review);
-    Content content = contentFactory.createContent(reviewBrowsingForm.getContentPane(), title, true);
+    Content content = contentFactory.createContent(reviewBrowsingForm.getContentPane(), getTabTitle(review), true);
     content.putUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY, reviewBrowsingForm);
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
+
+    // Add review items to 'All' tab
+    ReviewBrowsingForm form = contentsByReviews.get(null).getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY);
+    form.updateReviewItems();
+  }
+
+  private void removeReviewTab(@Nullable Review review)
+  {
+    Content content = contentsByReviews.remove(review);
+    if (content != null)
+    {
+      toolwindow.getContentManager().removeContent(content, true);
+    }
+  }
+
+  private String getTabTitle(Review review)
+  {
+    return (review == null)
+      ? RevuBundle.message("toolwindow.allReviews.title")
+      : RevuBundle.message("toolwindow.review.title", review.getTitle());
   }
 
   @Nullable
@@ -65,12 +78,6 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     return (selectedContent != null) ? selectedContent.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY) : null;
   }
 
-  private void removeReviewTab(@Nullable Review review)
-  {
-    Content content = contentsByReviews.remove(review);
-    toolwindow.getContentManager().removeContent(content, true);
-  }
-
   public void projectOpened()
   {
     toolwindow = ToolWindowManager.getInstance(project)
@@ -78,11 +85,6 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     toolwindow.setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.REVU));
 
     addReviewTab(null);
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    for (Review review : reviewManager.getReviews())
-    {
-      addReviewTab(review);
-    }
   }
 
   public void projectClosed()
@@ -103,23 +105,46 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   {
   }
 
+  public ToolWindow getToolwindow()
+  {
+    return toolwindow;
+  }
   public void reviewChanged(Review review)
   {
-    // @TODO
+    if (review.isTemplate())
+    {
+      return;
+    }
+
+    Content content = contentsByReviews.get(review);
+    if (content != null)
+    {
+      content.setDisplayName(getTabTitle(review));
+      ReviewBrowsingForm form = content.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY);
+      if (form != null)
+      {
+        form.updateReview();
+      }
+    }
   }
 
   public void reviewAdded(Review review)
   {
+    if ((review.isTemplate()) || (!review.isActive()))
+    {
+      return;
+    }
+
     addReviewTab(review);
   }
 
   public void reviewDeleted(Review review)
   {
-    removeReviewTab(review);
-  }
+    if (review.isTemplate())
+    {
+      return;
+    }
 
-  public ToolWindow getToolwindow()
-  {
-    return toolwindow;
+    removeReviewTab(review);
   }
 }

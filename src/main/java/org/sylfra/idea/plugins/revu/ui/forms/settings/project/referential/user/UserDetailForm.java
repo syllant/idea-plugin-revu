@@ -74,11 +74,11 @@ public class UserDetailForm extends AbstractUpdatableForm<User>
 
   protected void internalUpdateUI(User data)
   {
-    tfLogin.setText(data.getLogin());
-    tfDisplayName.setText(data.getDisplayName());
-    password = data.getPassword();
+    tfLogin.setText((data == null) ? "" : data.getLogin());
+    tfDisplayName.setText((data == null) ? "" : data.getDisplayName());
+    password = (data == null) ? "" : data.getPassword();
 
-    Set<User.Role> roles = data.getRoles();
+    Set<User.Role> roles = (data == null) ? new HashSet<User.Role>() : data.getRoles();
     ckAdmin.setSelected(roles.contains(User.Role.ADMIN));
     ckReviewer.setSelected(roles.contains(User.Role.REVIEWER));
     ckAuthor.setSelected(roles.contains(User.Role.AUTHOR));

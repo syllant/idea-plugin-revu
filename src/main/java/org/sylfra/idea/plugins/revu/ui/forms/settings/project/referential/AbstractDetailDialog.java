@@ -5,11 +5,12 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 
 import javax.swing.*;
 
-public abstract class AbstractDetailDialog<T> extends DialogWrapper
+public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends DialogWrapper
 {
   private AbstractUpdatableForm<T> nestedForm;
   private T data;

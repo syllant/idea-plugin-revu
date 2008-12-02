@@ -12,6 +12,8 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.user.U
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -22,14 +24,12 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   private final Project project;
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
-  private JButton bnImportLink;
-  private JLabel lbLink;
   private UserReferentialForm userReferentialForm;
   private ItemCategoryReferentialForm itemCategoryReferentialForm;
   private ItemPriorityReferentialForm itemPriorityReferentialForm;
   private ItemResolutionTypeReferentialForm itemResolutionTypeReferentialForm;
 
-  public ReferentialTabbedPane(Project project)
+  public ReferentialTabbedPane(final Project project)
   {
     this.project = project;
 
@@ -50,10 +50,82 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
 
   public boolean isModified(@NotNull DataReferential data)
   {
-    return (userReferentialForm.isModified(new ArrayList<User>(data.getUsersByLogin().values())))
-      || (itemCategoryReferentialForm.isModified(new ArrayList<ItemCategory>(data.getItemCategoriesByName().values())))
-      || (itemPriorityReferentialForm.isModified(new ArrayList<ItemPriority>(data.getItemPrioritiesByName().values())))
-      || (itemResolutionTypeReferentialForm.isModified(new ArrayList<ItemResolutionType>(data.getItemResolutionTypesByName().values())));
+    return ((userReferentialForm.isModified(new ReferentialListHolder<User>(getSortedValues(data.getUsers(true)), null)))
+      || (itemCategoryReferentialForm.isModified(new ReferentialListHolder<ItemCategory>(getSortedValues(data.getItemCategories(
+      true)), null)))
+      || (itemPriorityReferentialForm.isModified(new ReferentialListHolder<ItemPriority>(getSortedValues(data.getItemPriorities(
+      true)), null)))
+      || (itemResolutionTypeReferentialForm.isModified(new ReferentialListHolder<ItemResolutionType>(getSortedValues(data.getItemResolutionTypes(
+      true)), null))));
+  }
+
+  protected void internalValidateInput()
+  {
+    updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
+    updateError(itemCategoryReferentialForm.getContentPane(), !itemCategoryReferentialForm.validateInput(), null);
+    updateError(itemPriorityReferentialForm.getContentPane(), !itemPriorityReferentialForm.validateInput(), null);
+    updateError(itemResolutionTypeReferentialForm.getContentPane(), !itemResolutionTypeReferentialForm.validateInput(), null);
+  }
+
+  protected void internalUpdateUI(DataReferential data)
+  {
+    ReferentialListHolder<User> userHolder = (data == null)
+      ? new ReferentialListHolder<User>(new ArrayList<User>(), null)
+      : new ReferentialListHolder<User>(getSortedValues(data.getUsers(true)),
+      (data.getReview().getExtendedReview() == null)
+        ? null : getSortedValues(data.getReview().getExtendedReview().getDataReferential().getUsers(true)));
+    userReferentialForm.updateUI(userHolder);
+
+    ReferentialListHolder<ItemCategory> categoryHolder = (data == null)
+      ? new ReferentialListHolder<ItemCategory>(new ArrayList<ItemCategory>(), null)
+      : new ReferentialListHolder<ItemCategory>(getSortedValues(data.getItemCategories(true)),
+      (data.getReview().getExtendedReview() == null)
+        ? null : getSortedValues(data.getReview().getExtendedReview().getDataReferential().getItemCategories(true)));
+    itemCategoryReferentialForm.updateUI(categoryHolder);
+
+    ReferentialListHolder<ItemPriority> priorityHolder = (data == null)
+      ? new ReferentialListHolder<ItemPriority>(new ArrayList<ItemPriority>(), null)
+      : new ReferentialListHolder<ItemPriority>(getSortedValues(data.getItemPriorities(true)),
+      (data.getReview().getExtendedReview() == null)
+        ? null : getSortedValues(data.getReview().getExtendedReview().getDataReferential().getItemPriorities(true)));
+    itemPriorityReferentialForm.updateUI(priorityHolder);
+
+    ReferentialListHolder<ItemResolutionType> resolutionTypeHolder = (data == null)
+      ? new ReferentialListHolder<ItemResolutionType>(new ArrayList<ItemResolutionType>(), null)
+      : new ReferentialListHolder<ItemResolutionType>(getSortedValues(data.getItemResolutionTypes(true)),
+      (data.getReview().getExtendedReview() == null)
+        ? null : getSortedValues(data.getReview().getExtendedReview().getDataReferential().getItemResolutionTypes(true)));
+    itemResolutionTypeReferentialForm.updateUI(resolutionTypeHolder);
+  }
+
+  protected void internalUpdateData(@NotNull DataReferential data)
+  {
+    ReferentialListHolder<User> userHolder = new ReferentialListHolder<User>(new ArrayList<User>(), null);
+    userReferentialForm.updateData(userHolder);
+    data.setUsers(userHolder.getAllItems());
+
+    ReferentialListHolder<ItemCategory> categoryHolder
+      = new ReferentialListHolder<ItemCategory>(new ArrayList<ItemCategory>(), null);
+    itemCategoryReferentialForm.updateData(categoryHolder);
+    data.setItemCategories(categoryHolder.getAllItems());
+
+    ReferentialListHolder<ItemPriority> priorityHolder
+      = new ReferentialListHolder<ItemPriority>(new ArrayList<ItemPriority>(), null);
+    itemPriorityReferentialForm.updateData(priorityHolder);
+    data.setItemPriorities(priorityHolder.getAllItems());
+
+    ReferentialListHolder<ItemResolutionType> resolutionTypeHolder
+      = new ReferentialListHolder<ItemResolutionType>(new ArrayList<ItemResolutionType>(), null);
+    itemResolutionTypeReferentialForm.updateData(resolutionTypeHolder);
+    data.setItemResolutionTypes(resolutionTypeHolder.getAllItems());
+  }
+
+  private <T extends Comparable> List<T> getSortedValues(List<T> list)
+  {
+    list = new ArrayList<T>(list);
+    Collections.sort(list);
+
+    return list;
   }
 
   @Override
@@ -63,37 +135,6 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     itemCategoryReferentialForm.dispose();
     itemPriorityReferentialForm.dispose();
     itemResolutionTypeReferentialForm.dispose();
-  }
-
-  protected void internalValidateInput()
-  {
-  }
-
-  protected void internalUpdateUI(@NotNull DataReferential data)
-  {
-    userReferentialForm.updateUI(new ArrayList<User>(data.getUsersByLogin().values()));
-    itemCategoryReferentialForm.updateUI(new ArrayList<ItemCategory>(data.getItemCategoriesByName().values()));
-    itemPriorityReferentialForm.updateUI(new ArrayList<ItemPriority>(data.getItemPrioritiesByName().values()));
-    itemResolutionTypeReferentialForm.updateUI(new ArrayList<ItemResolutionType>(data.getItemResolutionTypesByName().values()));
-  }
-
-  protected void internalUpdateData(@NotNull DataReferential data)
-  {
-    ArrayList<User> userList = new ArrayList<User>(data.getUsersByLogin().values());
-    userReferentialForm.updateData(userList);
-    data.setUsers(userList);
-
-    ArrayList<ItemCategory> itemCategoryList = new ArrayList<ItemCategory>(data.getItemCategoriesByName().values());
-    itemCategoryReferentialForm.updateData(itemCategoryList);
-    data.setItemCategories(itemCategoryList);
-
-    ArrayList<ItemPriority> itemPriorityList = new ArrayList<ItemPriority>(data.getItemPrioritiesByName().values());
-    itemPriorityReferentialForm.updateData(itemPriorityList);
-    data.setItemPriorities(itemPriorityList);
-
-    ArrayList<ItemResolutionType> itemResolutionTypes = new ArrayList<ItemResolutionType>(data.getItemResolutionTypesByName().values());
-    itemResolutionTypeReferentialForm.updateData(itemResolutionTypes);
-    data.setItemResolutionTypes(itemResolutionTypes);
   }
 
   public JComponent getPreferredFocusedComponent()

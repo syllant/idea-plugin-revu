@@ -2,14 +2,16 @@ package org.sylfra.idea.plugins.revu.ui.forms.reviewitem;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,6 +41,9 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   private JRadioButton rbLocationLineRange;
   private JComboBox cbResolutionType;
   private ButtonGroup bgLocation;
+  private VirtualFile originalFile;
+  private int originalLineStart;
+  private int originalLineEnd;
 
   public ReviewItemMainForm(@NotNull Project project)
   {
@@ -57,111 +62,90 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     return contentPane;
   }
 
-  protected void internalUpdateUI(@NotNull ReviewItem reviewItem)
+  protected void internalUpdateUI(@Nullable ReviewItem data)
   {
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
 
-    Collection<Review> reviews = reviewManager.getReviews(true);
+    Collection<Review> reviews = reviewManager.getReviews(true, null);
 
-    Review defaultReview = ((reviewItem.getReview() == null) && (reviews.size() == 1))
-      ? reviews.iterator().next() : reviewItem.getReview();
+    Review defaultReview = (data == null)
+      ? null
+      : ((data.getReview() == null) && (reviews.size() == 1))
+        ? reviews.iterator().next() : data.getReview();
+
+    originalFile = (data == null) ? null : data.getFile();
+    originalLineStart = (data == null) ? -1 : data.getLineStart();
+    originalLineEnd = (data == null) ? -1 : data.getLineEnd();
 
     cbReview.setSelectedItem(defaultReview);
 
-    taDesc.setText(reviewItem.getDesc());
-    taTitle.setText(reviewItem.getSummary());
-    cbPriority.setSelectedItem(reviewItem.getPriority());
-    cbCategory.setSelectedItem(reviewItem.getCategory());
-    cbResolutionStatus.setSelectedItem(reviewItem.getResolutionStatus());
-    cbResolutionType.setSelectedItem(reviewItem.getResolutionType());
+    taDesc.setText((data == null) ? "" : data.getDesc());
+    taTitle.setText((data == null) ? "" : data.getSummary());
+    cbPriority.setSelectedItem((data == null) ? null : data.getPriority());
+    cbCategory.setSelectedItem((data == null) ? null : data.getCategory());
+    cbResolutionStatus.setSelectedItem((data == null) ? null : data.getResolutionStatus());
+    cbResolutionType.setSelectedItem((data == null) ? null : data.getResolutionType());
 
-    ReviewItem.LocationType locationType = reviewItem.getLocationType();
+    ReviewItem.LocationType locationType = (data == null) ? null : data.getLocationType();
     rbLocationFile.setEnabled(!ReviewItem.LocationType.GLOBAL.equals(locationType));
     rbLocationLineRange.setEnabled(!ReviewItem.LocationType.GLOBAL.equals(locationType)
       && !ReviewItem.LocationType.FILE.equals(locationType));
     updateLocation(locationType);
   }
 
-  private void updateLocation(ReviewItem.LocationType locationType)
-  {
-    ReviewItem reviewItem = getData();
-
-    String locationPath;
-    switch (locationType)
-    {
-      case GLOBAL:
-        rbLocationGlobal.setSelected(true);
-        locationPath = "[" + RevuBundle.message("form.reviewitem.main.location.global.text") + "]";
-        break;
-
-      case FILE:
-        rbLocationFile.setSelected(true);
-        locationPath = RevuUtils.buildRelativePath(project, reviewItem.getFile());
-        break;
-
-      default:
-        rbLocationLineRange.setSelected(true);
-        locationPath = RevuBundle.message("form.reviewitem.main.location.range.path.text",
-          RevuUtils.buildRelativePath(project, reviewItem.getFile()), reviewItem.getLineStart(),
-          reviewItem.getLineEnd());
-    }
-
-    lbLocation.setText(locationPath);
-  }
-
-  protected void internalUpdateData(ReviewItem reviewItemToUpdate)
+  protected void internalUpdateData(@NotNull ReviewItem data)
   {
     Review review = (Review) cbReview.getSelectedItem();
 
-    reviewItemToUpdate.setReview(review);
+    data.setReview(review);
 
-    reviewItemToUpdate.setDesc(taDesc.getText());
-    reviewItemToUpdate.setSummary(taTitle.getText());
-    reviewItemToUpdate.setPriority((ItemPriority) cbPriority.getSelectedItem());
-    reviewItemToUpdate.setCategory((ItemCategory) cbCategory.getSelectedItem());
-    reviewItemToUpdate.setResolutionStatus((ItemResolutionStatus) cbResolutionStatus.getSelectedItem());
-    reviewItemToUpdate.setResolutionType((ItemResolutionType) cbResolutionType.getSelectedItem());
+    data.setDesc(taDesc.getText());
+    data.setSummary(taTitle.getText());
+    data.setPriority((ItemPriority) cbPriority.getSelectedItem());
+    data.setCategory((ItemCategory) cbCategory.getSelectedItem());
+    data.setResolutionStatus((ItemResolutionStatus) cbResolutionStatus.getSelectedItem());
+    data.setResolutionType((ItemResolutionType) cbResolutionType.getSelectedItem());
 
     // Location
     if (rbLocationGlobal.isSelected())
     {
-      reviewItemToUpdate.setFile(null);
-      reviewItemToUpdate.setLineStart(-1);
+      data.setFile(null);
+      data.setLineStart(-1);
     }
     else if (rbLocationFile.isSelected())
     {
-      reviewItemToUpdate.setLineStart(-1);
+      data.setLineStart(-1);
     }
   }
 
-  public boolean isModified(ReviewItem reviewItem)
+  public boolean isModified(@NotNull ReviewItem data)
   {
-    if (!checkEquals(taDesc.getText(), reviewItem.getDesc()))
+    if (!checkEquals(taDesc.getText(), data.getDesc()))
     {
       return true;
     }
 
-    if (!checkEquals(taTitle.getText(), reviewItem.getSummary()))
+    if (!checkEquals(taTitle.getText(), data.getSummary()))
     {
       return true;
     }
 
-    if (!checkEquals(cbReview.getSelectedItem(), reviewItem.getReview()))
+    if (!checkEquals(cbReview.getSelectedItem(), data.getReview()))
     {
       return true;
     }
 
-    if (!checkEquals(cbPriority.getSelectedItem(), reviewItem.getPriority()))
+    if (!checkEquals(cbPriority.getSelectedItem(), data.getPriority()))
     {
       return true;
     }
 
-    if (!checkEquals(cbCategory.getSelectedItem(), reviewItem.getCategory()))
+    if (!checkEquals(cbCategory.getSelectedItem(), data.getCategory()))
     {
       return true;
     }
 
-    if (!checkEquals(bgLocation.getSelection().getActionCommand(), reviewItem.getLocationType().toString()))
+    if (!checkEquals(bgLocation.getSelection().getActionCommand(), data.getLocationType().toString()))
     {
       return true;
     }
@@ -187,6 +171,36 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     }
   }
 
+  private void updateLocation(@Nullable ReviewItem.LocationType locationType)
+  {
+    if (locationType == null)
+    {
+      rbLocationGlobal.setSelected(true);
+      lbLocation.setText("");
+    }
+
+    String locationPath;
+    switch (locationType)
+    {
+      case GLOBAL:
+        rbLocationGlobal.setSelected(true);
+        locationPath = "[" + RevuBundle.message("form.reviewitem.main.location.global.text") + "]";
+        break;
+
+      case FILE:
+        rbLocationFile.setSelected(true);
+        locationPath = RevuUtils.buildRelativePath(project, originalFile);
+        break;
+
+      default:
+        rbLocationLineRange.setSelected(true);
+        locationPath = RevuBundle.message("form.reviewitem.main.location.range.path.text",
+          RevuUtils.buildRelativePath(project, originalFile), originalLineStart, originalLineEnd);
+    }
+
+    lbLocation.setText(locationPath);
+  }
+
   private void configureUI()
   {
     RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
@@ -196,7 +210,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true,
-      appSettings.getLogin()), true)));
+      false, appSettings.getLogin()), true)));
     cbReview.setRenderer(new DefaultListCellRenderer()
     {
       public Component getListCellRendererComponent(JList list, Object value, int index,
@@ -297,13 +311,13 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
           DataReferential referential = ((Review) selectedReview).getDataReferential();
 
           cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<ItemPriority>(referential.getItemPrioritiesByName().values()), true)));
+            new TreeSet<ItemPriority>(referential.getItemPrioritiesByName(true).values()), true)));
 
           cbCategory.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<ItemCategory>(referential.getItemCategoriesByName().values()), true)));
+            new TreeSet<ItemCategory>(referential.getItemCategoriesByName(true).values()), true)));
 
           cbResolutionType.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<ItemResolutionType>(referential.getItemResolutionTypesByName().values()), false)));
+            new TreeSet<ItemResolutionType>(referential.getItemResolutionTypesByName(true).values()), false)));
         }
         else
         {

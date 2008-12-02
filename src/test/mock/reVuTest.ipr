@@ -363,7 +363,8 @@
   <component name="revuProjectSettings">
     <option name="reviewFiles">
       <list>
-        <option value="D:\_syfranco\perso\dev\revu\src\test\mock\reviews\review.xml" />
+        <option value="reviews/review1.xml" />
+        <option value="reviews/review2.xml" />
       </list>
     </option>
   </component>

@@ -4,7 +4,7 @@ package org.sylfra.idea.plugins.revu.model;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemResolutionType implements INamedHolder, Comparable<ItemResolutionType>
+public class ItemResolutionType  extends AbstractRevuEntity<ItemResolutionType> implements Comparable<ItemResolutionType>, INamedHolder
 {
   private String name;
 

@@ -108,7 +108,13 @@ public class StatusBarPopup extends DialogWrapper
     lbTitle.setIcon(message.getType().getMessageType().getDefaultIcon());
     lbTitle.setText(message.getTitle());
     lbLink.setText(message.getActionText());
-    epDetails.setText(message.getDetails());
+
+    String details = message.getDetails();
+    if (details != null)
+    {
+      details = details.replaceAll("\n", "<br/>");
+    }
+    epDetails.setText(details);
   }
 
   private void createUIComponents()

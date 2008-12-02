@@ -18,6 +18,9 @@ import java.util.*;
  */
 class ReviewConverter extends AbstractConverter
 {
+  private static final String REVU_SCHEMA_ID = "http://plugins.intellij.net/revu";
+  private static final String REVU_SCHEMA_LOCATION = "http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd";
+
   public boolean canConvert(Class type)
   {
     return Review.class.equals(type);
@@ -27,9 +30,19 @@ class ReviewConverter extends AbstractConverter
   {
     Review review = (Review) source;
 
+    writer.addAttribute("xmlns", REVU_SCHEMA_ID);
+    writer.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+    writer.addAttribute("xsi:schemaLocation", REVU_SCHEMA_ID + " " + REVU_SCHEMA_LOCATION);
+
     writer.addAttribute("title", review.getTitle());
+    writer.addAttribute("template", String.valueOf(review.isTemplate()));
     writer.addAttribute("active", String.valueOf(review.isActive()));
     writer.addAttribute("shared", String.valueOf(review.isShared()));
+
+    if (review.getExtendedReview() != null)
+    {
+      writer.addAttribute("extends", review.getExtendedReview().getTitle());
+    }
 
     // Referential
     writer.startNode("referential");
@@ -66,14 +79,22 @@ class ReviewConverter extends AbstractConverter
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
     String title = reader.getAttribute("title");
+    String template = reader.getAttribute("template");
     String active = reader.getAttribute("active");
     String shared = reader.getAttribute("shared");
+    String extendedReviewTitle = reader.getAttribute("extends");
 
     Review review = getReview(context);
     
     review.setTitle(title);
+    review.setTemplate("true".equals(template));
     review.setActive("true".equals(active));
     review.setShared("true".equals(shared));
+
+    if (extendedReviewTitle != null)
+    {
+      review.setExtendedReview(new Review(extendedReviewTitle));
+    }
 
     while (reader.hasMoreChildren())
     {

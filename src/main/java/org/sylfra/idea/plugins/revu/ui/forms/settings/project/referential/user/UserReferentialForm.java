@@ -1,15 +1,14 @@
 package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.user;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.ColumnInfo;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.RevuUtils;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractDetailDialog;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 
@@ -37,7 +36,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
     // Check if current user is contained in list
     boolean adminFound = false;
     boolean currentUserFound = false;
-    for (User user : data)
+    for (User user : table.getListTableModel().getItems())
     {
       if (user.getLogin().equals(RevuUtils.getCurrentUserLogin()))
       {
@@ -58,18 +57,12 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
       }
     }
 
-    if (!currentUserFound)
-    {
-      updateError(table, true,
-        RevuBundle.message("settings.project.review.referential.user.form.currentUserNotFound.message",
-          RevuUtils.getCurrentUserLogin()));
-    }
+    updateError(table, !currentUserFound,
+      RevuBundle.message("settings.project.review.referential.user.form.currentUserNotFound.message",
+        RevuUtils.getCurrentUserLogin()));
 
-    if (!adminFound)
-    {
-      updateError(table, true,
-        RevuBundle.message("settings.project.review.referential.user.form.adminNotFound.message"));
-    }
+    updateError(table, !adminFound,
+      RevuBundle.message("settings.project.review.referential.user.form.adminNotFound.message"));
   }
 
   protected IDetailDialogFactory<User> buildDetailDialogFactory()
@@ -104,25 +97,25 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
     };
   }
 
-  protected ColumnInfo[] buildColumnInfos()
+  protected ReferentialColumnInfo<User, ?>[] buildColumnInfos()
   {
-    return new ColumnInfo[]
+    return new ReferentialColumnInfo[]
       {
-        new ColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.login.title"))
+        new ReferentialColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.login.title"))
         {
           public String valueOf(User user)
           {
             return user.getLogin();
           }
         },
-        new ColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.displayName.title"))
+        new ReferentialColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.displayName.title"))
         {
           public String valueOf(User user)
           {
             return user.getDisplayName();
           }
         },
-        new ColumnInfo<User, Boolean>(RevuBundle.message("userRoles.admin.text"))
+        new ReferentialColumnInfo<User, Boolean>(RevuBundle.message("userRoles.admin.text"))
         {
           public Boolean valueOf(User user)
           {
@@ -141,7 +134,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
             return 50;
           }
         },
-        new ColumnInfo<User, Boolean>(RevuBundle.message("userRoles.reviewer.text"))
+        new ReferentialColumnInfo<User, Boolean>(RevuBundle.message("userRoles.reviewer.text"))
         {
           public Boolean valueOf(User user)
           {
@@ -160,7 +153,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
             return 50;
           }
         },
-        new ColumnInfo<User, Boolean>(RevuBundle.message("userRoles.author.text"))
+        new ReferentialColumnInfo<User, Boolean>(RevuBundle.message("userRoles.author.text"))
         {
           public Boolean valueOf(User user)
           {

@@ -4,22 +4,20 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.Serializable;
 import java.util.*;
 
-public class DataReferential implements Serializable
+public class DataReferential extends AbstractRevuEntity<DataReferential>
 {
-  private File linkedFile;
-  private DataReferential wrappedReferential;
+  private Review review;
   private Map<String, ItemCategory> itemCategoriesByName;
   private Map<String, ItemResolutionType> itemResolutionTypesByName;
   private Map<String, ItemPriority> itemPrioritiesByName;
   private Map<User.Role, List<User>> usersByRole;
   private Map<String, User> usersByLogin;
 
-  public DataReferential()
+  public DataReferential(@NotNull Review review)
   {
+    this.review = review;
     itemCategoriesByName = new HashMap<String, ItemCategory>();
     itemResolutionTypesByName = new HashMap<String, ItemResolutionType>();
     itemPrioritiesByName = new HashMap<String, ItemPriority>();
@@ -27,78 +25,92 @@ public class DataReferential implements Serializable
     usersByRole = new HashMap<User.Role, List<User>>();
   }
 
-  public DataReferential getWrappedReferential()
+  public Review getReview()
   {
-    return wrappedReferential;
+    return review;
   }
 
-  public void setWrappedReferential(DataReferential wrappedReferential)
+  public void setReview(Review review)
   {
-    this.wrappedReferential = wrappedReferential;
-  }
-
-  public File getLinkedFile()
-  {
-    return linkedFile;
-  }
-
-  public void setLinkedFile(File linkedFile)
-  {
-    this.linkedFile = linkedFile;
+    this.review = review;
   }
 
   @NotNull
-  public Map<String, ItemPriority> getItemPrioritiesByName()
+  public Map<String, ItemPriority> getItemPrioritiesByName(boolean useLink)
   {
-    return Collections.unmodifiableMap(itemPrioritiesByName);
+    return getMapUsingLinkedReferential(itemPrioritiesByName, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getItemPrioritiesByName(true)), useLink);
+  }
+
+  @NotNull
+  public List<ItemPriority> getItemPriorities(boolean useLink)
+  {
+    return getListUsingLinkedReferential(itemPrioritiesByName, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getItemPriorities(true)), useLink);
   }
 
   public void setItemPriorities(@NotNull Collection<ItemPriority> priorities)
   {
-    this.itemPrioritiesByName.clear();
+    itemPrioritiesByName = new HashMap<String, ItemPriority>(priorities.size());
     for (ItemPriority priority : priorities)
     {
-      this.itemPrioritiesByName.put(priority.getName(), priority);
+      itemPrioritiesByName.put(priority.getName(), priority);
     }
   }
 
   @Nullable
   public ItemPriority getItemPriority(@NotNull String priorityName)
   {
-    return itemPrioritiesByName.get(priorityName);
+    return getItemPrioritiesByName(true).get(priorityName);
   }
 
   @NotNull
-  public Map<String, ItemCategory> getItemCategoriesByName()
+  public Map<String, ItemCategory> getItemCategoriesByName(boolean useLink)
   {
-    return Collections.unmodifiableMap(itemCategoriesByName);
+    return getMapUsingLinkedReferential(itemCategoriesByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getItemCategoriesByName(true)), useLink);
+  }
+
+  @NotNull
+  public List<ItemCategory> getItemCategories(boolean useLink)
+  {
+    return getListUsingLinkedReferential(itemCategoriesByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getItemCategories(true)), useLink);
   }
 
   public void setItemCategories(@NotNull Collection<ItemCategory> categories)
   {
-    this.itemCategoriesByName.clear();
+    itemCategoriesByName = new HashMap<String, ItemCategory>(categories.size());
     for (ItemCategory category : categories)
     {
-      this.itemCategoriesByName.put(category.getName(), category);
+      itemCategoriesByName.put(category.getName(), category);
     }
   }
 
   @Nullable
   public ItemCategory getItemCategory(@NotNull String categoryName)
   {
-    return itemCategoriesByName.get(categoryName);
+    return getItemCategoriesByName(true).get(categoryName);
   }
 
   @NotNull
-  public Map<String, ItemResolutionType> getItemResolutionTypesByName()
+  public Map<String, ItemResolutionType> getItemResolutionTypesByName(boolean useLink)
   {
-    return Collections.unmodifiableMap(itemResolutionTypesByName);
+    return getMapUsingLinkedReferential(itemResolutionTypesByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getItemResolutionTypesByName(true)), useLink);
   }
 
-  public void setItemResolutionTypes(@NotNull Collection<ItemResolutionType> categories)
+  @NotNull
+  public List<ItemResolutionType> getItemResolutionTypes(boolean useLink)
   {
-    this.itemResolutionTypesByName.clear();
-    for (ItemResolutionType category : categories)
+    return getListUsingLinkedReferential(itemResolutionTypesByName, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getItemResolutionTypes(true)), useLink);
+  }
+
+  public void setItemResolutionTypes(@NotNull Collection<ItemResolutionType> itemResolutionTypes)
+  {
+    itemResolutionTypesByName = new HashMap<String, ItemResolutionType>(itemResolutionTypes.size());
+    for (ItemResolutionType category : itemResolutionTypes)
     {
       this.itemResolutionTypesByName.put(category.getName(), category);
     }
@@ -107,25 +119,34 @@ public class DataReferential implements Serializable
   @Nullable
   public ItemResolutionType getItemResolutionType(@NotNull String resolutionTypeName)
   {
-    return itemResolutionTypesByName.get(resolutionTypeName);
+    return getItemResolutionTypesByName(true).get(resolutionTypeName);
   }
 
   @NotNull
-  public Map<String, User> getUsersByLogin()
+  public Map<String, User> getUsersByLogin(boolean useLink)
   {
-    return Collections.unmodifiableMap(usersByLogin);
+    return getMapUsingLinkedReferential(usersByLogin, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getUsersByLogin(true)), useLink);
   }
 
   @NotNull
-  public Map<User.Role, List<User>> getUsersByRole()
+  public Map<User.Role, List<User>> getUsersByRole(boolean useLink)
   {
-    return Collections.unmodifiableMap(usersByRole);
+    return getMapUsingLinkedReferential(usersByRole, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getUsersByRole(true)), useLink);
+  }
+
+  @NotNull
+  public List<User> getUsers(boolean useLink)
+  {
+    return getListUsingLinkedReferential(usersByLogin, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getUsers(true)), useLink);
   }
 
   public void setUsers(@NotNull Collection<User> users)
   {
-    this.usersByLogin.clear();
-    this.usersByRole.clear();
+    usersByLogin = new HashMap<String, User>(users.size());
+    usersByRole = new HashMap<User.Role, List<User>>(users.size());
     for (User user : users)
     {
       this.usersByLogin.put(user.getLogin(), user);
@@ -146,7 +167,61 @@ public class DataReferential implements Serializable
   @Nullable
   public User getUser(@NotNull String login)
   {
-    return usersByLogin.get(login);
+    return getUsersByLogin(true).get(login);
+  }
+
+  public void copyFrom(@NotNull DataReferential dataReferential)
+  {
+    itemCategoriesByName.putAll(dataReferential.getItemCategoriesByName(false));
+    itemResolutionTypesByName.putAll(dataReferential.getItemResolutionTypesByName(false));
+    itemPrioritiesByName.putAll(dataReferential.getItemPrioritiesByName(false));
+    usersByRole.putAll(dataReferential.getUsersByRole(false));
+    usersByLogin.putAll(dataReferential.getUsersByLogin(false));
+  }
+
+  @Override
+  public DataReferential clone()
+  {
+    DataReferential clone = super.clone();
+
+    clone.setItemCategories(cloneList(clone.getItemCategories(false)));
+    clone.setItemPriorities(cloneList(clone.getItemPriorities(false)));
+    clone.setItemResolutionTypes(cloneList(clone.getItemResolutionTypes(false)));
+    clone.setUsers(cloneList(clone.getUsers(false)));
+
+    return clone;
+  }
+
+  private <K, V> Map<K, V> getMapUsingLinkedReferential(Map<K, V> thisValues, Map<K, V> linkValues, boolean useLink)
+  {
+    Map<K, V> result;
+    if ((review.getExtendedReview() == null) || (!useLink))
+    {
+      result = thisValues;
+    }
+    else
+    {
+      result = new HashMap<K, V>(linkValues);
+      result.putAll(thisValues);
+    }
+
+    return Collections.unmodifiableMap(result);
+  }
+
+  private <K, V> List<V> getListUsingLinkedReferential(Map<K, V> thisValues, List<V> linkValues, boolean useLink)
+  {
+    List<V> result;
+    if ((review.getExtendedReview() == null) || (!useLink))
+    {
+      result = new ArrayList<V>(thisValues.values());
+    }
+    else
+    {
+      result = new ArrayList<V>(linkValues);
+      result.addAll(thisValues.values());
+    }
+
+    return Collections.unmodifiableList(result);
   }
 
   @Override

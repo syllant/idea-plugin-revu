@@ -1,6 +1,12 @@
 0.9
+- tool preferred size
+- resolutionType -> severity ?
+- template/share icon
+- creation dialog
+- delete review already linked
+- import dialog : link by title instead of file
+- form msg error
 - referential table add : check if exists
-- review template / link (with warning if template is linked from outside project)
 - import / export
 - message instead of form when no review / no item
 - no login management
@@ -12,6 +18,7 @@
 - icon
 - doc
 - review item assignedTo (multiple)
+- buttons to fix items (resolved/reopen)
 - errorSubmitter
 
 1.0
@@ -21,16 +28,17 @@
 - table items filters
 - column selector
 - categories -> tags
+- permissions
 - history
   - review modified
   - review item modified/added/deleted
 
 2.0
+- review config : required fields, ...
 - detailed history
 - review merge UI
 - export CSV
 - create item from intention
 - option do display items in tree instead of table
   -> grouped by files/packages/modules
-- <referential extends="">
 - review XML inspections

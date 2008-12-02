@@ -11,7 +11,9 @@
     ]]></description>
   <category>xml</category>
   <version>1.1</version>
-  <vendor email="sylfradev@yahoo.fr" url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
+  <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
+          email="sylfradev@yahoo.fr"
+          url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>

@@ -1,10 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.actions;
 
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.PasswordPromptDialog;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +26,7 @@ public class UpdataPasswordActionListener implements ActionListener
     PasswordPromptDialog dialog = new PasswordPromptDialog(RevuBundle.message("dialog.updatePassword.password.label"),
       RevuBundle.message("dialog.updatePassword.title"), "");
     dialog.show();
-    if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE)
+    if (dialog.isOK())
     {
       passwordReceiver.setPassword(RevuUtils.z(dialog.getPassword()));
     }
