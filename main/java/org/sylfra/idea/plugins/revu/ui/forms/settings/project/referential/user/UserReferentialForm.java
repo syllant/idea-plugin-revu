@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.User;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractDetailDialog;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -74,9 +74,9 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
       {
         return new AbstractDetailDialog<User>()
         {
-          protected AbstractUpdatableForm<User> buildNestedForm()
+          protected AbstractReferentialDetailForm<User> buildNestedForm()
           {
-            return new UserDetailForm();
+            return new UserDetailForm(table);
           }
 
           @Nls
@@ -99,6 +99,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
 
   protected ReferentialColumnInfo<User, ?>[] buildColumnInfos()
   {
+    //noinspection unchecked
     return new ReferentialColumnInfo[]
       {
         new ReferentialColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.login.title"))

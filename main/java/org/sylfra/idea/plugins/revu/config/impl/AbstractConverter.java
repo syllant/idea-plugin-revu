@@ -5,8 +5,11 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -31,17 +34,10 @@ abstract class AbstractConverter implements Converter
     return (Project) dataHolder.get(ReviewExternalizerXmlImpl.CONTEXT_KEY_PROJECT);
   }
 
-  protected User retrieveUser(UnmarshallingContext context, String login)
+  protected User retrieveUser(@NotNull UnmarshallingContext context, @Nullable String login)
   {
     Review review = getReview(context);
-    User user = review.getDataReferential().getUser(login);
 
-    if (user == null)
-    {
-      logger.warn("Can't find user from review users: " + user);
-      user = User.UNKNOWN;
-    }
-
-    return user;
+    return RevuUtils.getNonNullUser(review.getDataReferential(), login);
   }
 }

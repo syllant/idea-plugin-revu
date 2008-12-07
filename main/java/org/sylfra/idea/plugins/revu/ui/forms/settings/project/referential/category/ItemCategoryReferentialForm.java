@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.ItemCategory;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -23,9 +23,9 @@ public class ItemCategoryReferentialForm extends AbstractNameHolderReferentialFo
     return false;
   }
 
-  protected AbstractUpdatableForm<ItemCategory> buildNestedFormForDialog()
+  protected AbstractReferentialDetailForm<ItemCategory> buildNestedFormForDialog()
   {
-    return new ItemCategoryDetailForm();
+    return new ItemCategoryDetailForm(table);
   }
 
   @Nls

@@ -191,8 +191,8 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
     History history = new History();
 
-    history.setCreatedBy(referential.getUser("u" + createdByNb));
-    history.setLastUpdatedBy(referential.getUser("u" + lastUpdatedByNb));
+    history.setCreatedBy(referential.getUser("u" + createdByNb, true));
+    history.setLastUpdatedBy(referential.getUser("u" + lastUpdatedByNb, true));
 
     try
     {

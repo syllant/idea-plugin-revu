@@ -131,8 +131,6 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
         XMLOutputFactory.newInstance().createXMLStreamWriter(stream, "UTF-8"));
       writer.writeStartDocument("UTF-8", "1.0");
       writer.setDefaultNamespace("http://plugins.intellij.net/revu");
-//      writer.writeNamespace("http://plugins.intellij.net/revu", "http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd");
-      // @TODO XSD namespace
       xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, null);
       xstream.marshal(review, new XppDriver().createWriter(stream), xstreamDataHolder);
     }

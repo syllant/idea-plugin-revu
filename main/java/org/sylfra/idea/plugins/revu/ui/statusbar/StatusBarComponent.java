@@ -7,6 +7,7 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
@@ -24,7 +25,7 @@ import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
-import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +39,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class StatusBarComponent extends JLabel implements ProjectComponent, ApplicationComponent
@@ -48,6 +49,8 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
   private ScheduledFuture<?> blinkerTask;
   private boolean mustBlink;
   private StatusBarComponent.PopupNotifier popupNotifier;
+  private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
+  private IReviewExternalizationListener reviewExternalizationListener;
 
   public StatusBarComponent(final Project project)
   {
@@ -65,53 +68,17 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
     });
     popupNotifier = new PopupNotifier();
 
-    project.getComponent(ReviewManager.class).addReviewExternalizationListener(new IReviewExternalizationListener()
-    {
-      public void loadFailed(final String path, Exception exception)
-      {
-        final String details = ((exception.getLocalizedMessage() == null)
-          ? exception.toString() : exception.getLocalizedMessage());
-        final VirtualFile vFile = RevuUtils.findVFileFromRelativeFile(project, path);
-        ActionListener action = new ActionListener()
-        {
-          public void actionPerformed(ActionEvent e)
-          {
-            FileEditorManager.getInstance(project).openFile(vFile, true);
-          }
-        };
-        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
-          RevuBundle.message("friendlyError.externalizing.load.error.title.text"),
-          RevuBundle.message("friendlyError.externalizing.load.error.details.text", path, details),
-          ((vFile != null) && (vFile.exists()))
-            ? RevuBundle.message("friendlyError.externalizing.load.error.action.text") : null,
-          action));
-      }
-
-      public void saveFailed(Review review, Exception exception)
-      {
-        final String details = ((exception.getLocalizedMessage() == null)
-          ? exception.toString() : exception.getLocalizedMessage());
-        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
-          RevuBundle.message("friendlyError.externalizing.save.error.title.text"),
-          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getPath(), details)));
-      }
-
-      public void loadSucceeded(Review review)
-      {
-      }
-
-      public void saveSucceeded(Review review)
-      {
-      }
-    });
   }
 
-  public void addMessage(StatusBarMessage message)
+  public void addMessage(StatusBarMessage message, boolean showAlert)
   {
     mustBlink = true;
     messages.add(message);
     updateState();
-    popupNotifier.show(message);
+    if (showAlert)
+    {
+      popupNotifier.show(message);
+    }
   }
 
   public void removeMessage(StatusBarMessage message)
@@ -190,10 +157,52 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
     statusBar.addCustomIndicationComponent(this);
     WindowManager.getInstance().getFrame(project).repaint();
+
+    reviewExternalizationListener = new IReviewExternalizationListener()
+    {
+      public void loadFailed(final String path, Exception exception)
+      {
+        final String details = ((exception.getLocalizedMessage() == null)
+          ? exception.toString() : exception.getLocalizedMessage());
+        final VirtualFile vFile = RevuVfsUtils.findVFileFromRelativeFile(project, path);
+        ActionListener action = new ActionListener()
+        {
+          public void actionPerformed(ActionEvent e)
+          {
+            FileEditorManager.getInstance(project).openFile(vFile, true);
+          }
+        };
+        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
+          RevuBundle.message("friendlyError.externalizing.load.error.title.text"),
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", path, details),
+          ((vFile != null) && (vFile.exists()))
+            ? RevuBundle.message("friendlyError.externalizing.load.error.action.text") : null,
+          action), true);
+      }
+
+      public void saveFailed(Review review, Exception exception)
+      {
+        final String details = ((exception.getLocalizedMessage() == null)
+          ? exception.toString() : exception.getLocalizedMessage());
+        addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
+          RevuBundle.message("friendlyError.externalizing.save.error.title.text"),
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getPath(), details)), true);
+      }
+
+      public void loadSucceeded(Review review)
+      {
+      }
+
+      public void saveSucceeded(Review review)
+      {
+      }
+    };
+    project.getComponent(ReviewManager.class).addReviewExternalizationListener(reviewExternalizationListener);
   }
 
   public void projectClosed()
   {
+    project.getComponent(ReviewManager.class).removeReviewExternalizationListener(reviewExternalizationListener);
   }
 
   @NotNull
@@ -204,31 +213,50 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
   public void initComponent()
   {
-    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
-      .addListener(new IRevuSettingsListener<RevuAppSettings>()
+    final RevuAppSettingsComponent appSettingsComponent =
+      ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
+    appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
     {
       public void settingsChanged(RevuAppSettings settings)
       {
-        if ((settings.getLogin() == null) || (settings.getLogin().equals("")))
-        {
-          addMessage(new StatusBarMessage(StatusBarMessage.Type.INFO,
-            RevuBundle.message("friendlyError.nologin.info.title.text"),
-            null,
-            RevuBundle.message("friendlyError.nologin.info.action.text"),
-            new ActionListener()
-            {
-              public void actionPerformed(ActionEvent e)
-              {
-                ShowSettingsUtil.getInstance().showSettingsDialog(project, RevuAppSettingsForm.class);
-              }
-            }));
-        }
+        checkLogin(settings);
       }
-    });
+    };
+    appSettingsComponent.addListener(appSettingsListener);
+
+    if (project != null)
+    {
+      StartupManager.getInstance(project).registerPostStartupActivity(new Runnable()
+      {
+        public void run()
+        {
+          checkLogin(appSettingsComponent.getState());
+        }
+      });
+    }
+  }
+
+  private void checkLogin(RevuAppSettings settings)
+  {
+    if ((settings.getLogin() == null) || (settings.getLogin().trim().length() == 0))
+    {
+      addMessage(new StatusBarMessage(StatusBarMessage.Type.INFO,
+        RevuBundle.message("friendlyError.nologin.info.title.text"),
+        RevuBundle.message("friendlyError.nologin.info.details.text"),
+        RevuBundle.message("friendlyError.nologin.info.action.text"),
+        new ActionListener()
+        {
+          public void actionPerformed(ActionEvent e)
+          {
+            ShowSettingsUtil.getInstance().showSettingsDialog(null, RevuAppSettingsForm.class);
+          }
+        }), true);
+    }
   }
 
   public void disposeComponent()
   {
+    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).addListener(appSettingsListener);
   }
 
   private class Blinker implements Runnable

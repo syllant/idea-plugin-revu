@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm">
-  <grid id="27dc6" binding="contentPane" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="0" left="0" bottom="0" right="0"/>
+  <grid id="27dc6" binding="contentPane" layout-manager="CardLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <splitpane id="3b2bd">
+      <splitpane id="fe284">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="176" height="200"/>
-          </grid>
+          <card name="form"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="d673d" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="976d8" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <splitpane position="left"/>
@@ -25,33 +22,43 @@
             <properties/>
             <border type="none"/>
             <children>
-              <scrollpane id="9ea0b">
+              <scrollpane id="56d74">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="24128" class="javax.swing.JList" binding="liReviews" custom-create="true">
+                  <component id="aef46" class="javax.swing.JList" binding="liReviews" custom-create="true">
                     <constraints/>
                     <properties/>
                   </component>
                 </children>
               </scrollpane>
-              <component id="7a5d3" class="javax.swing.JComponent" binding="reviewToolBar" custom-create="true">
+              <component id="e9c97" class="javax.swing.JComponent" binding="reviewToolBar" custom-create="true">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
               </component>
             </children>
           </grid>
-          <nested-form id="cad66" form-file="org/sylfra/idea/plugins/revu/ui/forms/settings/project/ReviewSettingsForm.form" binding="reviewForm" custom-create="true">
+          <nested-form id="c137" form-file="org/sylfra/idea/plugins/revu/ui/forms/settings/project/ReviewSettingsForm.form" binding="reviewForm" custom-create="true">
             <constraints>
               <splitpane position="right"/>
             </constraints>
           </nested-form>
         </children>
       </splitpane>
+      <component id="d1b75" class="javax.swing.JLabel" binding="lbMessage">
+        <constraints>
+          <card name="label"/>
+        </constraints>
+        <properties>
+          <horizontalAlignment value="0"/>
+          <horizontalTextPosition value="11"/>
+          <text value="Label"/>
+        </properties>
+      </component>
     </children>
   </grid>
   <inspectionSuppressions>

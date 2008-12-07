@@ -12,7 +12,7 @@ import java.util.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class Review extends AbstractRevuEntity<Review> implements IHistoryHolder
+public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHolderEntity<Review>
 {
   private Review extendedReview;
   private String path;
@@ -164,10 +164,16 @@ public class Review extends AbstractRevuEntity<Review> implements IHistoryHolder
   }
 
   @NotNull
-  public List<ReviewItem> getItems(VirtualFile file)
+  public List<ReviewItem> getItems(@NotNull VirtualFile file)
   {
     List<ReviewItem> fileItems = itemsByFiles.get(file);
     return (fileItems == null) ? new ArrayList<ReviewItem>(0) : Collections.unmodifiableList(fileItems);
+  }
+
+  @NotNull
+  public boolean hasItems(@NotNull VirtualFile file)
+  {
+    return itemsByFiles.containsKey(file);
   }
 
   @NotNull
@@ -229,6 +235,11 @@ public class Review extends AbstractRevuEntity<Review> implements IHistoryHolder
     reviewItemListeners.add(listener);
   }
 
+  public void removeReviewItemListener(IReviewItemListener listener)
+  {
+    reviewItemListeners.remove(listener);
+  }
+
   public void copyFrom(@NotNull Review otherReview)
   {
     dataReferential.copyFrom(otherReview.getDataReferential());
@@ -244,6 +255,11 @@ public class Review extends AbstractRevuEntity<Review> implements IHistoryHolder
     referentialClone.setReview(clone);
 
     return clone;
+  }
+
+  public int compareTo(Review o)
+  {
+    return title.compareTo(o.getTitle());
   }
 
   @Override

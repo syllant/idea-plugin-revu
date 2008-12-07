@@ -4,15 +4,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.INamedHolder;
-import org.sylfra.idea.plugins.revu.model.IRevuEntity;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
+import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractNameHolderReferentialForm<T extends IRevuEntity<T> & INamedHolder> 
+public abstract class AbstractNameHolderReferentialForm<T extends IRevuNamedHolderEntity<T>> 
   extends AbstractReferentialForm<T>
 {
   protected AbstractNameHolderReferentialForm(Project project)
@@ -29,7 +27,7 @@ public abstract class AbstractNameHolderReferentialForm<T extends IRevuEntity<T>
       {
         return new AbstractDetailDialog<T>()
         {
-          protected AbstractUpdatableForm<T> buildNestedForm()
+          protected AbstractReferentialDetailForm<T> buildNestedForm()
           {
             return buildNestedFormForDialog();
           }
@@ -51,6 +49,7 @@ public abstract class AbstractNameHolderReferentialForm<T extends IRevuEntity<T>
 
   protected ReferentialColumnInfo<T, ?>[] buildColumnInfos()
   {
+    //noinspection unchecked
     return new ReferentialColumnInfo[]
       {
         new ReferentialColumnInfo<T, String>(RevuBundle.message(
@@ -64,7 +63,7 @@ public abstract class AbstractNameHolderReferentialForm<T extends IRevuEntity<T>
       };
   }
 
-  protected abstract AbstractUpdatableForm<T> buildNestedFormForDialog();
+  protected abstract AbstractReferentialDetailForm<T> buildNestedFormForDialog();
 
   protected abstract String getTitleKeyForDialog(boolean addMode);
 

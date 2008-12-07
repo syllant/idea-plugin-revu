@@ -4,14 +4,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.List;
-
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHistoryHolder
+public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuHistoryHolderEntity<ReviewItem>
 {
   public static enum LocationType
   {
@@ -21,21 +18,25 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
   }
 
   private VirtualFile file;
+  private String vcsRev;
+  private String localRev;
   private int lineStart;
   private int lineEnd;
+  private int hash;
   private History history;
   private Review review;
   private User resolver;
-  private List<User> recipients;
   private String summary;
   private String desc;
-  private String resolutionComment;
   private ItemPriority priority;
   private ItemCategory category;
   private ItemResolutionType resolutionType;
   private ItemResolutionStatus resolutionStatus;
-  private String codeAlternative;
-  private List<ReviewItem> relations;
+
+//  private String resolutionComment;
+//  private List<User> recipients;
+//  private String codeAlternative;
+//  private List<ReviewItem> relations;
 
   public ReviewItem()
   {
@@ -52,6 +53,26 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
   public void setFile(VirtualFile file)
   {
     this.file = file;
+  }
+
+  public String getVcsRev()
+  {
+    return vcsRev;
+  }
+
+  public void setVcsRev(String vcsRev)
+  {
+    this.vcsRev = vcsRev;
+  }
+
+  public String getLocalRev()
+  {
+    return localRev;
+  }
+
+  public void setLocalRev(String localRev)
+  {
+    this.localRev = localRev;
   }
 
   public int getLineStart()
@@ -72,6 +93,16 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
   public void setLineEnd(int lineEnd)
   {
     this.lineEnd = lineEnd;
+  }
+
+  public int getHash()
+  {
+    return hash;
+  }
+
+  public void setHash(int hash)
+  {
+    this.hash = hash;
   }
 
   public History getHistory()
@@ -104,16 +135,6 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
     this.resolver = resolver;
   }
 
-  public List<User> getRecipients()
-  {
-    return recipients;
-  }
-
-  public void setRecipients(List<User> recipients)
-  {
-    this.recipients = recipients;
-  }
-
   public String getSummary()
   {
     return summary;
@@ -132,16 +153,6 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
   public void setDesc(String desc)
   {
     this.desc = desc;
-  }
-
-  public String getResolutionComment()
-  {
-    return resolutionComment;
-  }
-
-  public void setResolutionComment(String resolutionComment)
-  {
-    this.resolutionComment = resolutionComment;
   }
 
   @Nullable
@@ -185,26 +196,6 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
     this.resolutionStatus = resolutionStatus;
   }
 
-  public String getCodeAlternative()
-  {
-    return codeAlternative;
-  }
-
-  public void setCodeAlternative(String codeAlternative)
-  {
-    this.codeAlternative = codeAlternative;
-  }
-
-  public List<ReviewItem> getRelations()
-  {
-    return relations;
-  }
-
-  public void setRelations(List<ReviewItem> relations)
-  {
-    this.relations = relations;
-  }
-
   public LocationType getLocationType()
   {
     if (file == null)
@@ -220,57 +211,113 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
     return LocationType.LINE_RANGE;
   }
 
-  @Override
-  public boolean equals(Object o)
+  public int compareTo(ReviewItem o)
   {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ReviewItem that = (ReviewItem) o;
-
-    if (lineEnd != that.lineEnd) return false;
-    if (lineStart != that.lineStart) return false;
-    if (category != null ? !category.equals(that.category) : that.category != null) return false;
-    if (codeAlternative != null ? !codeAlternative.equals(that.codeAlternative) : that.codeAlternative != null)
-      return false;
-    if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
-    if (file != null ? !file.equals(that.file) : that.file != null) return false;
-    if (history != null ? !history.equals(that.history) : that.history != null) return false;
-    if (priority != null ? !priority.equals(that.priority) : that.priority != null) return false;
-    if (recipients != null ? !recipients.equals(that.recipients) : that.recipients != null) return false;
-    if (relations != null ? !relations.equals(that.relations) : that.relations != null) return false;
-    if (resolutionComment != null ? !resolutionComment.equals(that.resolutionComment) : that.resolutionComment != null)
-      return false;
-    if (resolutionStatus != that.resolutionStatus) return false;
-    if (resolutionType != null ? !resolutionType.equals(that.resolutionType) : that.resolutionType != null)
-      return false;
-    if (resolver != null ? !resolver.equals(that.resolver) : that.resolver != null) return false;
-    if (review != null ? !review.getPath().equals(that.review.getPath()) : that.review != null) return false;
-    if (summary != null ? !summary.equals(that.summary) : that.summary != null) return false;
-
-    return true;
+    return history.getCreatedOn().compareTo(o.getHistory().getCreatedOn());
   }
 
   @Override
   public int hashCode()
   {
     int result = file != null ? file.hashCode() : 0;
+    result = 31 * result + (vcsRev != null ? vcsRev.hashCode() : 0);
+    result = 31 * result + (localRev != null ? localRev.hashCode() : 0);
     result = 31 * result + lineStart;
     result = 31 * result + lineEnd;
+    result = 31 * result + hash;
     result = 31 * result + (history != null ? history.hashCode() : 0);
-    result = 31 * result + (((review != null) && (review.getPath() != null)) ? review.getPath().hashCode() : 0);
     result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
-    result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
     result = 31 * result + (summary != null ? summary.hashCode() : 0);
     result = 31 * result + (desc != null ? desc.hashCode() : 0);
-    result = 31 * result + (resolutionComment != null ? resolutionComment.hashCode() : 0);
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
     result = 31 * result + (category != null ? category.hashCode() : 0);
     result = 31 * result + (resolutionType != null ? resolutionType.hashCode() : 0);
     result = 31 * result + (resolutionStatus != null ? resolutionStatus.hashCode() : 0);
-    result = 31 * result + (codeAlternative != null ? codeAlternative.hashCode() : 0);
-    result = 31 * result + (relations != null ? relations.hashCode() : 0);
+
+    // /!\ Cyclic call with review
+    result = 31 * result + (review != null ? review.getTitle().hashCode() : 0);
+
     return result;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+    {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass())
+    {
+      return false;
+    }
+
+    ReviewItem that = (ReviewItem) o;
+
+    if (lineEnd != that.lineEnd)
+    {
+      return false;
+    }
+    if (lineStart != that.lineStart)
+    {
+      return false;
+    }
+    if (hash != that.hash)
+    {
+      return false;
+    }
+    if (category != null ? !category.equals(that.category) : that.category != null)
+    {
+      return false;
+    }
+    if (desc != null ? !desc.equals(that.desc) : that.desc != null)
+    {
+      return false;
+    }
+    if (file != null ? !file.equals(that.file) : that.file != null)
+    {
+      return false;
+    }
+    if (history != null ? !history.equals(that.history) : that.history != null)
+    {
+      return false;
+    }
+    if (localRev != null ? !localRev.equals(that.localRev) : that.localRev != null)
+    {
+      return false;
+    }
+    if (priority != null ? !priority.equals(that.priority) : that.priority != null)
+    {
+      return false;
+    }
+    if (resolutionStatus != that.resolutionStatus)
+    {
+      return false;
+    }
+    if (resolutionType != null ? !resolutionType.equals(that.resolutionType) : that.resolutionType != null)
+    {
+      return false;
+    }
+    if (resolver != null ? !resolver.equals(that.resolver) : that.resolver != null)
+    {
+      return false;
+    }
+    if (summary != null ? !summary.equals(that.summary) : that.summary != null)
+    {
+      return false;
+    }
+    if (vcsRev != null ? !vcsRev.equals(that.vcsRev) : that.vcsRev != null)
+    {
+      return false;
+    }
+
+    // /!\ Cyclic call with review
+    if (review != null ? !review.getTitle().equals(that.review.getTitle()) : that.review != null)
+    {
+      return false;
+    }
+
+    return true;
   }
 
   @Override
@@ -278,28 +325,20 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IHisto
   {
     return new ToStringBuilder(this).
       append("file", file).
+      append("vcsRev", vcsRev).
+      append("localRev", localRev).
       append("lineStart", lineStart).
       append("lineEnd", lineEnd).
+      append("hash", hash).
       append("history", history).
       append("review", review).
       append("resolver", resolver).
-      append("recipients", recipients).
       append("summary", summary).
       append("desc", desc).
-      append("resolutionComment", resolutionComment).
       append("priority", priority).
-      append("resolutionStatus", resolutionStatus).
+      append("category", category).
       append("resolutionType", resolutionType).
-      append("codeAlternative", codeAlternative).
-      append("relations", relations).
+      append("resolutionStatus", resolutionStatus).
       toString();
-  }
-
-  public static final class ComparatorCreatedOn implements Comparator<ReviewItem>
-  {
-    public int compare(ReviewItem o1, ReviewItem o2)
-    {
-      return o1.getHistory().getCreatedOn().compareTo(o2.getHistory().getCreatedOn());
-    }
   }
 }

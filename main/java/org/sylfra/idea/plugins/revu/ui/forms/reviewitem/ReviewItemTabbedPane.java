@@ -32,7 +32,7 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
       {
         if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
         {
-          previewForm.updateUI(currentReviewItem);
+          previewForm.updateUI(getEnclosingReview(), currentReviewItem);
         }
       }
     });
@@ -58,12 +58,12 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
   {
     currentReviewItem = data;
 
-    mainForm.updateUI(data);
-    historyForm.updateUI(data);
+    mainForm.updateUI(getEnclosingReview(), data);
+    historyForm.updateUI(getEnclosingReview(), data);
 
     if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
     {
-      previewForm.updateUI(data);
+      previewForm.updateUI(getEnclosingReview(), data);
     }
   }
 
@@ -83,4 +83,11 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
     previewForm = new ReviewItemPreviewForm(project);
   }
 
+  @Override
+  public void dispose()
+  {
+    mainForm.dispose();
+    historyForm.dispose();
+    previewForm.dispose();
+  }
 }

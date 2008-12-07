@@ -55,9 +55,12 @@ class ReviewConverter extends AbstractConverter
     writer.endNode();
 
     // Desc
-    writer.startNode("desc");
-    writer.setValue(review.getDesc());
-    writer.endNode();
+    if (review.getDesc() != null)
+    {
+      writer.startNode("desc");
+      writer.setValue(review.getDesc());
+      writer.endNode();
+    }
 
     // Items
     writer.startNode("items");

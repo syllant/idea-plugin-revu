@@ -7,8 +7,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -17,11 +15,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
+import org.sylfra.idea.plugins.revu.model.DataReferential;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
-import java.io.File;
-import java.io.IOException;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -30,73 +33,6 @@ import java.io.IOException;
 public class RevuUtils
 {
   private static final Logger LOGGER = Logger.getInstance(RevuUtils.class.getName());
-
-  @NotNull
-  public static String buildRelativePath(@NotNull Project project, @NotNull VirtualFile vFile)
-  {
-    return VfsUtil.getRelativePath(vFile, project.getBaseDir(), '/');
-  }
-
-  @NotNull
-  public static String buildRelativePath(@NotNull Project project, @NotNull File file)
-  {
-    VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(file);
-    return (vFile == null) ? buildAbsolutePath(file) : buildRelativePath(project, vFile);
-  }
-
-  @NotNull
-  public static String buildRelativePath(@NotNull Project project, @NotNull String path)
-  {
-    VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(path);
-    return (vFile == null) ? path : buildRelativePath(project, vFile);
-  }
-
-  @NotNull
-  public static String buildAbsolutePath(@NotNull Project project, @NotNull String path)
-  {
-    return buildAbsolutePath(findFileFromRelativePath(project, path));
-  }
-
-  @NotNull
-  public static String buildAbsolutePath(@NotNull String path)
-  {
-    return buildAbsolutePath(new File(path));
-  }
-
-  @NotNull
-  public static String buildAbsolutePath(@NotNull File file)
-  {
-    try
-    {
-      return file.getCanonicalPath();
-    }
-    catch (IOException e)
-    {
-      LOGGER.warn("Can't get canonical path: " + file, e);
-      return file.getPath();
-    }
-  }
-
-  @Nullable
-  public static VirtualFile findVFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
-  {
-    VirtualFile baseDir = project.getBaseDir();
-    return (baseDir == null) ? null : LocalFileSystem.getInstance().findFileByPath(
-      baseDir.getPath() + "/" + filePath);
-  }
-
-  @NotNull
-  public static File findFileFromRelativePath(@NotNull Project project, @NotNull String filePath)
-  {
-    VirtualFile baseDir = project.getBaseDir();
-    return new File(baseDir.getPath(), filePath);
-  }
-
-  @Nullable
-  public static VirtualFile findFile(@NotNull String filePath)
-  {
-    return LocalFileSystem.getInstance().findFileByPath(filePath);
-  }
 
   @Nullable
   public static PsiFile getPsiFile(@NotNull Project project, @NotNull ReviewItem reviewItem)
@@ -128,18 +64,87 @@ public class RevuUtils
   }
 
   @NotNull
-  public static String z(@Nullable String s)
+  public static String z(@Nullable String s1, @Nullable String s2)
   {
-    if ((s == null) || ("".equals(s)))
+    if ((s1 == null) || ("".equals(s1)))
     {
       return "";
     }
-    
-    return DigestUtils.md5Hex(s + RevuPlugin.PLUGIN_NAME);
+
+    return DigestUtils.md5Hex(s1 + RevuPlugin.PLUGIN_NAME + ((s2 == null) ? "" : s2));
   }
 
+  @Nullable
   public static String getCurrentUserLogin()
   {
     return ServiceManager.getService(RevuAppSettingsComponent.class).getState().getLogin();
+  }
+
+  @Nullable
+  public static User getCurrentUser()
+  {
+    RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+    if (appSettings.getLogin() == null)
+    {
+      return null;
+    }
+
+    User user = new User();
+    user.setLogin(appSettings.getLogin());
+    user.setPassword(appSettings.getPassword());
+    user.setDisplayName(appSettings.getLogin());
+
+    return user;
+  }
+
+  @NotNull
+  public static User getNonNullUser(@Nullable User user)
+  {
+    return (user == null) ? User.UNKNOWN : user;
+  }
+
+  @NotNull
+  public static User getNonNullUser(@NotNull DataReferential dataReferential, @Nullable String login)
+  {
+    if (login == null)
+    {
+      return User.UNKNOWN;
+    }
+
+    if (User.DEFAULT.getLogin().equals(login))
+    {
+      return User.DEFAULT;
+    }
+
+    return getNonNullUser(dataReferential.getUser(login, true));
+  }
+
+  public static void configureTextAreaAsStandardField(@NotNull final JTextArea... textAreas)
+  {
+    for (JTextArea textArea : textAreas)
+    {
+      AbstractAction nextTabAction = new AbstractAction("NextTab")
+      {
+        public void actionPerformed(ActionEvent evt)
+        {
+          ((JTextArea) evt.getSource()).transferFocus();
+        }
+      };
+      AbstractAction previousTabAction = new AbstractAction("PreviousTab")
+      {
+        public void actionPerformed(ActionEvent evt)
+        {
+          ((JTextArea) evt.getSource()).transferFocusBackward();
+        }
+      };
+
+      textArea.getActionMap().put(nextTabAction.getValue(Action.NAME), nextTabAction);
+      textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false),
+        nextTabAction.getValue(Action.NAME));
+
+      textArea.getActionMap().put(previousTabAction.getValue(Action.NAME), previousTabAction);
+      textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK, false), 
+        previousTabAction.getValue(Action.NAME));
+    }
   }
 }

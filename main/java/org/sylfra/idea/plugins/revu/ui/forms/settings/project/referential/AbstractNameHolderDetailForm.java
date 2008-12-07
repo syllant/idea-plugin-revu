@@ -1,9 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential;
 
+import com.intellij.ui.table.TableView;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.model.INamedHolder;
-import org.sylfra.idea.plugins.revu.model.IRevuEntity;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
+import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
 
 import javax.swing.*;
 
@@ -11,11 +11,16 @@ import javax.swing.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractNameHolderDetailForm<T extends IRevuEntity<T> & INamedHolder>
-  extends AbstractUpdatableForm<T>
+public abstract class AbstractNameHolderDetailForm<T extends IRevuNamedHolderEntity<T>>
+  extends AbstractReferentialDetailForm<T>
 {
   private JPanel contentPane;
   private JTextField tfName;
+
+  protected AbstractNameHolderDetailForm(TableView<T> table)
+  {
+    super(table);
+  }
 
   public boolean isModified(@NotNull T data)
   {
@@ -25,6 +30,7 @@ public abstract class AbstractNameHolderDetailForm<T extends IRevuEntity<T> & IN
   protected void internalValidateInput()
   {
     updateRequiredError(tfName, "".equals(tfName.getText().trim()));
+    updateError(tfName, checkAlreadyExist(tfName.getText(), 0), RevuBundle.message("general.valueAlreadExist.text"));
   }
 
   protected void internalUpdateUI(T data)

@@ -73,8 +73,8 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
     }
 
     UsageInfo usageInfo = new UsageInfo(psiFile,
-      document.getLineStartOffset(reviewItem.getLineStart() - 1),
-      document.getLineEndOffset(reviewItem.getLineEnd() - 1) + 1);
+      document.getLineStartOffset(reviewItem.getLineStart()),
+      document.getLineEndOffset(reviewItem.getLineEnd()) + 1);
 
     List<UsageInfo> result = new ArrayList<UsageInfo>(1);
     result.add(usageInfo);

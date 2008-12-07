@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.IRevuEntity;
+import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -20,11 +21,17 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 {
   protected final java.util.List<JComponent> errors;
   protected final java.util.List<UpdatableFormListener<T>> listeners;
+  protected Review enclosingReview;
 
   protected AbstractUpdatableForm()
   {
     errors = new ArrayList<JComponent>();
     listeners = new ArrayList<UpdatableFormListener<T>>();
+  }
+
+  public Review getEnclosingReview()
+  {
+    return enclosingReview;
   }
 
   public void addUpdatableFormListener(UpdatableFormListener<T> listener)
@@ -34,6 +41,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
   public boolean validateInput()
   {
+    errors.clear();
     internalValidateInput();
     return errors.isEmpty();
   }
@@ -47,7 +55,6 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     }
 
     return itemsClone.toArray(new Object[itemsClone.size()]);
-
   }
 
   protected void updateRequiredError(JComponent component, boolean hasError)
@@ -57,6 +64,12 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
   protected void updateError(JComponent component, boolean hasError, String message)
   {
+    // One error max by component
+    if (errors.contains(component))
+    {
+      return;
+    }
+
     boolean hasErrorBorder = component.getBorder() instanceof ErrorBorder;
     if (hasError)
     {
@@ -90,9 +103,10 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     return ((o1 == o2) || ((o1 != null) && (o1.equals(o2))));
   }
 
-  public final void updateUI(@Nullable T data)
+  public final void updateUI(Review enclosingReview, @Nullable T data)
   {
-    errors.clear();
+    this.enclosingReview = enclosingReview;
+
     internalUpdateUI(data);
     if (getPreferredFocusedComponent() != null)
     {
@@ -101,7 +115,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
     for (UpdatableFormListener<T> listener : listeners)
     {
-      listener.uiUpdated(data);
+      listener.uiUpdated(enclosingReview, data);
     }
   }
 
@@ -149,7 +163,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
   public static interface UpdatableFormListener<T>
   {
-    void uiUpdated(@Nullable T data);
+    void uiUpdated(Review enclosingReview, @Nullable T data);
     void dataUpdated(@NotNull T data);
   }
 }

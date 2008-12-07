@@ -3,7 +3,6 @@ package org.sylfra.idea.plugins.revu.ui.actions;
 import com.intellij.openapi.util.PasswordPromptDialog;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +27,12 @@ public class UpdataPasswordActionListener implements ActionListener
     dialog.show();
     if (dialog.isOK())
     {
-      passwordReceiver.setPassword(RevuUtils.z(dialog.getPassword()));
+      String password = dialog.getPassword().trim();
+      if (password == null)
+      {
+        password = null;
+      }
+      passwordReceiver.setPassword(password);
     }
   }
 

@@ -28,7 +28,10 @@ class UserConverter extends AbstractConverter
 
     writer.addAttribute("displayName", user.getDisplayName());
     writer.addAttribute("login", user.getLogin());
-    writer.addAttribute("password", (user.getPassword() == null) ? "" : user.getPassword());
+    if (user.getPassword() != null)
+    {
+      writer.addAttribute("password", user.getPassword());
+    }
 
     SortedSet<User.Role> roles = new TreeSet<User.Role>(user.getRoles());
     writer.addAttribute("roles", ConverterUtils.toString(roles, true));

@@ -24,6 +24,7 @@ public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction
     {
       int orientation = getOrientation();
       reviewBrowsingForm.getSplitPane().setOrientation(orientation);
+      reviewBrowsingForm.getSplitPane().setDividerLocation(0.5d);
 
       RevuWorkspaceSettingsComponent workspaceSettingsComponent =
         project.getComponent(RevuWorkspaceSettingsComponent.class);

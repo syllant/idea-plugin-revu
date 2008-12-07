@@ -50,4 +50,9 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings>
   {
     listeners.add(listener);
   }
+
+  public void removeListener(IRevuSettingsListener<T> listener)
+  {
+    listeners.remove(listener);
+  }
 }

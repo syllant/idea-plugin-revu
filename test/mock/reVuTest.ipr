@@ -260,6 +260,9 @@
     <option name="projectName" value="reVuTest" />
   </component>
   <component name="ProjectFileVersion" converted="true" />
+  <component name="ProjectKey">
+    <option name="state" value="project://D:\_syfranco\perso\dev\revu\src\test\mock\reVuTest.ipr" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/reVuTest.iml" filepath="$PROJECT_DIR$/reVuTest.iml" />
@@ -364,7 +367,6 @@
     <option name="reviewFiles">
       <list>
         <option value="reviews/review1.xml" />
-        <option value="reviews/review2.xml" />
       </list>
     </option>
   </component>
