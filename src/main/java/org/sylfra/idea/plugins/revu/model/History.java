@@ -69,6 +69,11 @@ public class History extends AbstractRevuEntity<History>
     return clone;
   }
 
+  public int compareTo(History o)
+  {
+    return lastUpdatedBy.compareTo(o.getLastUpdatedBy());
+  }
+
   @Override
   public boolean equals(Object o)
   {

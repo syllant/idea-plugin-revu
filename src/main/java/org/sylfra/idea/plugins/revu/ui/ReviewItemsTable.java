@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
+import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
@@ -58,7 +59,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       {
         if (e.getClickCount() == 2)
         {
-          ActionUtil.execute("revu.JumpToSourceAction", e, ReviewItemsTable.this, "reviewItemTable", 0);
+          ActionUtil.execute("revu.JumpToSource", e, ReviewItemsTable.this, "reviewItemTable", 0);
         }
       }
     });
@@ -126,9 +127,8 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       ReviewItem currentItem = getSelectedObject();
       if (currentItem != null)
       {
-        // @TODO why -2 and not -1 ?!
         OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentItem.getFile(),
-          currentItem.getLineStart() - 2, 0);
+          currentItem.getLineStart() - 1, 0);
         return new Navigatable[]{fileDescriptor};
       }
 
@@ -151,6 +151,9 @@ public class ReviewItemsTable extends TableView<ReviewItem>
   private final static class ReviewItemTableModel extends ListTableModel<ReviewItem>
     implements IReviewItemListener
   {
+    // ListTableModel does not expose items list (#getItems() provides a copy)
+    private java.util.List<ReviewItem> items;
+
     private static final ColumnInfo[] COLUMN_INFOS =
       {
         new ColumnInfo<ReviewItem, String>(
@@ -279,7 +282,6 @@ public class ReviewItemsTable extends TableView<ReviewItem>
           }
         }
       };
-    private final java.util.List<ReviewItem> items;
 
     public ReviewItemTableModel(Project project, java.util.List<ReviewItem> items, Review review)
     {
@@ -294,12 +296,39 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       }
       else
       {
-        Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+        ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+        reviewManager.addReviewListener(new IReviewListener()
+        {
+          public void reviewChanged(Review review)
+          {
+          }
+
+          public void reviewAdded(Review review)
+          {
+            ReviewItemTableModel.this.items.addAll(review.getItems());
+            resort(ReviewItemTableModel.this.items);
+            fireTableDataChanged();
+            review.addReviewItemListener(ReviewItemTableModel.this);
+          }
+
+          public void reviewDeleted(Review review)
+          {
+            review.removeReviewItemListener(ReviewItemTableModel.this);
+          }
+        });
+        Collection<Review> reviews = reviewManager.getReviews();
         for (Review aReview : reviews)
         {
           aReview.addReviewItemListener(this);
         }
       }
+    }
+
+    @Override
+    public void setItems(List<ReviewItem> items)
+    {
+      super.setItems(items);
+      this.items = items;
     }
 
     public void itemAdded(ReviewItem item)

@@ -48,7 +48,7 @@ public class ReviewItemDialog extends DialogWrapper
   public void show(@NotNull ReviewItem reviewItem, boolean create)
   {
     currentForm = (create) ? createMainForm : updateTabbedPane;
-    currentForm.updateUI(reviewItem);
+    currentForm.updateUI(currentForm.getEnclosingReview(), reviewItem);
 
     cardLayout.show(centerPanel, currentForm.getClass().getName());
 

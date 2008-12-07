@@ -6,13 +6,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.IRevuEntity;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
+import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
 
 public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends DialogWrapper
 {
-  private AbstractUpdatableForm<T> nestedForm;
+  private AbstractReferentialDetailForm<T> nestedForm;
   private T data;
 
   public AbstractDetailDialog()
@@ -34,7 +34,7 @@ public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends Dia
   }
 
   @NotNull
-  protected abstract AbstractUpdatableForm<T> buildNestedForm();
+  protected abstract AbstractReferentialDetailForm<T> buildNestedForm();
 
   @Nls
   protected abstract String getTitleKey(boolean addMode);
@@ -42,8 +42,9 @@ public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends Dia
   @NotNull
   protected abstract T createDefaultData();
 
-  public void show(@Nullable T data)
+  public void show(@Nullable Review review, @Nullable T data)
   {
+    nestedForm.setCreateMode(data == null);
     setTitle(RevuBundle.message(getTitleKey((data == null))));
     if (data == null)
     {
@@ -51,7 +52,7 @@ public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends Dia
     }
 
     this.data = data;
-    nestedForm.updateUI(data);
+    nestedForm.updateUI(review, data);
     super.show();
   }
 
@@ -61,6 +62,10 @@ public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends Dia
     if (nestedForm.updateData(data))
     {
       super.doOKAction();
+    }
+    else
+    {
+      setErrorText(RevuBundle.message("general.form.hasErrors.text"));
     }
   }
 

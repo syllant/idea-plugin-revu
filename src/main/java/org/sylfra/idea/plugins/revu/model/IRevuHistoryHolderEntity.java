@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public interface IHistoryHolder
+public interface IRevuHistoryHolderEntity<T> extends IRevuEntity<T>
 {
   @NotNull History getHistory();
   

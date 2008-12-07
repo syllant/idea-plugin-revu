@@ -1,13 +1,12 @@
 package org.sylfra.idea.plugins.revu.ui;
 
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryAdapter;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
-import com.intellij.openapi.editor.markup.GutterIconRenderer;
-import com.intellij.openapi.editor.markup.HighlighterLayer;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -15,6 +14,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -24,13 +24,17 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class GutterManager extends EditorFactoryAdapter implements IReviewItemListener, IReviewListener
+public class GutterManager extends EditorFactoryAdapter
+  implements ProjectComponent, IReviewItemListener, IReviewListener
 {
   private final Project project;
   private Map<VirtualFile, Map<Integer, CustomGutterIconRenderer>> renderersByFiles;
@@ -52,28 +56,34 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
   @Override
   public void editorCreated(EditorFactoryEvent event)
   {
-    Editor editor = event.getEditor();
+    final Editor editor = event.getEditor();
 
-    VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
-    List<ReviewItem> items = new ArrayList<ReviewItem>();
+    VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+    if (vFile == null)
+    {
+      return;
+    }
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    for (Review review : reviewManager.getReviews())
+    for (Review review : reviewManager.getActiveReviews(vFile))
     {
       if (review.isActive())
       {
-        items.addAll(review.getItems(file));
+        for (ReviewItem item : review.getItems(vFile))
+        {
+          addGutter(item);
+        }
       }
-    }
-
-    for (ReviewItem item : items)
-    {
-      addGutter(item);
     }
   }
 
   private void addGutter(ReviewItem reviewItem)
   {
+    if (!reviewItem.getReview().isActive())
+    {
+      return;
+    }
+
     Editor editor = RevuUtils.getEditor(reviewItem);
     if (editor != null)
     {
@@ -86,11 +96,12 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
 
       RangeHighlighter rangeHighlighter =
         editor.getMarkupModel().addRangeHighlighter(
-          editor.getDocument().getLineStartOffset(reviewItem.getLineStart() - 1),
-          editor.getDocument().getLineEndOffset(reviewItem.getLineEnd() - 1) + 1,
+          editor.getDocument().getLineStartOffset(reviewItem.getLineStart()),
+          editor.getDocument().getLineEndOffset(reviewItem.getLineEnd()),
           HighlighterLayer.FIRST - 1,
           null,
           HighlighterTargetArea.LINES_IN_RANGE);
+      rangeHighlighter.setEditorFilter(MarkupEditorFilterFactory.createIsNotDiffFilter());
 
       CustomGutterIconRenderer renderer = renderersByLineStart.get(reviewItem.getLineStart());
       if (renderer == null)
@@ -138,11 +149,12 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
 
   public void itemUpdated(ReviewItem item)
   {
+    removeGutter(item);
+    addGutter(item);
   }
 
   public void reviewChanged(Review review)
   {
-    // @TODO
   }
 
   public void reviewAdded(Review review)
@@ -158,20 +170,49 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
     }
   }
 
+  public void projectOpened()
+  {
+  }
+
+  public void projectClosed()
+  {
+  }
+
+  @NotNull
+  public String getComponentName()
+  {
+    return RevuPlugin.PLUGIN_NAME + ".GutterManager";
+  }
+
+  public void initComponent()
+  {
+    EditorFactory.getInstance().addEditorFactoryListener(this);
+  }
+
+  public void disposeComponent()
+  {
+    EditorFactory.getInstance().removeEditorFactoryListener(this);
+  }
+
   private static class CustomGutterIconRenderer extends GutterIconRenderer
   {
+    private boolean desynchronized;
     private final Integer lineStart;
     private final Map<ReviewItem, RangeHighlighter> itemsWithRangeHighlighters;
 
     public CustomGutterIconRenderer(Integer lineStart)
     {
       this.lineStart = lineStart;
-      itemsWithRangeHighlighters = new HashMap<ReviewItem, RangeHighlighter>();
+
+      // Use IdentityHashMap to retrieve reviewItems by reference equality instead of content equality
+      itemsWithRangeHighlighters = new IdentityHashMap<ReviewItem, RangeHighlighter>();
+      desynchronized = false;
     }
 
-    public void addItem(ReviewItem reviewItem, RangeHighlighter rangeHighlighter)
+    public void addItem(@NotNull ReviewItem reviewItem, @NotNull RangeHighlighter rangeHighlighter)
     {
       itemsWithRangeHighlighters.put(reviewItem, rangeHighlighter);
+      desynchronized = ((desynchronized) || (isDesynchronized(reviewItem, rangeHighlighter)));
     }
 
     public void removeItem(ReviewItem reviewItem)
@@ -181,6 +222,30 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
       {
         rangeHighlighter.setGutterIconRenderer(null);
       }
+
+      if (desynchronized)
+      {
+        boolean tmp = false;
+        for (Map.Entry<ReviewItem, RangeHighlighter> entry : itemsWithRangeHighlighters.entrySet())
+        {
+          if (isDesynchronized(entry.getKey(), entry.getValue()))
+          {
+            tmp = true;
+            break;
+          }
+        }
+
+        desynchronized = tmp;
+      }
+    }
+
+    private boolean isDesynchronized(@NotNull ReviewItem reviewItem, @NotNull RangeHighlighter rangeHighlighter)
+    {
+      CharSequence currentFragment =
+        rangeHighlighter.getDocument().getCharsSequence().subSequence(rangeHighlighter.getStartOffset(),
+          rangeHighlighter.getEndOffset());
+
+      return (reviewItem.getHash() != currentFragment.toString().hashCode());
     }
 
     @NotNull
@@ -190,10 +255,16 @@ public class GutterManager extends EditorFactoryAdapter implements IReviewItemLi
       int count = itemsWithRangeHighlighters.size();
 
       // Should not have to return an empty icon, but renderer is not removed when unset from RangeHighlighter !?
-      return (count == 0) ? new ImageIcon()
-        : RevuIconProvider.getIcon((count == 1)
-          ? RevuIconProvider.IconRef.GUTTER_REVU_ITEM
-          : RevuIconProvider.IconRef.GUTTER_REVU_ITEMS);
+      if (count == 0)
+      {
+        return new ImageIcon();
+      }
+
+      return RevuIconProvider.getIcon((count == 1)
+        ? (desynchronized ? RevuIconProvider.IconRef.GUTTER_REVU_ITEM_DESYNCHRONIZED
+          : RevuIconProvider.IconRef.GUTTER_REVU_ITEM)
+        : (desynchronized ? RevuIconProvider.IconRef.GUTTER_REVU_ITEMS_DESYNCHRONIZED
+          : RevuIconProvider.IconRef.GUTTER_REVU_ITEMS));
     }
 
     @Override

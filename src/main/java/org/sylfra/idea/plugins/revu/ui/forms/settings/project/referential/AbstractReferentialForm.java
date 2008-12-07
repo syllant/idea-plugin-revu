@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.IRevuEntity;
+import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 
 import javax.swing.*;
@@ -21,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,6 +35,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
   private final Project project;
   private JPanel contentPane;
   protected TableView<T> table;
+  private List<AbstractTableAction<T>> actions;
 
   protected AbstractReferentialForm(@NotNull Project project)
   {
@@ -44,14 +47,15 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
   {
     createTable();
 
-    JPanel pnButtons = createButtonsPanel(getActionsForButtonPanel(buildDetailDialogFactory()));
+    actions = buildActions(buildDetailDialogFactory());
+    JPanel pnButtons = createButtonsPanel(actions);
 
     contentPane = new JPanel(new BorderLayout());
     contentPane.add(new JScrollPane(table), BorderLayout.CENTER);
     contentPane.add(pnButtons, BorderLayout.EAST);
   }
 
-  protected java.util.List<AbstractTableAction<T>> getActionsForButtonPanel(IDetailDialogFactory<T> detailDialogFactory)
+  protected java.util.List<AbstractTableAction<T>> buildActions(IDetailDialogFactory<T> detailDialogFactory)
   {
     java.util.List<AbstractTableAction<T>> result = new ArrayList<AbstractTableAction<T>>();
 
@@ -95,7 +99,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
       if (action == null)
       {
         JPanel separator = new JPanel();
-        separator.setPreferredSize(new Dimension(10, 10));
+        separator.setMaximumSize(new Dimension(Short.MAX_VALUE, 10));
         pnButtons.add(separator);
       }
       else
@@ -134,7 +138,15 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
   public boolean isModified(@NotNull ReferentialListHolder<T> data)
   {
-    return !table.getListTableModel().getItems().equals(data.getAllItems());
+    List<T> items = new ArrayList<T>(table.getListTableModel().getItems());
+    if (data.getLinkedItems() != null)
+    {
+      List<T> linkedItems = new ArrayList<T>(data.getLinkedItems());
+      linkedItems.removeAll(data.getItems());
+      items.removeAll(linkedItems);
+    }
+    
+    return !items.equals(data.getItems());
   }
 
   protected void internalValidateInput()
@@ -143,27 +155,44 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
   protected void internalUpdateUI(ReferentialListHolder<T> data)
   {
-    table.getListTableModel().setItems((data == null) ? new ArrayList<T>() : data.getAllItems());
+    List<T> items;
+    if (data == null)
+    {
+      items = new ArrayList<T>();
+    }
+    else
+    {
+      items = new ArrayList<T>(data.getAllItems().size());
+      for (T item : data.getAllItems())
+      {
+        items.add(item.clone());
+      }
+      Collections.sort(items);
+    }
+    
+    table.getListTableModel().setItems(items);
+
+    for (AbstractTableAction<T> action : actions)
+    {
+      if (action != null)
+      {
+        action.checkEnabled();
+      }
+    }
   }
 
   protected void internalUpdateData(@NotNull ReferentialListHolder<T> data)
   {
-    data.getAllItems().clear();
-    data.getAllItems().addAll(table.getListTableModel().getItems());
+    List<T> items = new ArrayList<T>(table.getListTableModel().getItems());
     if (data.getLinkedItems() != null)
     {
-      data.getAllItems().removeAll(data.getLinkedItems());
+      List<T> linkedItems = new ArrayList<T>(data.getLinkedItems());
+      linkedItems.removeAll(data.getItems());
+      items.removeAll(linkedItems);
     }
+    
+    data.setItems(items);
   }
-
-//  @Override
-//  protected ReferentialListHolder<T> cloneData(@Nullable ReferentialListHolder<T> data)
-//  {
-//    ReferentialListHolder<T> clone = super.cloneData(data);
-//    clone.setAllItems(new ArrayList<T>(clone.getAllItems()));
-//    clone.setLinkedItems(new ArrayList<T>(clone.getLinkedItems()));
-//    return clone;
-//  }
 
   public JComponent getPreferredFocusedComponent()
   {
@@ -183,6 +212,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
   protected static abstract class AbstractTableAction<T> extends AbstractAction implements UpdatableFormListener<ReferentialListHolder<T>>
   {
+    protected Review enclosingReview;
     protected ReferentialListHolder<T> referentialListHolder;
     protected final TableView<T> table;
 
@@ -194,10 +224,15 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
       {
         public void valueChanged(ListSelectionEvent e)
         {
-          setEnabled(!isFromLinkedReferential() && isEnabledForSelection());
+          checkEnabled();
         }
       });
-      isEnabledForSelection();
+      checkEnabled();
+    }
+
+    public void checkEnabled()
+    {
+      setEnabled(!isFromLinkedReferential() && isEnabledForSelection());
     }
 
     private boolean isFromLinkedReferential()
@@ -218,8 +253,9 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
       return false;
     }
 
-    public void uiUpdated(@Nullable ReferentialListHolder<T> data)
+    public void uiUpdated(Review enclosingReview, @Nullable ReferentialListHolder<T> data)
     {
+      this.enclosingReview = enclosingReview;
       referentialListHolder = data;
     }
 
@@ -243,7 +279,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     protected void showDialog(T data)
     {
       AbstractDetailDialog<T> dialog = detailDialogFactory.createDialog();
-      dialog.show(data);
+      dialog.show(enclosingReview, data);
       if (dialog.isOK())
       {
         // Not very optimized, but this is what IDEA seems to use to update ListTableModel items
@@ -296,7 +332,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
         @Override
         public void mouseClicked(MouseEvent e)
         {
-          if (e.getClickCount() == 2)
+          if ((isEnabled()) && (e.getClickCount() == 2))
           {
             actionPerformed(null);
           }
@@ -334,17 +370,6 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     public void actionPerformed(ActionEvent e)
     {
       TableUtil.removeSelectedItems(table);
-//      List<T> linkedItems = ((referentialListHolder == null) || (referentialListHolder.getLinkedItems() == null))
-//        ? new ArrayList<T>(0) : referentialListHolder.getLinkedItems();
-//      TableUtil.removeSelectedItems(table);
-//
-//      for (T item : table.getSelection())
-//      {
-//        if (linkedItems.contains(item))
-//        {
-//
-//        }
-//      }
     }
 
     protected boolean isEnabledForSelection()
@@ -407,7 +432,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     protected boolean isEnabledForSelection()
     {
-      return (table.getSelectedRow() < table.getRowCount() - 1);
+      return ((table.getSelectedRow() > -1) && (table.getSelectedRow() < table.getRowCount() - 1));
     }
   }
 
@@ -431,8 +456,9 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
         {
           Component result = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
           if ((referentialListHolder != null)
-            && (referentialListHolder.getLinkedItems() != null)
-            && (referentialListHolder.getLinkedItems().contains(item)))
+            && ((referentialListHolder.getLinkedItems() != null)
+            && (referentialListHolder.getLinkedItems().contains(item))
+            && (!referentialListHolder.getItems().contains(item))))
           {
             result.setForeground(UIUtil.getInactiveTextColor());
           }
@@ -446,7 +472,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
       };
     }
 
-    public void uiUpdated(@Nullable ReferentialListHolder<Item> data)
+    public void uiUpdated(Review enclosingReview, @Nullable ReferentialListHolder<Item> data)
     {
       this.referentialListHolder = data;
     }

@@ -2,8 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.forms;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.model.IHistoryHolder;
-import org.sylfra.idea.plugins.revu.model.IRevuEntity;
+import org.sylfra.idea.plugins.revu.model.IRevuHistoryHolderEntity;
 import org.sylfra.idea.plugins.revu.model.User;
 
 import javax.swing.*;
@@ -13,7 +12,7 @@ import java.text.DateFormat;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class HistoryForm<T extends IRevuEntity<T> & IHistoryHolder> extends AbstractUpdatableForm<T>
+public class HistoryForm<T extends IRevuHistoryHolderEntity<T>> extends AbstractUpdatableForm<T>
 {
   public static final DateFormat DATE_FORMATTER = DateFormat.getDateTimeInstance(
     DateFormat.LONG, DateFormat.LONG);

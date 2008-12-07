@@ -164,10 +164,27 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
     }
   }
 
-  @Nullable
-  public User getUser(@NotNull String login)
+  public void addUser(@NotNull User user)
   {
-    return getUsersByLogin(true).get(login);
+    usersByLogin.put(user.getLogin(), user);
+
+    for (User.Role role : user.getRoles())
+    {
+      List<User> usersForRole = usersByRole.get(role);
+      if (usersForRole == null)
+      {
+        usersForRole = new ArrayList<User>();
+        usersByRole.put(role, usersForRole);
+      }
+
+      usersForRole.add(user);
+    }
+  }
+
+  @Nullable
+  public User getUser(@NotNull String login, boolean useLink)
+  {
+    return getUsersByLogin(useLink).get(login);
   }
 
   public void copyFrom(@NotNull DataReferential dataReferential)
@@ -222,6 +239,11 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
     }
 
     return Collections.unmodifiableList(result);
+  }
+
+  public int compareTo(DataReferential o)
+  {
+    return 0;
   }
 
   @Override

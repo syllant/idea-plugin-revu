@@ -1,172 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.sylfra.idea.plugins.revu.ui.forms.settings.project.ReviewSettingsForm">
-  <grid id="27dc6" binding="contentPane" layout-manager="BorderLayout" hgap="0" vgap="0">
+  <grid id="27dc6" binding="contentPane" layout-manager="CardLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="504" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <tabbedpane id="d08ed" binding="tabbedPane">
-        <constraints border-constraint="Center"/>
+      <grid id="ec469" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <card name="review"/>
+        </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="3da96" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints>
-              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="settings.project.review.referential.title"/>
-            </constraints>
+          <tabbedpane id="5e5cb" binding="tabbedPane">
+            <constraints border-constraint="Center"/>
             <properties/>
             <border type="none"/>
             <children>
-              <nested-form id="38405" form-file="org/sylfra/idea/plugins/revu/ui/forms/settings/project/referential/ReferentialTabbedPane.form" binding="referentialForm" custom-create="true">
-                <constraints border-constraint="Center"/>
-              </nested-form>
-            </children>
-          </grid>
-          <grid id="e0ac2" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints>
-              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="settings.project.history.title"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <nested-form id="b407d" form-file="org/sylfra/idea/plugins/revu/ui/forms/HistoryForm.form" binding="historyForm">
-                <constraints border-constraint="Center"/>
-              </nested-form>
-            </children>
-          </grid>
-        </children>
-      </tabbedpane>
-      <grid id="4a36d" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints border-constraint="North"/>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="38b2a" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font style="1"/>
-              <labelFor value="e9eed"/>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.review.name.label"/>
-            </properties>
-          </component>
-          <component id="c487a" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font style="1"/>
-              <labelFor value="57889"/>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.review.file.label"/>
-            </properties>
-          </component>
-          <grid id="5e3ec" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="e9eed" class="javax.swing.JTextField" binding="tfTitle">
+              <grid id="8892e" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="settings.project.review.referential.title"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <nested-form id="3ffa1" form-file="org/sylfra/idea/plugins/revu/ui/forms/settings/project/referential/ReferentialTabbedPane.form" binding="referentialForm" custom-create="true">
+                    <constraints border-constraint="Center"/>
+                  </nested-form>
+                </children>
+              </grid>
+              <grid id="9cbcd" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints>
+                  <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="settings.project.history.title"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <nested-form id="f8367" form-file="org/sylfra/idea/plugins/revu/ui/forms/HistoryForm.form" binding="historyForm">
+                    <constraints border-constraint="Center"/>
+                  </nested-form>
+                </children>
+              </grid>
+            </children>
+          </tabbedpane>
+          <grid id="5c5d3" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints border-constraint="North"/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="cb2cd" class="javax.swing.JTextField" binding="tfTitle">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
                 <properties/>
               </component>
-              <component id="33aa2" class="javax.swing.JCheckBox" binding="ckTemplate">
+              <component id="254c3" class="javax.swing.JCheckBox" binding="ckTemplate">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.template.text"/>
                 </properties>
               </component>
-              <component id="36a13" class="javax.swing.JCheckBox" binding="ckActive">
+              <component id="7df69" class="javax.swing.JCheckBox" binding="ckActive">
                 <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.active.text"/>
                 </properties>
               </component>
-            </children>
-          </grid>
-          <grid id="39331" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="57889" class="javax.swing.JTextField" binding="tfFile" custom-create="true">
+              <component id="f6aef" class="javax.swing.JLabel" binding="lbFile">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="6" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <columns value="0"/>
+                  <text value="file" noi18n="true"/>
+                  <verticalAlignment value="1"/>
+                  <verticalTextPosition value="1"/>
                 </properties>
               </component>
-              <component id="a54a4" class="javax.swing.JButton" binding="bnFileChooser">
+              <component id="799a" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="10" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <margin top="0" left="0" bottom="0" right="0"/>
-                  <text value="..."/>
+                  <font style="1"/>
+                  <labelFor value="e9eed"/>
+                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.review.name.label"/>
                 </properties>
               </component>
             </children>
           </grid>
-        </children>
-      </grid>
-      <grid id="8b826" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints border-constraint="South"/>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="3bbcb" class="javax.swing.JCheckBox" binding="ckShare">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.share.text"/>
-            </properties>
-          </component>
-          <grid id="3e480" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="6394e" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
+            <constraints border-constraint="South"/>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="4f9a4" class="javax.swing.JLabel" binding="lbExtends">
+              <component id="6777b" class="javax.swing.JCheckBox" binding="ckShare">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.extends.text"/>
+                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.share.text"/>
                 </properties>
               </component>
-              <component id="87567" class="javax.swing.JButton" binding="bnImport">
+              <grid id="880a0" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties>
-                  <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.import.text"/>
-                </properties>
-              </component>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="6607d" class="javax.swing.JLabel" binding="lbExtends">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.extends.text"/>
+                    </properties>
+                  </component>
+                  <component id="166d5" class="javax.swing.JButton" binding="bnImport">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.import.text"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
           </grid>
         </children>

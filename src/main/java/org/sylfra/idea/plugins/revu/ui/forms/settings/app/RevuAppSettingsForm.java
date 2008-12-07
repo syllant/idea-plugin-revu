@@ -37,7 +37,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       {
         public void setPassword(@Nullable String password)
         {
-          RevuAppSettingsForm.this.password = password;
+          RevuAppSettingsForm.this.password = RevuUtils.z(password, null);
         }
       });
     bnUpdatePassword.addActionListener(updataPasswordActionListener);
@@ -111,7 +111,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     RevuAppSettings appSettings = retrieveAppSettings();
 
     return (!tfLogin.getText().equals(appSettings.getLogin()))
-      || (!RevuUtils.z(password).equals(appSettings.getPassword()));
+      || (!RevuUtils.z(password, null).equals(appSettings.getPassword()));
   }
 
   /**
@@ -124,7 +124,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     appSettings.setLogin(tfLogin.getText());
     if (password != null)
     {
-      appSettings.setPassword(RevuUtils.z(password));
+      appSettings.setPassword(RevuUtils.z(password, null));
     }
     ServiceManager.getService(RevuAppSettingsComponent.class).loadState(appSettings);
   }

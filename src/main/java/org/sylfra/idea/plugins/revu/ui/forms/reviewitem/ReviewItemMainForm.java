@@ -12,6 +12,7 @@ import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,6 +45,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   private VirtualFile originalFile;
   private int originalLineStart;
   private int originalLineEnd;
+  private String originalVcsRev;
 
   public ReviewItemMainForm(@NotNull Project project)
   {
@@ -66,16 +68,16 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   {
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
 
-    Collection<Review> reviews = reviewManager.getReviews(true, null);
+    Collection<Review> reviews = reviewManager.getReviews(true, false);
 
-    Review defaultReview = (data == null)
-      ? null
-      : ((data.getReview() == null) && (reviews.size() == 1))
-        ? reviews.iterator().next() : data.getReview();
+    Review defaultReview = ((data == null) || (data.getReview() == null))
+      ? ((reviews.size() == 1) ? reviews.iterator().next() : null)
+      : data.getReview();
 
     originalFile = (data == null) ? null : data.getFile();
     originalLineStart = (data == null) ? -1 : data.getLineStart();
     originalLineEnd = (data == null) ? -1 : data.getLineEnd();
+    originalVcsRev = (data == null) ? null : data.getVcsRev();
 
     cbReview.setSelectedItem(defaultReview);
 
@@ -165,7 +167,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
       Review review = (Review) cbReview.getSelectedItem();
 
       RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
-      User user = review.getDataReferential().getUser(appSettings.getLogin());
+      User user = review.getDataReferential().getUser(appSettings.getLogin(), true);
 
       updateRequiredError(cbReview, user == null);
     }
@@ -179,23 +181,31 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
       lbLocation.setText("");
     }
 
+    String filePath;
     String locationPath;
     switch (locationType)
     {
       case GLOBAL:
         rbLocationGlobal.setSelected(true);
-        locationPath = "[" + RevuBundle.message("form.reviewitem.main.location.global.text") + "]";
+        locationPath = RevuBundle.message("form.reviewitem.main.location.global.text");
         break;
 
       case FILE:
         rbLocationFile.setSelected(true);
-        locationPath = RevuUtils.buildRelativePath(project, originalFile);
+        filePath = RevuVfsUtils.buildRelativePath(project, originalFile);
+        locationPath = (originalVcsRev == null)
+          ? filePath
+          : RevuBundle.message("form.reviewitem.main.location.pathWithVcsRev.text", filePath, originalVcsRev); 
         break;
 
       default:
         rbLocationLineRange.setSelected(true);
+        filePath = RevuVfsUtils.buildRelativePath(project, originalFile);
+        String filePathWithVcsRev = (originalVcsRev == null)
+          ? filePath
+          : RevuBundle.message("form.reviewitem.main.location.pathWithVcsRev.text", filePath, originalVcsRev);
         locationPath = RevuBundle.message("form.reviewitem.main.location.range.path.text",
-          RevuUtils.buildRelativePath(project, originalFile), originalLineStart, originalLineEnd);
+          filePathWithVcsRev, (originalLineStart + 1) , (originalLineEnd + 1));
     }
 
     lbLocation.setText(locationPath);
@@ -203,13 +213,15 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
   private void configureUI()
   {
+    RevuUtils.configureTextAreaAsStandardField(taDesc, taTitle);
+
     RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
 
     cbResolutionStatus.setModel(new DefaultComboBoxModel(buildComboItemsArray(
       Arrays.asList(ItemResolutionStatus.values()), true)));
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(true,
+    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(null, true,
       false, appSettings.getLogin()), true)));
     cbReview.setRenderer(new DefaultListCellRenderer()
     {

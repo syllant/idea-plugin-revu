@@ -45,6 +45,7 @@
                 <constraints/>
                 <properties>
                   <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.app.updatePassword.text"/>
+                  <visible value="false"/>
                 </properties>
               </component>
             </children>
@@ -54,6 +55,7 @@
             <properties>
               <horizontalAlignment value="4"/>
               <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.app.passwordHint.text"/>
+              <visible value="false"/>
             </properties>
           </component>
         </children>

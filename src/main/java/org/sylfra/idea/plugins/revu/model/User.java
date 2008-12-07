@@ -21,7 +21,8 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
     AUTHOR
   }
 
-  public final static User UNKNOWN = new User("<unknown>", null, "<unknown>");
+  public final static User UNKNOWN = new User("[unknown]", null, "[unknown]");
+  public final static User DEFAULT = new User("[default]", null, "[default]");
 
   private String login;
   private String password;
@@ -87,10 +88,14 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
     this.roles = roles;
   }
 
-  
   public void addRole(Role role)
   {
     roles.add(role);
+  }
+
+  public boolean hasRole(Role role)
+  {
+    return roles.contains(role);
   }
 
   public int compareTo(User other)
@@ -124,6 +129,10 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
     {
       return false;
     }
+    if (roles != null ? !roles.equals(user.roles) : user.roles != null)
+    {
+      return false;
+    }
 
     return true;
   }
@@ -134,6 +143,7 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
     int result = login != null ? login.hashCode() : 0;
     result = 31 * result + (password != null ? password.hashCode() : 0);
     result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+    result = 31 * result + (roles != null ? roles.hashCode() : 0);
     return result;
   }
 

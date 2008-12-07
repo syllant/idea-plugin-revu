@@ -29,7 +29,9 @@ public abstract class RevuIconProvider
     STATUS_BAR_WARNING("statusBarWarning"),
     STATUS_BAR_ERROR("statusBarError"),
     GUTTER_REVU_ITEM("gutterReviewItem"),
-    GUTTER_REVU_ITEMS("gutterReviewItems");
+    GUTTER_REVU_ITEM_DESYNCHRONIZED("gutterReviewItemDesynchronized"),
+    GUTTER_REVU_ITEMS("gutterReviewItems"),
+    GUTTER_REVU_ITEMS_DESYNCHRONIZED("gutterReviewItemsDesynchronized");
     
     private final String imgName;
 

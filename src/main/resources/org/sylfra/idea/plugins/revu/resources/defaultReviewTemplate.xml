@@ -18,6 +18,6 @@
       <resolutionType name="resolutionType2"/>
     </resolutionTypes>
   </referential>
-  <history createdBy="[reVu]" lastUpdatedBy="[reVu]" createdOn="2008-01-01T00:00:00" lastUpdatedOn="2008-01-01T00:00:00"/>
+  <history createdBy="[default]" lastUpdatedBy="[default]" createdOn="2008-01-01T00:00:00" lastUpdatedOn="2008-01-01T00:00:00"/>
   <desc>Default review provided as a template to extends.</desc>
 </review>

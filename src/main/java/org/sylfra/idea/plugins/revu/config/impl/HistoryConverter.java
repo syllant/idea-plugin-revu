@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.sylfra.idea.plugins.revu.model.History;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -28,12 +29,14 @@ class HistoryConverter extends AbstractConverter
   {
     History history = (History) source;
 
-    writer.addAttribute("createdBy", history.getCreatedBy().getLogin());
-    writer.addAttribute("lastUpdatedBy", history.getLastUpdatedBy().getLogin());
+    writer.addAttribute("createdBy", RevuUtils.getNonNullUser(history.getCreatedBy()).getLogin());
+    writer.addAttribute("lastUpdatedBy", RevuUtils.getNonNullUser(history.getLastUpdatedBy()).getLogin());
     synchronized (DATE_FORMATTER)
     {
-      writer.addAttribute("createdOn", DATE_FORMATTER.format(history.getCreatedOn()));
-      writer.addAttribute("lastUpdatedOn", DATE_FORMATTER.format(history.getLastUpdatedOn()));
+      writer.addAttribute("createdOn", DATE_FORMATTER.format((history.getCreatedOn() == null)
+        ? new Date() : history.getCreatedOn()));
+      writer.addAttribute("lastUpdatedOn", DATE_FORMATTER.format((history.getLastUpdatedOn() == null)
+        ? new Date() : history.getLastUpdatedOn()));
     }
   }
 

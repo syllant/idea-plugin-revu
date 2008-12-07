@@ -3,8 +3,8 @@
   <referential>
     <priorities>
       <priority order="0" name="priority1"/>
-      <priority order="2" name="priority2"/>
-      <priority order="6" name="priority3"/>
+      <priority order="1" name="priority2"/>
+      <priority order="2" name="priority3"/>
     </priorities>
     <categories>
       <category name="category1"/>
@@ -21,7 +21,7 @@
       <user displayName="user3" login="u3" password="p3" roles="reviewer,author"/>
     </users>
   </referential>
-  <history createdBy="u1" lastUpdatedBy="aa" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-11-27T08:39:44"/>
+  <history createdBy="u1" lastUpdatedBy="aa" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-12-04T07:45:34"/>
   <desc>A test review. A test review. A test review. A test review. A test review.</desc>
   <items>
     <item summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" category="category1" priority="priority1" resolutionStatus="to_resolve" resolutionType="resolutionType1">

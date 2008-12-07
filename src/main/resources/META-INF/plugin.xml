@@ -66,6 +66,15 @@
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.GutterManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.ReviewItemLocationTracker</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.business.RevuFileListener</implementation-class>
+    </component>
   </project-components>
 
   <extensions defaultExtensionNs="com.intellij">
@@ -73,6 +82,11 @@
   </extensions>
 
   <actions>
+
+    <action id="revu.ShowProjectSettings"
+            class="org.sylfra.idea.plugins.revu.ui.actions.ShowProjectSettingsAction"
+            text="Show project settings"
+            icon="/general/projectSettings.png"/>
 
     <!-- Review -->
     <action id="revu.CreateReview"
@@ -96,8 +110,8 @@
     <action id="revu.CreateReviewItem"
             class="org.sylfra.idea.plugins.revu.ui.actions.CreateReviewItemAction"
             text="Add review item"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/addReviewItem.png">
-      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            icon="/general/add.png">
+      <keyboard-shortcut first-keystroke="alt r" keymap="$default"/>
     </action>
     <action id="revu.ShowUpdateReviewItemPopup"
             class="org.sylfra.idea.plugins.revu.ui.actions.ShowUpdateReviewItemPopupAction"
@@ -106,7 +120,7 @@
     <action id="revu.RemoveReviewItem"
             class="org.sylfra.idea.plugins.revu.ui.actions.RemoveReviewItemAction"
             text="Remove review item"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/removeReviewItem.png"/>
+            icon="/general/remove.png"/>
 
     <!-- Source -->
     <action id="revu.JumpToSource"
@@ -118,6 +132,13 @@
             class="org.sylfra.idea.plugins.revu.ui.actions.ToggleAutoscrollToSourceAction"
             text="Autoscroll to Source"
             icon="/general/autoscrollToSource.png"/>
+
+    <!-- Gutter -->
+    <group id="revu.editor.popup">
+      <separator/>
+      <reference ref="revu.CreateReviewItem"/>
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+    </group>
 
     <!-- Gutter -->
     <group id="revu.reviewItemGutter.popup" popup="true">
@@ -134,19 +155,27 @@
     <group id="revu.toolWindow.allReviews" popup="true">
       <reference ref="revu.CreateReviewItem"/>
       <reference ref="revu.RemoveReviewItem"/>
+      <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
+      <separator/>
       <reference ref="revu.AutoscrollToSource"/>
       <reference ref="revu.toolWindow.review.layout"/>
+      <separator/>
+      <reference ref="revu.ShowProjectSettings"/>
     </group>
 
     <group id="revu.toolWindow.review" popup="true">
       <reference ref="revu.CreateReviewItem"/>
       <reference ref="revu.RemoveReviewItem"/>
+      <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
+      <separator/>
       <reference ref="revu.AutoscrollToSource"/>
       <reference ref="revu.toolWindow.review.layout"/>
+      <separator/>
+      <reference ref="revu.ShowProjectSettings"/>
     </group>
 
     <group id="revu.reviewItemTable.popup" popup="true">

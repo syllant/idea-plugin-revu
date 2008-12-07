@@ -94,6 +94,7 @@
         </constraints>
         <properties>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.user.form.updatePassword.text"/>
+          <visible value="false"/>
         </properties>
       </component>
     </children>

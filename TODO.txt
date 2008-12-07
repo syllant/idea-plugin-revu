@@ -1,39 +1,40 @@
-0.9
-- tool preferred size
-- resolutionType -> severity ?
+1.0
+- BUG all reviews table
 - template/share icon
-- creation dialog
-- delete review already linked
-- import dialog : link by title instead of file
-- form msg error
-- referential table add : check if exists
-- import / export
-- message instead of form when no review / no item
-- no login management
-  - message instead of project config & review form
+- check
+  - edition disabled if embedded
+- message instead of form when no review / no item / no login
 
 - source change management
   -> attach VCS version ?
   -> show line gutter marker
-- icon
-- doc
 - review item assignedTo (multiple)
 - buttons to fix items (resolved/reopen)
-- errorSubmitter
 
-1.0
+- create review local/share
+- tool preferred size
+
+- permissions
+- icon
+- doc
+
 - notes management
-- assign files
-  - from VCS changes
 - table items filters
 - column selector
 - categories -> tags
-- permissions
+- errorSubmitter
+- form msg error
+- import / export
+- resolutionType -> severity ?
 - history
   - review modified
   - review item modified/added/deleted
 
+- assign files
+  - from VCS changes
+
 2.0
+- option to show/hide 'all reviews' tool window
 - review config : required fields, ...
 - detailed history
 - review merge UI

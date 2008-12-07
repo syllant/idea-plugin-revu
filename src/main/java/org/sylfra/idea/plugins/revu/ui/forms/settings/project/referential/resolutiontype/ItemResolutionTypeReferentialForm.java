@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.ItemResolutionType;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -23,9 +23,9 @@ public class ItemResolutionTypeReferentialForm extends AbstractNameHolderReferen
     return false;
   }
 
-  protected AbstractUpdatableForm<ItemResolutionType> buildNestedFormForDialog()
+  protected AbstractReferentialDetailForm<ItemResolutionType> buildNestedFormForDialog()
   {
-    return new ItemResolutionTypeDetailForm();
+    return new ItemResolutionTypeDetailForm(table);
   }
 
   @Nls

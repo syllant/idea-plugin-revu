@@ -4,11 +4,10 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.ItemPriority;
-import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.ReferentialListHolder;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,9 +26,9 @@ public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialFo
     return true;
   }
 
-  protected AbstractUpdatableForm<ItemPriority> buildNestedFormForDialog()
+  protected AbstractReferentialDetailForm<ItemPriority> buildNestedFormForDialog()
   {
-    return new ItemPriorityDetailForm();
+    return new ItemPriorityDetailForm(table);
   }
 
   @Nls
@@ -51,21 +50,21 @@ public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialFo
   {
     super.internalUpdateData(data);
 
-    List<ItemPriority> priorities = data.getAllItems();
+    List<ItemPriority> priorities = data.getItems();
     for (byte i = 0; i < priorities.size(); i++)
     {
       ItemPriority itemPriority = priorities.get(i);
       itemPriority.setOrder(i);
     }
   }
-
-  @Override
-  protected void internalUpdateUI(ReferentialListHolder<ItemPriority> data)
-  {
-    if (data != null)
-    {
-      Collections.sort(data.getAllItems());
-    }
-    super.internalUpdateUI(data);
-  }
+//
+//  @Override
+//  protected void internalUpdateUI(ReferentialListHolder<ItemPriority> data)
+//  {
+//    if (data != null)
+//    {
+//      Collections.sort(data.getItems());
+//    }
+//    super.internalUpdateUI(data);
+//  }
 }

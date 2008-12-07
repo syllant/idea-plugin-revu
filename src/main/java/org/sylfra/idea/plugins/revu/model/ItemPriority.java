@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemPriority extends AbstractRevuEntity<ItemPriority> implements Comparable<ItemPriority>, INamedHolder
+public class ItemPriority extends AbstractRevuEntity<ItemPriority> implements Comparable<ItemPriority>,
+  IRevuNamedHolderEntity<ItemPriority>
 {
   private byte order;
   private String name;

@@ -11,7 +11,7 @@
       <xsd:sequence>
         <xsd:element ref="xs:referential"/>
         <xsd:element ref="xs:history"/>
-        <xsd:element ref="xs:desc"/>
+        <xsd:element ref="xs:desc" minOccurs="0"/>
         <xsd:element ref="xs:items" minOccurs="0"/>
       </xsd:sequence>
       <xsd:attribute name="title" type="xsd:string" use="required"/>
@@ -88,7 +88,7 @@
     <xsd:complexType>
       <xsd:attribute name="displayName" type="xsd:string" use="required"/>
       <xsd:attribute name="login" type="xsd:string" use="required"/>
-      <xsd:attribute name="password" type="xsd:string" use="required"/>
+      <xsd:attribute name="password" type="xsd:string" use="optional"/>
       <xsd:attribute name="roles" type="xsd:string" use="required"/>
     </xsd:complexType>
   </xsd:element>
@@ -122,6 +122,8 @@
       </xsd:sequence>
       <xsd:attribute name="summary" type="xsd:string" use="required"/>
       <xsd:attribute name="filePath" type="xsd:string" use="required"/>
+      <xsd:attribute name="vcsRev" type="xsd:string" use="optional"/>
+      <xsd:attribute name="localRev" type="xsd:string" use="optional"/>
       <xsd:attribute name="lineStart" type="xsd:int" use="required"/>
       <xsd:attribute name="lineEnd" type="xsd:int" use="required"/>
       <xsd:attribute name="category" type="xsd:string" use="required"/>

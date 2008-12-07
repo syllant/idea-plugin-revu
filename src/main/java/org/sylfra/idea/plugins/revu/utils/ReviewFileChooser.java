@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewFileChooser
@@ -62,7 +62,7 @@ public class ReviewFileChooser
   }
 
   /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
    * @version $Id$
    */
   private static class ReviewFileChooserDescriptor extends FileChooserDescriptor
@@ -84,13 +84,14 @@ public class ReviewFileChooser
     @Override
     public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles)
     {
-      return ((!FileElement.isFileHidden(file)) && ((file.isDirectory()) || ("xml".equals(file.getExtension()))));
+      return ((!FileElement.isFileHidden(file))
+        && ((file.isDirectory()) || ((openMode) && ("xml".equals(file.getExtension())))));
     }
 
     @Override
     public boolean isFileSelectable(VirtualFile file)
     {
-      return ((!openMode && file.isDirectory()) || ("xml".equals(file.getExtension())));
+      return (((!openMode) && (file.isDirectory())) || ((openMode) && ("xml".equals(file.getExtension()))));
     }
   }
 }
