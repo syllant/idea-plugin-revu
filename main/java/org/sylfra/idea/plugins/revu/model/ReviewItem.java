@@ -4,6 +4,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
@@ -29,7 +32,7 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
   private String summary;
   private String desc;
   private ItemPriority priority;
-  private ItemCategory category;
+  private List<ItemTag> tags;
   private ItemResolutionType resolutionType;
   private ItemResolutionStatus resolutionStatus;
 
@@ -41,6 +44,7 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
   public ReviewItem()
   {
     history = new History();
+    tags = new ArrayList<ItemTag>();
     lineStart = -1;
     lineEnd = -1;
   }
@@ -166,14 +170,14 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
     this.priority = priority;
   }
 
-  public ItemCategory getCategory()
+  public List<ItemTag> getTags()
   {
-    return category;
+    return tags;
   }
 
-  public void setCategory(ItemCategory category)
+  public void setTags(List<ItemTag> tags)
   {
-    this.category = category;
+    this.tags = tags;
   }
 
   public ItemResolutionType getResolutionType()
@@ -230,12 +234,12 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
     result = 31 * result + (summary != null ? summary.hashCode() : 0);
     result = 31 * result + (desc != null ? desc.hashCode() : 0);
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
-    result = 31 * result + (category != null ? category.hashCode() : 0);
+    result = 31 * result + (tags != null ? tags.hashCode() : 0);
     result = 31 * result + (resolutionType != null ? resolutionType.hashCode() : 0);
     result = 31 * result + (resolutionStatus != null ? resolutionStatus.hashCode() : 0);
 
     // /!\ Cyclic call with review
-    result = 31 * result + (review != null ? review.getTitle().hashCode() : 0);
+    result = 31 * result + (review != null ? review.getName().hashCode() : 0);
 
     return result;
   }
@@ -266,7 +270,7 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
     {
       return false;
     }
-    if (category != null ? !category.equals(that.category) : that.category != null)
+    if (tags != null ? !tags.equals(that.tags) : that.tags != null)
     {
       return false;
     }
@@ -312,7 +316,7 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
     }
 
     // /!\ Cyclic call with review
-    if (review != null ? !review.getTitle().equals(that.review.getTitle()) : that.review != null)
+    if (review != null ? !review.getName().equals(that.review.getName()) : that.review != null)
     {
       return false;
     }
@@ -336,7 +340,7 @@ public class ReviewItem extends AbstractRevuEntity<ReviewItem> implements IRevuH
       append("summary", summary).
       append("desc", desc).
       append("priority", priority).
-      append("category", category).
+      append("tags", tags).
       append("resolutionType", resolutionType).
       append("resolutionStatus", resolutionStatus).
       toString();

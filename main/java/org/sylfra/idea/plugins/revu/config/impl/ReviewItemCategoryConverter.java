@@ -4,30 +4,30 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.sylfra.idea.plugins.revu.model.ItemCategory;
+import org.sylfra.idea.plugins.revu.model.ItemTag;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-class ReviewItemCategoryConverter extends AbstractConverter
+class ReviewItemTagConverter extends AbstractConverter
 {
   public boolean canConvert(Class type)
   {
-    return ItemCategory.class.equals(type);
+    return ItemTag.class.equals(type);
   }
 
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context)
   {
-    ItemCategory category = (ItemCategory) source;
+    ItemTag tag = (ItemTag) source;
 
-    writer.addAttribute("name", category.getName());
+    writer.addAttribute("name", tag.getName());
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
     String name = reader.getAttribute("name");
 
-    return new ItemCategory(name);
+    return new ItemTag(name);
   }
 }

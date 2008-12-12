@@ -22,7 +22,7 @@ public interface IUpdatableForm<T> extends Disposable
   @Nullable
   Review getEnclosingReview();
 
-  void updateUI(Review enclosingReview, @Nullable T data);
+  void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus);
 
   boolean updateData(@NotNull T data);
 

@@ -22,12 +22,13 @@ public class ReviewItemDialog extends DialogWrapper
   private JPanel centerPanel;
   private IUpdatableForm<ReviewItem> currentForm;
 
-  public ReviewItemDialog(Project project)
+  public ReviewItemDialog(@NotNull Project project)
   {
     super(project, true);
 
-    updateTabbedPane = new ReviewItemTabbedPane(project);
-    createMainForm = new ReviewItemMainForm(project);
+    // @TODO inject navigator in ReviewItemTabbedPane
+    updateTabbedPane = new ReviewItemTabbedPane(project, null);
+    createMainForm = new ReviewItemMainForm(project, true);
 
     cardLayout = new CardLayout();
     centerPanel = new JPanel(cardLayout);
@@ -48,7 +49,7 @@ public class ReviewItemDialog extends DialogWrapper
   public void show(@NotNull ReviewItem reviewItem, boolean create)
   {
     currentForm = (create) ? createMainForm : updateTabbedPane;
-    currentForm.updateUI(currentForm.getEnclosingReview(), reviewItem);
+    currentForm.updateUI(currentForm.getEnclosingReview(), reviewItem, true);
 
     cardLayout.show(centerPanel, currentForm.getClass().getName());
 

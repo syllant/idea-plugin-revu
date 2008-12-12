@@ -34,20 +34,15 @@ class ReviewConverter extends AbstractConverter
     writer.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
     writer.addAttribute("xsi:schemaLocation", REVU_SCHEMA_ID + " " + REVU_SCHEMA_LOCATION);
 
-    writer.addAttribute("title", review.getTitle());
+    writer.addAttribute("name", review.getName());
     writer.addAttribute("template", String.valueOf(review.isTemplate()));
     writer.addAttribute("active", String.valueOf(review.isActive()));
     writer.addAttribute("shared", String.valueOf(review.isShared()));
 
     if (review.getExtendedReview() != null)
     {
-      writer.addAttribute("extends", review.getExtendedReview().getTitle());
+      writer.addAttribute("extends", review.getExtendedReview().getName());
     }
-
-    // Referential
-    writer.startNode("referential");
-    context.convertAnother(review.getDataReferential());
-    writer.endNode();
 
     // History
     writer.startNode("history");
@@ -55,12 +50,17 @@ class ReviewConverter extends AbstractConverter
     writer.endNode();
 
     // Desc
-    if (review.getDesc() != null)
+    if (review.getGoal() != null)
     {
-      writer.startNode("desc");
-      writer.setValue(review.getDesc());
+      writer.startNode("goal");
+      writer.setValue(review.getGoal());
       writer.endNode();
     }
+
+    // Referential
+    writer.startNode("referential");
+    context.convertAnother(review.getDataReferential());
+    writer.endNode();
 
     // Items
     writer.startNode("items");
@@ -81,22 +81,22 @@ class ReviewConverter extends AbstractConverter
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
-    String title = reader.getAttribute("title");
+    String name = reader.getAttribute("name");
     String template = reader.getAttribute("template");
     String active = reader.getAttribute("active");
     String shared = reader.getAttribute("shared");
-    String extendedReviewTitle = reader.getAttribute("extends");
+    String extendedReviewName = reader.getAttribute("extends");
 
     Review review = getReview(context);
     
-    review.setTitle(title);
+    review.setName(name);
     review.setTemplate("true".equals(template));
     review.setActive("true".equals(active));
     review.setShared("true".equals(shared));
 
-    if (extendedReviewTitle != null)
+    if (extendedReviewName != null)
     {
-      review.setExtendedReview(new Review(extendedReviewTitle));
+      review.setExtendedReview(new Review(extendedReviewName));
     }
 
     while (reader.hasMoreChildren())
@@ -117,9 +117,9 @@ class ReviewConverter extends AbstractConverter
       {
         review.setHistory((History) context.convertAnother(review, History.class));
       }
-      else if ("desc".equals(reader.getNodeName()))
+      else if ("goal".equals(reader.getNodeName()))
       {
-        review.setDesc(reader.getValue());
+        review.setGoal(reader.getValue());
       }
       else if ("referential".equals(reader.getNodeName()))
       {

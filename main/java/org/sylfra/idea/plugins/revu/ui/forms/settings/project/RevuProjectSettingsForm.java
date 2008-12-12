@@ -1,13 +1,15 @@
 package org.sylfra.idea.plugins.revu.ui.forms.settings.project;
 
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -19,9 +21,7 @@ import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
-import org.sylfra.idea.plugins.revu.model.History;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
@@ -29,8 +29,8 @@ import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.actions.review.PrepareCreateReviewAction;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
-import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
@@ -39,7 +39,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -102,7 +101,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         boolean cellHasFocus)
       {
         Review review = (Review) value;
-        value = review.getTitle();
+        value = review.getName();
 
         Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (!review.isActive())
@@ -142,7 +141,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
     Review current = (Review) liReviews.getSelectedValue();
     if (current != null)
     {
-      reviewForm.updateUI(current, current);
+      reviewForm.updateUI(current, current, true);
     }
   }
 
@@ -305,7 +304,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
       catch (RevuException e)
       {
         throw new ConfigurationException(
-          RevuBundle.message("settings.project.error.save.title.text", currentReview.getTitle(), e.getMessage()),
+          RevuBundle.message("settings.project.error.save.title.text", currentReview.getName(), e.getMessage()),
           RevuBundle.message("plugin.revu.title"));
       }
     }
@@ -328,7 +327,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
    */
   public void reset()
   {
-    reviewForm.updateUI(null, null);
+    reviewForm.updateUI(null, null, true);
 
     DefaultListModel liReviewsModel = new DefaultListModel();
 
@@ -390,7 +389,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
       }
     };
     reviewForm = new ReviewSettingsForm(project, editedReviews);
-    CreateReviewAction createReviewAction = (CreateReviewAction) ActionManager.getInstance()
+    PrepareCreateReviewAction createReviewAction = (PrepareCreateReviewAction) ActionManager.getInstance()
       .getAction("revu.CreateReview");
     createReviewAction.setEditedReviews(editedReviews);
 
@@ -404,106 +403,9 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
     reviewToolBar = actionToolbar.getComponent();
   }
 
-  public static class CreateReviewAction extends AnAction
+  public void selectReview(@NotNull Review review)
   {
-    private List<Review> editedReviews;
-
-    public void setEditedReviews(List<Review> editedReviews)
-    {
-      this.editedReviews = editedReviews;
-    }
-
-    public void actionPerformed(AnActionEvent e)
-    {
-      JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
-      Project project = e.getData(DataKeys.PROJECT);
-
-      CreateReviewDialog dialog = new CreateReviewDialog(project, true);
-      dialog.show(editedReviews, null);
-      if (!dialog.isOK())
-      {
-        return;
-      }
-
-      DefaultListModel model = (DefaultListModel) liReviews.getModel();
-      Review review = new Review();
-      review.setActive(true);
-      review.setPath(dialog.getPath());
-      review.setTitle(dialog.getTitle());
-      switch (dialog.getImportType())
-      {
-        case COPY:
-          review.copyFrom(dialog.getImportedReview());
-          break;
-        case LINK:
-          review.setExtendedReview(dialog.getImportedReview());
-          break;
-      }
-
-      User currentUser = RevuUtils.getCurrentUser();
-      User reviewCurrentUser = review.getDataReferential().getUser(currentUser.getLogin(), false);
-      if (reviewCurrentUser == null)
-      {
-        currentUser.addRole(User.Role.ADMIN);
-        review.getDataReferential().addUser(currentUser);
-      }
-      else
-      {
-        if (!reviewCurrentUser.hasRole(User.Role.ADMIN))
-        {
-          reviewCurrentUser.addRole(User.Role.ADMIN);
-        }
-      }
-
-      History history = new History();
-      Date now = new Date();
-      history.setCreatedBy(currentUser);
-      history.setCreatedOn(now);
-      history.setLastUpdatedBy(currentUser);
-      history.setLastUpdatedOn(now);
-      review.setHistory(history);
-
-      model.addElement(review);
-      liReviews.setSelectedValue(review, true);
-    }
+    liReviews.setSelectedValue(review, true);
   }
 
-  public static class RemoveReviewAction extends AnAction
-  {
-    public void actionPerformed(AnActionEvent e)
-    {
-      JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
-      DefaultListModel model = (DefaultListModel) liReviews.getModel();
-      Review selectedReview = (Review) liReviews.getSelectedValue();
-
-      // Check afferent link
-      List<Review> afferentReviews = new ArrayList<Review>();
-      for (int i=0; i<model.getSize(); i++)
-      {
-        Review review = (Review) model.get(i);
-        if (selectedReview.equals(review.getExtendedReview()))
-        {
-          afferentReviews.add(review);
-        }
-      }
-
-      String msgKey = afferentReviews.isEmpty()
-        ? "settings.project.confirmRemoveReview.text"
-        : "settings.project.confirmRemoveReviewWithAfferentLink.text";
-      int result = Messages.showOkCancelDialog(liReviews,
-        RevuBundle.message(msgKey, selectedReview.getTitle()),
-        RevuBundle.message("settings.project.confirmRemoveReview.title"),
-        Messages.getWarningIcon());
-
-      if (result == DialogWrapper.OK_EXIT_CODE)
-      {
-        model.removeElement(selectedReview);
-        for (Review review : afferentReviews)
-        {
-          review.setExtendedReview(null);
-        }
-        liReviews.setSelectedIndex(0);
-      }
-    }
-  }
 }

@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -16,15 +17,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.DataReferential;
+import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -47,20 +52,22 @@ public class RevuUtils
     return (psiFile == null) ? null : PsiDocumentManager.getInstance(project).getDocument(psiFile);
   }
 
-  @Nullable
-  public static Editor getEditor(@NotNull ReviewItem reviewItem)
+  @NotNull
+  public static List<Editor> getEditors(@NotNull ReviewItem reviewItem)
   {
+    List<Editor> result = new ArrayList<Editor>();
+
     Editor[] editors = EditorFactory.getInstance().getAllEditors();
     for (Editor editor : editors)
     {
       VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
       if (reviewItem.getFile().equals(vFile))
       {
-        return editor;
+        result.add(editor);
       }
     }
 
-    return null;
+    return result;
   }
 
   @NotNull
@@ -93,6 +100,23 @@ public class RevuUtils
     user.setLogin(appSettings.getLogin());
     user.setPassword(appSettings.getPassword());
     user.setDisplayName(appSettings.getLogin());
+
+    return user;
+  }
+
+  @Nullable
+  public static User getUser(@Nullable Review review)
+  {
+    User user;
+    if (review == null)
+    {
+      user = null;
+    }
+    else
+    {
+      String login = RevuUtils.getCurrentUserLogin();
+      user = (login == null) ? null : review.getDataReferential().getUser(login, true);
+    }
 
     return user;
   }
@@ -146,5 +170,25 @@ public class RevuUtils
       textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK, false), 
         previousTabAction.getValue(Action.NAME));
     }
+  }
+
+  public static void setWriteAccess(boolean canWrite, @NotNull JComponent... components)
+  {
+    for (JComponent component : components)
+    {
+      if (component instanceof JTextComponent)
+      {
+        ((JTextComponent) component).setEditable(canWrite);
+      }
+      else
+      {
+        component.setEnabled(canWrite);
+      }
+    }
+  }
+
+  public static String buildFileNameFromReviewName(@NotNull String name)
+  {
+    return FileUtil.sanitizeFileName(name) + ".xml";
   }
 }

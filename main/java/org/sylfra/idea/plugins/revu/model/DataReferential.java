@@ -8,8 +8,8 @@ import java.util.*;
 
 public class DataReferential extends AbstractRevuEntity<DataReferential>
 {
-  private Review review;
-  private Map<String, ItemCategory> itemCategoriesByName;
+  private transient Review review;
+  private Map<String, ItemTag> itemTagsByName;
   private Map<String, ItemResolutionType> itemResolutionTypesByName;
   private Map<String, ItemPriority> itemPrioritiesByName;
   private Map<User.Role, List<User>> usersByRole;
@@ -18,7 +18,7 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   public DataReferential(@NotNull Review review)
   {
     this.review = review;
-    itemCategoriesByName = new HashMap<String, ItemCategory>();
+    itemTagsByName = new HashMap<String, ItemTag>();
     itemResolutionTypesByName = new HashMap<String, ItemResolutionType>();
     itemPrioritiesByName = new HashMap<String, ItemPriority>();
     usersByLogin = new HashMap<String, User>();
@@ -65,32 +65,32 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   }
 
   @NotNull
-  public Map<String, ItemCategory> getItemCategoriesByName(boolean useLink)
+  public Map<String, ItemTag> getItemTagsByName(boolean useLink)
   {
-    return getMapUsingLinkedReferential(itemCategoriesByName, ((review.getExtendedReview() == null) ? null :
-        review.getExtendedReview().getDataReferential().getItemCategoriesByName(true)), useLink);
+    return getMapUsingLinkedReferential(itemTagsByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getItemTagsByName(true)), useLink);
   }
 
   @NotNull
-  public List<ItemCategory> getItemCategories(boolean useLink)
+  public List<ItemTag> getItemTags(boolean useLink)
   {
-    return getListUsingLinkedReferential(itemCategoriesByName, ((review.getExtendedReview() == null) ? null :
-        review.getExtendedReview().getDataReferential().getItemCategories(true)), useLink);
+    return getListUsingLinkedReferential(itemTagsByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getItemTags(true)), useLink);
   }
 
-  public void setItemCategories(@NotNull Collection<ItemCategory> categories)
+  public void setItemTags(@NotNull Collection<ItemTag> tags)
   {
-    itemCategoriesByName = new HashMap<String, ItemCategory>(categories.size());
-    for (ItemCategory category : categories)
+    itemTagsByName = new HashMap<String, ItemTag>(tags.size());
+    for (ItemTag tag : tags)
     {
-      itemCategoriesByName.put(category.getName(), category);
+      itemTagsByName.put(tag.getName(), tag);
     }
   }
 
   @Nullable
-  public ItemCategory getItemCategory(@NotNull String categoryName)
+  public ItemTag getItemTag(@NotNull String tagName)
   {
-    return getItemCategoriesByName(true).get(categoryName);
+    return getItemTagsByName(true).get(tagName);
   }
 
   @NotNull
@@ -110,9 +110,9 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   public void setItemResolutionTypes(@NotNull Collection<ItemResolutionType> itemResolutionTypes)
   {
     itemResolutionTypesByName = new HashMap<String, ItemResolutionType>(itemResolutionTypes.size());
-    for (ItemResolutionType category : itemResolutionTypes)
+    for (ItemResolutionType tag : itemResolutionTypes)
     {
-      this.itemResolutionTypesByName.put(category.getName(), category);
+      this.itemResolutionTypesByName.put(tag.getName(), tag);
     }
   }
 
@@ -189,7 +189,7 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
 
   public void copyFrom(@NotNull DataReferential dataReferential)
   {
-    itemCategoriesByName.putAll(dataReferential.getItemCategoriesByName(false));
+    itemTagsByName.putAll(dataReferential.getItemTagsByName(false));
     itemResolutionTypesByName.putAll(dataReferential.getItemResolutionTypesByName(false));
     itemPrioritiesByName.putAll(dataReferential.getItemPrioritiesByName(false));
     usersByRole.putAll(dataReferential.getUsersByRole(false));
@@ -201,7 +201,7 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   {
     DataReferential clone = super.clone();
 
-    clone.setItemCategories(cloneList(clone.getItemCategories(false)));
+    clone.setItemTags(cloneList(clone.getItemTags(false)));
     clone.setItemPriorities(cloneList(clone.getItemPriorities(false)));
     clone.setItemResolutionTypes(cloneList(clone.getItemResolutionTypes(false)));
     clone.setUsers(cloneList(clone.getUsers(false)));
@@ -260,8 +260,13 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
 
     DataReferential that = (DataReferential) o;
 
-    if (itemCategoriesByName != null ? !itemCategoriesByName.equals(that.itemCategoriesByName) :
-      that.itemCategoriesByName != null)
+    if (itemTagsByName != null ? !itemTagsByName.equals(that.itemTagsByName) :
+      that.itemTagsByName != null)
+    {
+      return false;
+    }
+    if (itemResolutionTypesByName != null ? !itemResolutionTypesByName.equals(that.itemResolutionTypesByName) :
+      that.itemResolutionTypesByName != null)
     {
       return false;
     }
@@ -285,8 +290,9 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   @Override
   public int hashCode()
   {
-    int result = itemCategoriesByName != null ? itemCategoriesByName.hashCode() : 0;
+    int result = itemTagsByName != null ? itemTagsByName.hashCode() : 0;
     result = 31 * result + (itemPrioritiesByName != null ? itemPrioritiesByName.hashCode() : 0);
+    result = 31 * result + (itemResolutionTypesByName != null ? itemResolutionTypesByName.hashCode() : 0);
     result = 31 * result + (usersByRole != null ? usersByRole.hashCode() : 0);
     result = 31 * result + (usersByLogin != null ? usersByLogin.hashCode() : 0);
     return result;
@@ -296,6 +302,8 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   public String toString()
   {
     return new ToStringBuilder(this).
+      append("itemTagsByName", itemTagsByName).
+      append("itemResolutionTypesByName", itemResolutionTypesByName).
       append("itemPrioritiesByName", itemPrioritiesByName).
       append("usersByRole", usersByRole).
       append("usersByLogin", usersByLogin).

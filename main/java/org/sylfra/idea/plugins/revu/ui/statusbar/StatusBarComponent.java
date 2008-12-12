@@ -328,4 +328,12 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
         messageType.getPopupBackground());
     }
   }
+
+  public static void showMessageInPopup(@NotNull Project project, @NotNull StatusBarMessage message, 
+    boolean showBallonAlert)
+  {
+    StatusBarComponent statusBarComponent = project.getComponent(StatusBarComponent.class);
+    statusBarComponent.addMessage(message, showBallonAlert);
+    statusBarComponent.showPopup();
+  }
 }

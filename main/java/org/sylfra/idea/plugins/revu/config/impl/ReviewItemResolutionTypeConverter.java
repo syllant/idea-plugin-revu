@@ -19,9 +19,9 @@ class ReviewItemResolutionTypeConverter extends AbstractConverter
 
   public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context)
   {
-    ItemResolutionType category = (ItemResolutionType) source;
+    ItemResolutionType tag = (ItemResolutionType) source;
 
-    writer.addAttribute("name", category.getName());
+    writer.addAttribute("name", tag.getName());
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)

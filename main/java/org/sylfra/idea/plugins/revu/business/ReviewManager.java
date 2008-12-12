@@ -37,8 +37,9 @@ public class ReviewManager implements ProjectComponent
 
   private Project project;
   private List<Review> reviews;
+  private Map<Review, Integer> reviewsSavedHashs;
   private Map<String, Review> reviewsByPaths;
-  private Map<String, Review> reviewsByTitles;
+  private Map<String, Review> reviewsByNames;
   private final List<IReviewListener> reviewListeners;
   private final List<IReviewExternalizationListener> reviewExternalizationListeners;
   private IRevuSettingsListener<RevuProjectSettings> projectSettingsListener;
@@ -48,8 +49,9 @@ public class ReviewManager implements ProjectComponent
   {
     this.project = project;
     reviews = new ArrayList<Review>();
+    reviewsSavedHashs = new IdentityHashMap<Review, Integer>();
     reviewsByPaths = new HashMap<String, Review>();
-    reviewsByTitles = new HashMap<String, Review>();
+    reviewsByNames = new HashMap<String, Review>();
     reviewListeners = new ArrayList<IReviewListener>();
     reviewExternalizationListeners = new ArrayList<IReviewExternalizationListener>();
 
@@ -77,9 +79,15 @@ public class ReviewManager implements ProjectComponent
   }
 
   @Nullable
-  public Review getReview(@NotNull String path)
+  public Review getReviewByPath(@NotNull String path)
   {
     return reviewsByPaths.get(path);
+  }
+
+  @Nullable
+  public Review getReviewByName(@NotNull String name)
+  {
+    return reviewsByNames.get(name);
   }
 
   @NotNull
@@ -138,7 +146,7 @@ public class ReviewManager implements ProjectComponent
     {
       public void run()
       {
-        initEmbededReviews();
+        initEmbeddedReviews();
         loadAndAdd(project.getComponent(RevuProjectSettingsComponent.class).getState().getReviewFiles(), true);
         loadAndAdd(project.getComponent(RevuWorkspaceSettingsComponent.class).getState().getReviewFiles(), false);
       }
@@ -185,19 +193,17 @@ public class ReviewManager implements ProjectComponent
     reviewExternalizationListeners.remove(listener);
   }
 
-  public void addReview(@NotNull Review review)
+  private void addReview(@NotNull Review review)
   {
     reviews.add(review);
     reviewsByPaths.put(review.getPath(), review);
-    reviewsByTitles.put(review.getTitle(), review);
+    reviewsByNames.put(review.getName(), review);
+    reviewsSavedHashs.put(review, review.hashCode());
   }
 
-  @Nullable
-  public Review load(@NotNull String path, boolean consolidate)
+  public boolean isModified(@NotNull Review review)
   {
-    Review review = new Review();
-    review.setPath(path);
-    return load(review, consolidate) ? review : null;
+    return (review.hashCode() != reviewsSavedHashs.get(review));
   }
 
   public boolean load(@NotNull final Review review, boolean consolidate)
@@ -267,7 +273,7 @@ public class ReviewManager implements ProjectComponent
     return new FileInputStream(path);
   }
 
-  private void initEmbededReviews()
+  private void initEmbeddedReviews()
   {
     reviews.clear();
 
@@ -315,8 +321,10 @@ public class ReviewManager implements ProjectComponent
       {
         fireReviewDeleted(review);
       }
+      review.clearReviewItemsListeners();
       reviewsByPaths.remove(review.getPath());
-      reviewsByTitles.remove(review.getTitle());
+      reviewsByNames.remove(review.getName());
+      reviewsSavedHashs.remove(review);
       it.remove();
     }
 
@@ -373,8 +381,8 @@ public class ReviewManager implements ProjectComponent
     Review extendedReview = review.getExtendedReview();
     if (extendedReview != null)
     {
-      String title = extendedReview.getTitle();
-      extendedReview = reviewsByTitles.get(title);
+      String title = extendedReview.getName();
+      extendedReview = reviewsByNames.get(title);
       if (extendedReview == null)
       {
         throw new RevuException(
@@ -383,11 +391,15 @@ public class ReviewManager implements ProjectComponent
 
       checkCyclicLink(review, extendedReview);
       review.setExtendedReview(extendedReview);
+
+      reviewsSavedHashs.put(review, review.hashCode());
     }
   }
 
   public void save(@NotNull Review review)
   {
+    assert (!review.isEmbedded()) : "Embedded review cannot be saved : " + review;
+    
     IReviewExternalizer reviewExternalizer = project.getComponent(IReviewExternalizer.class);
 
     Exception exception = null;
@@ -398,6 +410,7 @@ public class ReviewManager implements ProjectComponent
       reviewExternalizer.save(review, out);
 
       fireReviewSaveSucceeded(review);
+      reviewsSavedHashs.put(review, review.hashCode());
     }
     catch (IOException e)
     {
@@ -430,6 +443,18 @@ public class ReviewManager implements ProjectComponent
     }
   }
 
+  public void saveChangedReviews()
+  {
+    for (Review review : reviews)
+    {
+      if ((!review.isEmbedded())
+        && ((!reviewsSavedHashs.containsKey(review)) || (review.hashCode() != reviewsSavedHashs.get(review))))
+      {
+        save(review);
+      }
+    }
+  }
+
   public void checkCyclicLink(@NotNull Review main, @NotNull Review extendedRoot)
     throws RevuException
   {
@@ -439,12 +464,12 @@ public class ReviewManager implements ProjectComponent
   private void checkCyclicLink(@NotNull Review main, @NotNull Review extendedRoot, @NotNull Review extendedChild)
     throws RevuException
   {
-    if (main.getTitle().equals(extendedChild.getTitle()))
+    if (main.getName().equals(extendedChild.getName()))
     {
       throw new RevuException(
         RevuBundle.message("friendlyError.externalizing.cyclicReview.details.text",
-          main.getPath(), main.getTitle(),
-          extendedRoot.getPath(), extendedRoot.getTitle()));
+          main.getPath(), main.getName(),
+          extendedRoot.getPath(), extendedRoot.getName()));
     }
 
     Review extendedChild2;
@@ -452,26 +477,6 @@ public class ReviewManager implements ProjectComponent
     {
       checkCyclicLink(main, extendedRoot, extendedChild2);
     }
-  }
-
-  private List<Review> retrieveAfferentLinks(@NotNull Review review, @Nullable List<Review> reviewsToCheck)
-    throws RevuException
-  {
-    if (reviewsToCheck == null)
-    {
-      reviewsToCheck = reviews;
-    }
-
-    List<Review> result = new ArrayList<Review>();
-    for (Review tmpReview : reviewsToCheck)
-    {
-      if (review.equals(tmpReview.getExtendedReview()))
-      {
-        result.add(tmpReview);
-      }
-    }
-
-    return result;
   }
 
   private void fireReviewAdded(Review review)

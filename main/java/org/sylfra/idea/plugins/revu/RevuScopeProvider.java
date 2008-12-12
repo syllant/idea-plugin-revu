@@ -43,7 +43,7 @@ public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
 
   public void reviewAdded(Review review)
   {
-    String scopeTitle = RevuBundle.message("scope.title", review.getTitle());
+    String scopeTitle = RevuBundle.message("scope.title", review.getName());
     scopes.put(review, new NamedScope(scopeTitle, new CustomPackageSet(review)));
   }
 

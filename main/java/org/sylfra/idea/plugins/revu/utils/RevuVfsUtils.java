@@ -22,7 +22,13 @@ public class RevuVfsUtils
   @NotNull
   public static String buildRelativePath(@NotNull Project project, @NotNull VirtualFile vFile)
   {
-    return VfsUtil.getRelativePath(vFile, project.getBaseDir(), '/');
+    if (project.getBaseDir() == null)
+    {
+      return vFile.getPath();
+    }
+
+    String path = VfsUtil.getRelativePath(vFile, project.getBaseDir(), '/');
+    return (path == null) ? vFile.getPath() : path;
   }
 
   @NotNull
@@ -76,7 +82,19 @@ public class RevuVfsUtils
   @NotNull
   public static File findFileFromRelativePath(@NotNull Project project, @NotNull String filePath)
   {
+    File f = new File(filePath);
+    if (f.isAbsolute())
+    {
+      return f;
+    }
+
     VirtualFile baseDir = project.getBaseDir();
+    if (baseDir == null)
+    {
+      LOGGER.warn("Can't get project base dir to compute relative path: " + f + ", project:" + project.getName());
+      return f;
+    }
+
     return new File(baseDir.getPath(), filePath);
   }
 

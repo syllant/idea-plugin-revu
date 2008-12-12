@@ -85,13 +85,13 @@ public class ReviewFileChooser
     public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles)
     {
       return ((!FileElement.isFileHidden(file))
-        && ((file.isDirectory()) || ((openMode) && ("xml".equals(file.getExtension())))));
+        && ((file.isDirectory()) || ("xml".equals(file.getExtension()))));
     }
 
     @Override
     public boolean isFileSelectable(VirtualFile file)
     {
-      return (((!openMode) && (file.isDirectory())) || ((openMode) && ("xml".equals(file.getExtension()))));
+      return (((!openMode) && (file.isDirectory())) || ("xml".equals(file.getExtension())));
     }
   }
 }

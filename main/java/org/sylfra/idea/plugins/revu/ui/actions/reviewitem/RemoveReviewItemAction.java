@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui.actions;
+package org.sylfra.idea.plugins.revu.ui.actions.reviewitem;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -7,6 +7,10 @@ import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -18,15 +22,24 @@ public class RemoveReviewItemAction extends AbstractReviewItemAction
   public void actionPerformed(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    ReviewItem item = e.getData(RevuDataKeys.REVIEW_ITEM);
+    List<ReviewItem> items = e.getData(RevuDataKeys.REVIEW_ITEM_ARRAY);
 
-    if (item != null)
+    Set<Review> reviewsToSave = new HashSet<Review>();
+    if (items != null)
     {
-      Review review = item.getReview();
-      review.removeItem(item);
+      for (ReviewItem item : items)
+      {
+        Review review = item.getReview();
+        review.removeItem(item);
+
+        reviewsToSave.add(review);
+      }
 
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      reviewManager.save(review);
+      for (Review review : reviewsToSave)
+      {
+        reviewManager.save(review);
+      }
     }
   }
 }

@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA
 </html>
     ]]></description>
-  <category>xml</category>
+  <tag>xml</tag>
   <version>1.1</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="sylfradev@yahoo.fr"
@@ -31,6 +31,9 @@
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm
       </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.utils.VcsFetcher</implementation-class>
     </component>
   </application-components>
 
@@ -67,10 +70,7 @@
       <implementation-class>org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent</implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.ui.GutterManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.ReviewItemLocationTracker</implementation-class>
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.editor.RevuEditorHandler</implementation-class>
     </component>
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.business.RevuFileListener</implementation-class>
@@ -89,51 +89,68 @@
             icon="/general/projectSettings.png"/>
 
     <!-- Review -->
+    <action id="revu.ShowReviewEditForm"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.ShowUpdateReviewPopupAction"
+            text="Edit Review"
+            icon="/actions/editSource.png"/>
+    <action id="revu.SaveReview"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.SaveReviewAction"
+            text="Save review"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/save.png"/>
     <action id="revu.CreateReview"
-            class="org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm$CreateReviewAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.PrepareCreateReviewAction"
             text="Create review"
             icon="/general/add.png"/>
     <action id="revu.RemoveReview"
-            class="org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm$RemoveReviewAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.RemoveReviewAction"
             text="Delete review"
             icon="/general/remove.png"/>
+    <action id="revu.ImportReview"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.ImportReviewAction"
+            text="Import review"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/importReview.png"/>
+    <action id="revu.ExportReview"
+            class="org.sylfra.idea.plugins.revu.ui.actions.review.ExportReviewAction"
+            text="Export review"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/exportReview.png"/>
     <action id="revu.SplitReviewBrowsingFormHorizontally"
-            class="org.sylfra.idea.plugins.revu.ui.actions.SplitReviewBrowsingFormHorizontallyAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
             text="Horizontal split"
             icon="/actions/splitHorizontally.png"/>
     <action id="revu.SplitReviewBrowsingFormVertically"
-            class="org.sylfra.idea.plugins.revu.ui.actions.SplitReviewBrowsingFormVerticallyAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
             text="Vertical split"
             icon="/actions/splitVertically.png"/>
 
     <!-- Review item -->
     <action id="revu.CreateReviewItem"
-            class="org.sylfra.idea.plugins.revu.ui.actions.CreateReviewItemAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.CreateReviewItemAction"
             text="Add review item"
             icon="/general/add.png">
       <keyboard-shortcut first-keystroke="alt r" keymap="$default"/>
     </action>
     <action id="revu.ShowUpdateReviewItemPopup"
-            class="org.sylfra.idea.plugins.revu.ui.actions.ShowUpdateReviewItemPopupAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.ShowUpdateReviewItemPopupAction"
             text="Update review item"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/editReviewItem.png"/>
     <action id="revu.RemoveReviewItem"
-            class="org.sylfra.idea.plugins.revu.ui.actions.RemoveReviewItemAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.RemoveReviewItemAction"
             text="Remove review item"
             icon="/general/remove.png"/>
 
     <!-- Source -->
     <action id="revu.JumpToSource"
-            class="org.sylfra.idea.plugins.revu.ui.actions.JumpToSourceAction"
-            text="Jump to Source">
+            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.JumpToSourceAction"
+            text="Jump to Source"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/jumpToSource.png">
       <keyboard-shortcut first-keystroke="F4" keymap="$default"/>
     </action>
     <action id="revu.AutoscrollToSource"
-            class="org.sylfra.idea.plugins.revu.ui.actions.ToggleAutoscrollToSourceAction"
+            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.ToggleAutoscrollToSourceAction"
             text="Autoscroll to Source"
             icon="/general/autoscrollToSource.png"/>
 
-    <!-- Gutter -->
+    <!-- Editor -->
     <group id="revu.editor.popup">
       <separator/>
       <reference ref="revu.CreateReviewItem"/>
@@ -159,13 +176,17 @@
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
       <separator/>
+      <reference ref="revu.JumpToSource"/>
       <reference ref="revu.AutoscrollToSource"/>
+      <separator/>
       <reference ref="revu.toolWindow.review.layout"/>
       <separator/>
       <reference ref="revu.ShowProjectSettings"/>
     </group>
 
     <group id="revu.toolWindow.review" popup="true">
+      <reference ref="revu.ShowReviewEditForm"/>
+      <separator/>
       <reference ref="revu.CreateReviewItem"/>
       <reference ref="revu.RemoveReviewItem"/>
       <separator/>
@@ -174,8 +195,6 @@
       <separator/>
       <reference ref="revu.AutoscrollToSource"/>
       <reference ref="revu.toolWindow.review.layout"/>
-      <separator/>
-      <reference ref="revu.ShowProjectSettings"/>
     </group>
 
     <group id="revu.reviewItemTable.popup" popup="true">
@@ -185,10 +204,24 @@
       <reference ref="revu.RemoveReviewItem"/>
     </group>
 
+    <group id="revu.reviewItemForm.toolbar" popup="true">
+      <reference ref="PreviousOccurence"/>
+      <reference ref="NextOccurence"/>
+      <separator/>
+      <reference ref="revu.RemoveReviewItem"/>
+      <separator/>
+      <reference ref="revu.JumpToSource"/>
+      <separator/>
+      <reference ref="revu.SaveReview"/>
+    </group>
+
     <!-- Settings -->
     <group id="revu.settings.project.reviews" popup="true">
       <reference ref="revu.CreateReview"/>
       <reference ref="revu.RemoveReview"/>
+      <separator/>
+      <reference ref="revu.ImportReview"/>
+      <reference ref="revu.ExportReview"/>
     </group>
 
   </actions>

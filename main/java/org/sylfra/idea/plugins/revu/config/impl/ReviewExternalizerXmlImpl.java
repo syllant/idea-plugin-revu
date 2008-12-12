@@ -156,7 +156,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       xstream.registerConverter(new HistoryConverter());
       xstream.registerConverter(new ReviewConverter());
       xstream.registerConverter(new ReviewItemConverter());
-      xstream.registerConverter(new ReviewItemCategoryConverter());
+      xstream.registerConverter(new ReviewItemTagConverter());
       xstream.registerConverter(new ReviewItemResolutionTypeConverter());
       xstream.registerConverter(new ReviewPriorityConverter());
       xstream.registerConverter(new DataReferentialConverter());

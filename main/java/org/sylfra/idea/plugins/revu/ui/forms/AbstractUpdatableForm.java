@@ -3,8 +3,11 @@ package org.sylfra.idea.plugins.revu.ui.forms;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -70,6 +73,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
       return;
     }
 
+    JLabel labelFor = (JLabel) component.getClientProperty("labeledBy");
     boolean hasErrorBorder = component.getBorder() instanceof ErrorBorder;
     if (hasError)
     {
@@ -82,6 +86,16 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
         component.setToolTipText(message);
       }
       errors.add(component);
+      if (labelFor != null)
+      {
+        labelFor.setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.FIELD_ERROR));
+        labelFor.setHorizontalTextPosition(SwingConstants.LEFT);
+
+        if (message != null)
+        {
+          labelFor.setToolTipText(message);
+        }
+      }
     }
     else
     {
@@ -91,6 +105,12 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
       }
       component.setToolTipText(null);
       errors.remove(component);
+
+      if (labelFor != null)
+      {
+        labelFor.setIcon(null);
+        labelFor.setToolTipText("");
+      }
     }
   }
 
@@ -103,12 +123,15 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     return ((o1 == o2) || ((o1 != null) && (o1.equals(o2))));
   }
 
-  public final void updateUI(Review enclosingReview, @Nullable T data)
+  public final void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus)
   {
     this.enclosingReview = enclosingReview;
 
-    internalUpdateUI(data);
-    if (getPreferredFocusedComponent() != null)
+    internalUpdateUI(data, requestFocus);
+
+    internalUpdateWriteAccess(RevuUtils.getUser(enclosingReview));
+
+    if ((requestFocus) && (getPreferredFocusedComponent() != null))
     {
       getPreferredFocusedComponent().requestFocusInWindow();
     }
@@ -142,11 +165,14 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     return true;
   }
 
+
   public abstract boolean isModified(@NotNull T data);
+
+  protected abstract void internalUpdateWriteAccess(@Nullable User user);
 
   protected abstract void internalValidateInput();
 
-  protected abstract void internalUpdateUI(@Nullable T data);
+  protected abstract void internalUpdateUI(@Nullable T data, boolean requestFocus);
 
   protected abstract void internalUpdateData(@NotNull T data);
 

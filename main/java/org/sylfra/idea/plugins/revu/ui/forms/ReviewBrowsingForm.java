@@ -12,6 +12,8 @@ import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
+import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
@@ -59,6 +61,88 @@ public class ReviewBrowsingForm implements Disposable
 
     configureUI();
 
+    installListeners();
+
+    checkMessage();
+    checkRowSelected();
+  }
+
+  @Nullable
+  public Review getSelectedReview()
+  {
+    ReviewItem reviewItem = reviewItemsTable.getSelectedObject();
+
+    return (reviewItem == null) ? null : reviewItem.getReview();
+  }
+
+  private void installListeners()
+  {
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+
+    // Review items
+    final IReviewItemListener reviewItemListener = new IReviewItemListener()
+    {
+      public void itemAdded(ReviewItem item)
+      {
+        // Let table add item so we may select it AFTER
+      }
+
+      public void itemDeleted(ReviewItem item)
+      {
+        // Let table remove item so we may select first row if possible
+      }
+
+      public void itemUpdated(final ReviewItem item)
+      {
+        // Don't waste time to update UI if form is not visible (but will have to update on show)
+        if (!contentPane.isVisible())
+        {
+          return;
+        }
+
+        // Compare by identity since item content has changed
+        if (item == reviewItemsTable.getSelectedObject())
+        {
+          reviewItemTabbedPane.updateUI(review, item, false);
+        }
+      }
+    };
+
+    if (review == null)
+    {
+      for (Review review : reviewManager.getReviews(true, false))
+      {
+        review.addReviewItemListener(reviewItemListener);
+      }
+
+      reviewManager.addReviewListener(new IReviewListener()
+      {
+        public void reviewChanged(Review review)
+        {
+        }
+
+        public void reviewAdded(Review review)
+        {
+          review.addReviewItemListener(reviewItemListener);
+          reviewItemsTable.getListTableModel().setItems(retrieveReviewItems());
+          checkRowSelected();
+          checkMessage();
+        }
+
+        public void reviewDeleted(Review review)
+        {
+          reviewItemsTable.getListTableModel().setItems(retrieveReviewItems());
+          checkRowSelected();
+          checkMessage();
+        }
+      });
+    }
+    else
+    {
+      review.addReviewItemListener(reviewItemListener);
+    }
+
+    // App Settings
     appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
     {
       public void settingsChanged(RevuAppSettings settings)
@@ -69,16 +153,11 @@ public class ReviewBrowsingForm implements Disposable
     RevuAppSettingsComponent appSettingsComponent =
       ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
     appSettingsComponent.addListener(appSettingsListener);
-
-    checkMessage();
-    checkRowSelected();
   }
 
   private void createUIComponents()
   {
     final List<ReviewItem> items = retrieveReviewItems();
-
-    reviewItemTabbedPane = new ReviewItemTabbedPane(project);
 
     reviewItemsTable = new ReviewItemsTable(project, items, review);
     reviewItemsTable.setSelectionModel(new DefaultListSelectionModel()
@@ -86,10 +165,10 @@ public class ReviewBrowsingForm implements Disposable
       @Override
       public void setSelectionInterval(int index0, int index1)
       {
-        if (beforeChangeReviewItem())
+        if (saveIfModified())
         {
           super.setSelectionInterval(index0, index1);
-          updateUI();
+          updateUI(false);
         }
       }
     });
@@ -112,9 +191,12 @@ public class ReviewBrowsingForm implements Disposable
         else if (e.getType() == TableModelEvent.INSERT)
         {
           reviewItemsTable.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
+          checkMessage();
         }
       }
     });
+
+    reviewItemTabbedPane = new ReviewItemTabbedPane(project, reviewItemsTable);
 
     RevuWorkspaceSettingsComponent workspaceSettingsComponent = project.getComponent(
       RevuWorkspaceSettingsComponent.class);
@@ -131,7 +213,7 @@ public class ReviewBrowsingForm implements Disposable
     if ((reviewItemsTable.getRowCount() > 0) && (reviewItemsTable.getSelectedRow() == -1))
     {
       reviewItemsTable.getSelectionModel().setSelectionInterval(0, 0);
-      updateUI();
+      updateUI(false);
     }
   }
 
@@ -158,7 +240,7 @@ public class ReviewBrowsingForm implements Disposable
     return splitPane;
   }
 
-  private boolean beforeChangeReviewItem()
+  public boolean saveIfModified()
   {
     ReviewItem current = reviewItemsTable.getSelectedObject();
 
@@ -167,7 +249,7 @@ public class ReviewBrowsingForm implements Disposable
       return true;
     }
 
-    // Already called in #updateData, but don't want to save review it item has not changed
+    // Already called in #updateData, but don't want to save review if item has not changed
     if (!reviewItemTabbedPane.isModified(current))
     {
       return true;
@@ -182,26 +264,19 @@ public class ReviewBrowsingForm implements Disposable
     return false;
   }
 
-  public void updateUI()
+  public void updateUI(boolean requestFocus)
   {
     checkRowSelected();
     ReviewItem current = reviewItemsTable.getSelectedObject();
     if (current != null)
     {
-      reviewItemTabbedPane.updateUI(review, current);
+      reviewItemTabbedPane.updateUI(current.getReview(), current, requestFocus);
     }
   }
 
   public void updateReview()
   {
-    updateUI();
-  }
-
-  public void reviewListChanged()
-  {
-    reviewItemsTable.getListTableModel().setItems(retrieveReviewItems());
-    checkRowSelected();
-    checkMessage();
+    updateUI(false);
   }
 
   private void checkMessage()
@@ -258,12 +333,9 @@ public class ReviewBrowsingForm implements Disposable
     {
       items = new ArrayList<ReviewItem>();
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewManager.getReviews())
+      for (Review review : reviewManager.getReviews(true, false))
       {
-        if (review.isActive())
-        {
-          items.addAll(review.getItems());
-        }
+        items.addAll(review.getItems());
       }
     }
     else

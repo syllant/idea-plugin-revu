@@ -52,7 +52,7 @@ public abstract class AbstractDetailDialog<T extends IRevuEntity<T>> extends Dia
     }
 
     this.data = data;
-    nestedForm.updateUI(review, data);
+    nestedForm.updateUI(review, data, true);
     super.show();
   }
 

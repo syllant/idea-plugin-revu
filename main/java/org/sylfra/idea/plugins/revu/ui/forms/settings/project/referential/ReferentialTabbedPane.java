@@ -2,12 +2,13 @@ package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.category.ItemCategoryReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.priority.ItemPriorityReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.resolutiontype.ItemResolutionTypeReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.ItemTagReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.user.UserReferentialForm;
 
 import javax.swing.*;
@@ -26,7 +27,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private UserReferentialForm userReferentialForm;
-  private ItemCategoryReferentialForm itemCategoryReferentialForm;
+  private ItemTagReferentialForm itemTagReferentialForm;
   private ItemPriorityReferentialForm itemPriorityReferentialForm;
   private ItemResolutionTypeReferentialForm itemResolutionTypeReferentialForm;
   private JLabel lbNoUserForEmbeddedReviews;
@@ -36,7 +37,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     this.project = project;
 
     userReferentialForm = new UserReferentialForm(project);
-    itemCategoryReferentialForm = new ItemCategoryReferentialForm(project);
+    itemTagReferentialForm = new ItemTagReferentialForm(project);
     itemPriorityReferentialForm = new ItemPriorityReferentialForm(project);
     itemResolutionTypeReferentialForm = new ItemResolutionTypeReferentialForm(project);
 
@@ -49,8 +50,8 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     pnUsers.add("label", lbNoUserForEmbeddedReviews);
 
     tabbedPane.add(RevuBundle.message("settings.project.review.referential.user.title"), pnUsers);
-    tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemCategory.title"),
-      itemCategoryReferentialForm.getContentPane());
+    tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemTag.title"),
+      itemTagReferentialForm.getContentPane());
     tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemPriority.title"),
       itemPriorityReferentialForm.getContentPane());
     tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemResolutionType.title"),
@@ -61,24 +62,25 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   public boolean isModified(@NotNull DataReferential data)
   {
     return ((userReferentialForm.isModified(new ReferentialListHolder<User>(data.getUsers(true), null)))
-      || (itemCategoryReferentialForm.isModified(new ReferentialListHolder<ItemCategory>(data.getItemCategories(true), null)))
+      || (itemTagReferentialForm.isModified(new ReferentialListHolder<ItemTag>(data.getItemTags(true), null)))
       || (itemPriorityReferentialForm.isModified(new ReferentialListHolder<ItemPriority>(data.getItemPriorities(true), null)))
       || (itemResolutionTypeReferentialForm.isModified(new ReferentialListHolder<ItemResolutionType>(data.getItemResolutionTypes( true), null))));
   }
 
+  @Override
+  protected void internalUpdateWriteAccess(@Nullable User user)
+  {
+  }
+
   protected void internalValidateInput()
   {
-    if (userReferentialForm.getContentPane().equals(tabbedPane.getComponentAt(0)))
-    {
-      updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
-    }
-
-    updateError(itemCategoryReferentialForm.getContentPane(), !itemCategoryReferentialForm.validateInput(), null);
+    updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
+    updateError(itemTagReferentialForm.getContentPane(), !itemTagReferentialForm.validateInput(), null);
     updateError(itemPriorityReferentialForm.getContentPane(), !itemPriorityReferentialForm.validateInput(), null);
     updateError(itemResolutionTypeReferentialForm.getContentPane(), !itemResolutionTypeReferentialForm.validateInput(), null);
   }
 
-  protected void internalUpdateUI(DataReferential data)
+  protected void internalUpdateUI(DataReferential data, boolean requestFocus)
   {
     Review review = getEnclosingReview();
 
@@ -92,17 +94,17 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     {
       userLayout.show(pnUsers, "table");
       ReferentialListHolder<User> userHolder = buildUsersListHolder(data);
-      userReferentialForm.updateUI(review, userHolder);
+      userReferentialForm.updateUI(review, userHolder, requestFocus);
     }
 
-    ReferentialListHolder<ItemCategory> categoryHolder = buildItemCategoriesListHolder(data);
-    itemCategoryReferentialForm.updateUI(review, categoryHolder);
+    ReferentialListHolder<ItemTag> tagHolder = buildItemTagsListHolder(data);
+    itemTagReferentialForm.updateUI(review, tagHolder, requestFocus);
 
     ReferentialListHolder<ItemPriority> priorityHolder = buildItemPrioritiesListHolder(data);
-    itemPriorityReferentialForm.updateUI(review, priorityHolder);
+    itemPriorityReferentialForm.updateUI(review, priorityHolder, requestFocus);
 
     ReferentialListHolder<ItemResolutionType> resolutionTypeHolder = buildItemResolutionTypesListHolder(data);
-    itemResolutionTypeReferentialForm.updateUI(review, resolutionTypeHolder);
+    itemResolutionTypeReferentialForm.updateUI(review, resolutionTypeHolder, requestFocus);
   }
 
   protected void internalUpdateData(@NotNull DataReferential data)
@@ -113,12 +115,12 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     userReferentialForm.updateData(userHolder);
     data.setUsers(userHolder.getItems());
 
-    ReferentialListHolder<ItemCategory> categoryHolder
-      = new ReferentialListHolder<ItemCategory>(data.getItemCategories(false),
+    ReferentialListHolder<ItemTag> tagHolder
+      = new ReferentialListHolder<ItemTag>(data.getItemTags(false),
       (data.getReview().getExtendedReview() == null)
-        ? null : data.getReview().getExtendedReview().getDataReferential().getItemCategories(true));
-    itemCategoryReferentialForm.updateData(categoryHolder);
-    data.setItemCategories(categoryHolder.getItems());
+        ? null : data.getReview().getExtendedReview().getDataReferential().getItemTags(true));
+    itemTagReferentialForm.updateData(tagHolder);
+    data.setItemTags(tagHolder.getItems());
 
     ReferentialListHolder<ItemPriority> priorityHolder
       = new ReferentialListHolder<ItemPriority>(data.getItemPriorities(false),
@@ -161,24 +163,24 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     return new ReferentialListHolder<User>(thisUsers, extendedUsers);
   }
 
-  private ReferentialListHolder<ItemCategory> buildItemCategoriesListHolder(DataReferential data)
+  private ReferentialListHolder<ItemTag> buildItemTagsListHolder(DataReferential data)
   {
     if (data == null)
     {
-      return new ReferentialListHolder<ItemCategory>(new ArrayList<ItemCategory>(), null);
+      return new ReferentialListHolder<ItemTag>(new ArrayList<ItemTag>(), null);
     }
 
-    List<ItemCategory> thisCategories = data.getItemCategories(false);
+    List<ItemTag> thisTags = data.getItemTags(false);
     if (data.getReview().getExtendedReview() == null)
     {
-      return new ReferentialListHolder<ItemCategory>(thisCategories, null);
+      return new ReferentialListHolder<ItemTag>(thisTags, null);
     }
 
-    List<ItemCategory> extendedCategories = new ArrayList<ItemCategory>(
-      data.getReview().getExtendedReview().getDataReferential().getItemCategories(true));
-    extendedCategories.removeAll(thisCategories);
+    List<ItemTag> extendedTags = new ArrayList<ItemTag>(
+      data.getReview().getExtendedReview().getDataReferential().getItemTags(true));
+    extendedTags.removeAll(thisTags);
 
-    return new ReferentialListHolder<ItemCategory>(thisCategories, extendedCategories);
+    return new ReferentialListHolder<ItemTag>(thisTags, extendedTags);
   }
 
   private ReferentialListHolder<ItemPriority> buildItemPrioritiesListHolder(DataReferential data)
@@ -226,7 +228,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   public void dispose()
   {
     userReferentialForm.dispose();
-    itemCategoryReferentialForm.dispose();
+    itemTagReferentialForm.dispose();
     itemPriorityReferentialForm.dispose();
     itemResolutionTypeReferentialForm.dispose();
   }

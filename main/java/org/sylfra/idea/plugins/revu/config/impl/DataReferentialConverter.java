@@ -38,14 +38,14 @@ class DataReferentialConverter extends AbstractConverter
     }
     writer.endNode();
 
-    // Categories
-    writer.startNode("categories");
-    SortedSet<ItemCategory> categories = new TreeSet<ItemCategory>(
-      referential.getItemCategoriesByName(false).values());
-    for (ItemCategory category : categories)
+    // Tags
+    writer.startNode("tags");
+    SortedSet<ItemTag> tags = new TreeSet<ItemTag>(
+      referential.getItemTagsByName(false).values());
+    for (ItemTag tag : tags)
     {
-      writer.startNode("category");
-      context.convertAnother(category);
+      writer.startNode("tag");
+      context.convertAnother(tag);
       writer.endNode();
     }
     writer.endNode();
@@ -92,16 +92,16 @@ class DataReferentialConverter extends AbstractConverter
         }
         referential.setItemPriorities(priorities);
       }
-      else if ("categories".equals(reader.getNodeName()))
+      else if ("tags".equals(reader.getNodeName()))
       {
-        Set<ItemCategory> categories = new HashSet<ItemCategory>();
+        Set<ItemTag> tags = new HashSet<ItemTag>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
-          categories.add((ItemCategory) context.convertAnother(categories, ItemCategory.class));
+          tags.add((ItemTag) context.convertAnother(tags, ItemTag.class));
           reader.moveUp();
         }
-        referential.setItemCategories(categories);
+        referential.setItemTags(tags);
       }
       else if ("resolutionTypes".equals(reader.getNodeName()))
       {

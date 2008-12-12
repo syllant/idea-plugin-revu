@@ -4,16 +4,16 @@ package org.sylfra.idea.plugins.revu.model;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemCategory  extends AbstractRevuEntity<ItemCategory> implements Comparable<ItemCategory>,
-  IRevuNamedHolderEntity<ItemCategory>
+public class ItemTag  extends AbstractRevuEntity<ItemTag> implements Comparable<ItemTag>,
+  IRevuNamedHolderEntity<ItemTag>
 {
   private String name;
 
-  public ItemCategory()
+  public ItemTag()
   {
   }
 
-  public ItemCategory(String name)
+  public ItemTag(String name)
   {
     this.name = name;
   }
@@ -28,7 +28,7 @@ public class ItemCategory  extends AbstractRevuEntity<ItemCategory> implements C
     this.name = name;
   }
 
-  public int compareTo(ItemCategory o)
+  public int compareTo(ItemTag o)
   {
     return name.compareTo(o.getName());
   }
@@ -39,9 +39,9 @@ public class ItemCategory  extends AbstractRevuEntity<ItemCategory> implements C
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ItemCategory category = (ItemCategory) o;
+    ItemTag tag = (ItemTag) o;
 
-    if (!name.equals(category.name)) return false;
+    if (!name.equals(tag.name)) return false;
 
     return true;
   }

@@ -20,7 +20,7 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.ui.forms.ReviewBrowsingForm;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -37,7 +37,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   public RevuToolWindowManager(Project project)
   {
     this.project = project;
-    contentsByReviews = new HashMap<Review, Content>();
+    contentsByReviews = new IdentityHashMap<Review, Content>();
   }
 
   private ReviewBrowsingForm addReviewTab(@Nullable Review review)
@@ -50,12 +50,6 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
 
-    // Update 'all' tab content
-    if (review != null)
-    {
-      allBrowsingForm.reviewListChanged();
-    }
-
     return reviewBrowsingForm;
   }
 
@@ -66,19 +60,13 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     {
       toolwindow.getContentManager().removeContent(content, true);
     }
-
-    if (review != null)
-    {
-      // Update 'all' tab content
-      allBrowsingForm.reviewListChanged();
-    }
   }
 
   private String getTabTitle(Review review)
   {
     return (review == null)
       ? RevuBundle.message("toolwindow.allReviews.title")
-      : RevuBundle.message("toolwindow.review.title", review.getTitle());
+      : RevuBundle.message("toolwindow.review.title", review.getName());
   }
 
   @Nullable
@@ -102,7 +90,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
         ReviewBrowsingForm browsingForm = getSelectedReviewBrowsingForm();
         if (browsingForm != null)
         {
-          browsingForm.updateUI();
+          browsingForm.updateUI(false);
         }
       }
     });
@@ -157,6 +145,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     if (content != null)
     {
       content.setDisplayName(getTabTitle(review));
+      // @TODO refresh tab title ?
       ReviewBrowsingForm form = content.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY);
       if (form != null)
       {

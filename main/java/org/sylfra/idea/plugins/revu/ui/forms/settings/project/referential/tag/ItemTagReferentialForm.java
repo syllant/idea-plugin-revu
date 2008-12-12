@@ -1,9 +1,9 @@
-package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.category;
+package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.model.ItemCategory;
+import org.sylfra.idea.plugins.revu.model.ItemTag;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 
@@ -11,9 +11,9 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.Abstra
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemCategoryReferentialForm extends AbstractNameHolderReferentialForm<ItemCategory>
+public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<ItemTag>
 {
-  public ItemCategoryReferentialForm(Project project)
+  public ItemTagReferentialForm(Project project)
   {
     super(project);
   }
@@ -23,22 +23,22 @@ public class ItemCategoryReferentialForm extends AbstractNameHolderReferentialFo
     return false;
   }
 
-  protected AbstractReferentialDetailForm<ItemCategory> buildNestedFormForDialog()
+  protected AbstractReferentialDetailForm<ItemTag> buildNestedFormForDialog()
   {
-    return new ItemCategoryDetailForm(table);
+    return new org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.ItemTagDetailForm(table);
   }
 
   @Nls
   protected String getTitleKeyForDialog(boolean addMode)
   {
     return addMode
-      ? "settings.project.review.referential.itemCategory.addDialog.title"
-      : "settings.project.review.referential.itemCategory.editDialog.title";
+      ? "settings.project.review.referential.itemTag.addDialog.title"
+      : "settings.project.review.referential.itemTag.editDialog.title";
   }
 
   @NotNull
-  protected ItemCategory createDefaultDataForDialog()
+  protected ItemTag createDefaultDataForDialog()
   {
-    return new ItemCategory();
+    return new ItemTag();
   }
 }
