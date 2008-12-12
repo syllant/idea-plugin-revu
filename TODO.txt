@@ -1,39 +1,48 @@
 1.0
-- BUG all reviews table
-- template/share icon
-- check
-  - edition disabled if embedded
-- message instead of form when no review / no item / no login
 
-- source change management
-  -> attach VCS version ?
-  -> show line gutter marker
+- save review from tool window
+
+- review status : created, reviewing, fixing, verifying, closed
+
 - review item assignedTo (multiple)
-- buttons to fix items (resolved/reopen)
 
-- create review local/share
-- tool preferred size
-
-- permissions
+- delete resolutionType
+- history panel finition
 - icon
-- doc
+  - template/share icon
+
+- changes on referential -> change on existing items
 
 - notes management
 - table items filters
 - column selector
-- categories -> tags
-- errorSubmitter
-- form msg error
-- import / export
-- resolutionType -> severity ?
+
+- navigation popup in gutter
+
+- tool preferred size
+- IPR setting : review default dir => new tab in project settings !
+- IWS setting : see review items not assigned to me
+- permissions
+  - reviewers/authors / creation
+
+- default review
+  - finalize referential
+
 - history
   - review modified
   - review item modified/added/deleted
 
-- assign files
-  - from VCS changes
+- doc
+
+- tests
+  - no VCS
 
 2.0
+- assign files
+  - from VCS changes
+- colored tags
+- multi-locations in a review item
+- errorSubmitter
 - option to show/hide 'all reviews' tool window
 - review config : required fields, ...
 - detailed history

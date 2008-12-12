@@ -5,7 +5,6 @@ import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileTextField;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.DocumentAdapter;
@@ -20,6 +19,7 @@ import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarMessage;
 import org.sylfra.idea.plugins.revu.utils.ReviewFileChooser;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
@@ -48,7 +48,7 @@ public class CreateReviewDialog extends DialogWrapper
   private JRadioButton rbTypeLink;
   private JComboBox cbReviewCopy;
   private JComboBox cbReviewLink;
-  private JTextField tfTitle;
+  private JTextField tfName;
   private JTextField tfFile;
   private JButton bnFileChooser;
   private JLabel lbTitle;
@@ -101,20 +101,20 @@ public class CreateReviewDialog extends DialogWrapper
     {
       public void textChanged(DocumentEvent event)
       {
-        setOKActionEnabled((tfTitle.getText().trim().length() > 0)
+        setOKActionEnabled((tfName.getText().trim().length() > 0)
           && (tfFile.getText().trim().length() > 0)
           && (fileTextField.getSelectedFile() != null)
           && (fileTextField.getSelectedFile().isDirectory()));
       }
     };
-    tfTitle.getDocument().addDocumentListener(textFieldsListener);
+    tfName.getDocument().addDocumentListener(textFieldsListener);
     tfFile.getDocument().addDocumentListener(textFieldsListener);
 
     rbTypeBlank.setVisible(createMode);
     rbTypeBlank.setSelected(createMode);
     rbTypeCopy.setSelected(!createMode);
     lbTitle.setVisible(createMode);
-    tfTitle.setVisible(createMode);
+    tfName.setVisible(createMode);
     lbFile.setVisible(createMode);
     tfFile.setVisible(createMode);
     bnFileChooser.setVisible(createMode);
@@ -150,7 +150,7 @@ public class CreateReviewDialog extends DialogWrapper
       public Component getListCellRendererComponent(JList list, Object value, int index,
         boolean isSelected, boolean cellHasFocus)
       {
-        value = ((Review) value).getTitle();
+        value = ((Review) value).getName();
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
     };
@@ -164,17 +164,17 @@ public class CreateReviewDialog extends DialogWrapper
   @Override
   public JComponent getPreferredFocusedComponent()
   {
-    return createMode ? tfTitle : rbTypeCopy;
+    return createMode ? tfName : rbTypeCopy;
   }
 
   @NotNull
-  public String getTitle()
+  public String getReviewName()
   {
-    return tfTitle.getText();
+    return tfName.getText();
   }
 
   @NotNull
-  public String getPath()
+  public String getReviewPath()
   {
     return currentPath;
   }
@@ -232,25 +232,38 @@ public class CreateReviewDialog extends DialogWrapper
   @Override
   protected void doOKAction()
   {
-    try
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+
+    // Update
+    if (currentReview != null)
     {
-      if (currentReview != null)
+      // Cyclic link
+      try
       {
-        ReviewManager reviewManager = project.getComponent(ReviewManager.class);
         reviewManager.checkCyclicLink(currentReview, getImportedReview());
       }
+      catch (RevuException exception)
+      {
+        String errorTitle = RevuBundle.message("friendlyError.externalizing.cyclicReview.title.text");
+        setErrorText(errorTitle);
+
+        StatusBarComponent.showMessageInPopup(project, (new StatusBarMessage(StatusBarMessage.Type.ERROR, errorTitle,
+          exception.getMessage())), false);
+        return;
+      }
     }
-    catch (RevuException exception)
+    // Creation
+    else
     {
-      StatusBarComponent statusBarComponent = project.getComponent(StatusBarComponent.class);
-      statusBarComponent.addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
-        RevuBundle.message("friendlyError.externalizing.cyclicReview.title.text"),
-        exception.getMessage()), false);
-      statusBarComponent.showPopup();
-      return;
+      // Name already exists
+      if (reviewManager.getReviewByName(tfName.getText()) != null)
+      {
+        setErrorText(RevuBundle.message("settings.project.review.importDialog.nameAlreadyExists.text"));
+        return;
+      }
     }
 
-    String fileName = FileUtil.sanitizeFileName(getTitle()) + ".xml";
+    String fileName = RevuUtils.buildFileNameFromReviewName(getReviewName());
     File file = new File(fileTextField.getSelectedFile().getPath(), fileName);
     currentPath = RevuVfsUtils.buildAbsolutePath(file);
     if (file.exists())
@@ -263,4 +276,5 @@ public class CreateReviewDialog extends DialogWrapper
 
     super.doOKAction();
   }
+
 }

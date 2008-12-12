@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui.actions;
+package org.sylfra.idea.plugins.revu.ui.actions.toolwindow;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;

@@ -1,5 +1,7 @@
 package org.sylfra.idea.plugins.revu.config.impl;
 
+import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
+
 import java.util.Collection;
 
 /**
@@ -13,7 +15,8 @@ public class ConverterUtils
     StringBuilder b = new StringBuilder();
     for (Object o : collection)
     {
-      b.append(o.toString()).append(",");
+      String value = (o instanceof IRevuNamedHolderEntity) ? ((IRevuNamedHolderEntity) o).getName() : o.toString();
+      b.append(value).append(",");
     }
 
     if (collection.size() > 0)

@@ -123,8 +123,8 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     DataReferential referential = new DataReferential(review);
     review.setDataReferential(referential);
 
-    review.setTitle("Test review");
-    review.setDesc("A test review. A test review. A test review. A test review. A test review.");
+    review.setName("Test review");
+    review.setGoal("A test review. A test review. A test review. A test review. A test review.");
     review.setActive(true);
     review.setShared(true);
     review.setTemplate(false);
@@ -148,11 +148,11 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     referential.setItemPriorities(new HashSet<ItemPriority>(
       Arrays.asList(priority1, priority2, priority3)));
 
-    // Categories
-    ItemCategory category1 = new ItemCategory("category1");
-    ItemCategory category2 = new ItemCategory("category2");
-    referential.setItemCategories(new HashSet<ItemCategory>(
-      Arrays.asList(category1, category2)));
+    // Tags
+    ItemTag tag1 = new ItemTag("tag1");
+    ItemTag tag2 = new ItemTag("tag2");
+    referential.setItemTags(new HashSet<ItemTag>(
+      Arrays.asList(tag1, tag2)));
 
     // Resolution status
     ItemResolutionType itemResolutionType1 = new ItemResolutionType("resolutionType1");
@@ -173,13 +173,14 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     item.setLineStart(i);
     item.setLineEnd(i * i + 1);
     item.setPriority(referential.getItemPriority("priority" + i % referential.getItemPrioritiesByName(true).size()));
-    item.setCategory(referential.getItemCategory("category" + i % referential.getItemCategoriesByName(true).size()));
     item.setResolutionStatus(ItemResolutionStatus.TO_RESOLVE);
     item.setResolutionType(referential.getItemResolutionType("resolutionType" + i % referential.getItemResolutionTypesByName(
       true).size()));
     item.setDesc("Test item review " + i + ". Test item review " + i + ".");
     item.setSummary("Test item review " + i + ".");
     item.setHistory(createHistory(referential, i, i + 1));
+
+    item.setTags(Arrays.asList(referential.getItemTag("tag" + i % referential.getItemTagsByName(true).size())));
 
     return item;
   }

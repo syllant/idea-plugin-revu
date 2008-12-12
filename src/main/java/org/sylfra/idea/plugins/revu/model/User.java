@@ -16,9 +16,20 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
 {
   public static enum Role
   {
-    ADMIN,
-    REVIEWER,
-    AUTHOR
+    ADMIN(2),
+    REVIEWER(1),
+    AUTHOR(0);
+    private final int power;
+
+    Role(int power)
+    {
+      this.power = power;
+    }
+
+    public int getPower()
+    {
+      return power;
+    }
   }
 
   public final static User UNKNOWN = new User("[unknown]", null, "[unknown]");
@@ -93,9 +104,17 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
     roles.add(role);
   }
 
-  public boolean hasRole(Role role)
+  public boolean hasRole(@NotNull Role role)
   {
-    return roles.contains(role);
+    for (Role r : roles)
+    {
+      if (r.getPower() >= role.getPower())
+      {
+        return true;
+      }
+    }
+    
+    return false;
   }
 
   public int compareTo(User other)

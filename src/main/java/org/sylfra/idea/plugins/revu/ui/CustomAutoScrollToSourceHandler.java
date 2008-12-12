@@ -128,7 +128,7 @@ public final class CustomAutoScrollToSourceHandler
 
   protected boolean needToCheckFocus()
   {
-    return true;
+    return false;
   }
 
   protected void scrollToSource(Component tree)

@@ -33,6 +33,11 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
   {
     super.internalValidateInput();
 
+    if ((getEnclosingReview() == null) || (getEnclosingReview().isEmbedded()))
+    {
+      return;
+    }
+
     // Check if current user is contained in list
     boolean adminFound = false;
     boolean currentUserFound = false;

@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui.actions;
+package org.sylfra.idea.plugins.revu.ui.actions.toolwindow;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,6 +39,6 @@ public class JumpToSourceAction extends AnAction
       }
     }
 
-    OpenSourceUtil.openSourcesFrom(e.getDataContext(), false);
+    OpenSourceUtil.openSourcesFrom(e.getDataContext(), true);
   }
 }

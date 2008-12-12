@@ -29,7 +29,7 @@ public class HistoryForm<T extends IRevuHistoryHolderEntity<T>> extends Abstract
     return contentPane;
   }
 
-  protected void internalUpdateUI(T data)
+  protected void internalUpdateUI(T data, boolean requestFocus)
   {
     lbCreatedBy.setText((data == null) ? "" : getUserName(data.getHistory().getCreatedBy()));
     lbLastUpdatedBy.setText((data == null) ? "" : getUserName(data.getHistory().getLastUpdatedBy()));
@@ -56,6 +56,11 @@ public class HistoryForm<T extends IRevuHistoryHolderEntity<T>> extends Abstract
   public boolean isModified(@NotNull T data)
   {
     return false;
+  }
+
+  @Override
+  protected void internalUpdateWriteAccess(@Nullable User user)
+  {
   }
 
   public void internalValidateInput()

@@ -4,7 +4,7 @@ Features:
 - simple
 - flexible management of:
   - users
-  - categories
+  - tags
   - priorities
   - resolution types
 - review templates

@@ -6,10 +6,13 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.sylfra.idea.plugins.revu.model.History;
-import org.sylfra.idea.plugins.revu.model.ItemResolutionStatus;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -41,10 +44,14 @@ class ReviewItemConverter extends AbstractConverter
     writer.addAttribute("lineStart", String.valueOf(reviewItem.getLineStart()));
     writer.addAttribute("lineEnd", String.valueOf(reviewItem.getLineEnd()));
     writer.addAttribute("hash", String.valueOf(reviewItem.getHash()));
-    if (reviewItem.getCategory() != null)
+
+    List<ItemTag> tagList = reviewItem.getTags();
+    if ((tagList != null) && (!tagList.isEmpty()))
     {
-      writer.addAttribute("category", reviewItem.getCategory().getName());
+      SortedSet<ItemTag> tags = new TreeSet<ItemTag>(tagList);
+      writer.addAttribute("tags", ConverterUtils.toString(tags, true));
     }
+
     if (reviewItem.getPriority() != null)
     {
       writer.addAttribute("priority", reviewItem.getPriority().getName());
@@ -75,13 +82,15 @@ class ReviewItemConverter extends AbstractConverter
     String lineStart = reader.getAttribute("lineStart");
     String hash = reader.getAttribute("hash");
     String lineEnd = reader.getAttribute("lineEnd");
-    String category = reader.getAttribute("category");
+    String tags = reader.getAttribute("tags");
     String priority = reader.getAttribute("priority");
     String resolutionStatus = reader.getAttribute("resolutionStatus");
     String resolutionType = reader.getAttribute("resolutionType");
 
+    Review review = getReview(context);
+
     ReviewItem reviewItem = new ReviewItem();
-    reviewItem.setReview(getReview(context));
+    reviewItem.setReview(review);
 
     Project project = getProject(context);
     VirtualFile file = RevuVfsUtils.findVFileFromRelativeFile(project, filePath);
@@ -94,18 +103,33 @@ class ReviewItemConverter extends AbstractConverter
     {
       reviewItem.setHash(Integer.parseInt(hash));
     }
-    if (category != null)
+    if (tags != null)
     {
-      reviewItem.setCategory(getReview(context).getDataReferential().getItemCategory(category));
+      String[] tagNames = tags.split(",");
+      List<ItemTag> tagSet = new ArrayList<ItemTag>();
+      for (String tagName : tagNames)
+      {
+        ItemTag itemTag = review.getDataReferential().getItemTag(tagName);
+        if (itemTag == null)
+        {
+          // @TODO report error to user
+          logger.warn("Can't find tag in referential. Tag:'" + tagName + "', review: " + review.getPath());
+        }
+        else
+        {
+          tagSet.add(itemTag);
+        }
+      }
+      reviewItem.setTags(tagSet);
     }
     if (priority != null)
     {
-      reviewItem.setPriority(getReview(context).getDataReferential().getItemPriority(priority));
+      reviewItem.setPriority(review.getDataReferential().getItemPriority(priority));
     }
     reviewItem.setResolutionStatus(ItemResolutionStatus.valueOf(resolutionStatus.toUpperCase()));
     if (resolutionType != null)
     {
-      reviewItem.setResolutionType(getReview(context).getDataReferential().getItemResolutionType(resolutionType));
+      reviewItem.setResolutionType(review.getDataReferential().getItemResolutionType(resolutionType));
     }
     reviewItem.setSummary(summary);
 

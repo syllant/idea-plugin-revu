@@ -22,16 +22,20 @@ public abstract class RevuIconProvider
    */
   public static enum IconRef
   {
-    REVU("revu"),
-    REVU_LARGE("revuLarge"),
-    EDIT_CONFIG("editConfig"),
-    STATUS_BAR_INFO("statusBarInfo"),
-    STATUS_BAR_WARNING("statusBarWarning"),
-    STATUS_BAR_ERROR("statusBarError"),
+    DESYNCHRONIZED("desynchronized"),
     GUTTER_REVU_ITEM("gutterReviewItem"),
     GUTTER_REVU_ITEM_DESYNCHRONIZED("gutterReviewItemDesynchronized"),
     GUTTER_REVU_ITEMS("gutterReviewItems"),
-    GUTTER_REVU_ITEMS_DESYNCHRONIZED("gutterReviewItemsDesynchronized");
+    GUTTER_REVU_ITEMS_DESYNCHRONIZED("gutterReviewItemsDesynchronized"),
+    EDIT_CONFIG("editConfig"),
+    EDIT_TAGS("editTags"),
+    FIELD_ERROR("fieldErro"),
+    REVU("revu"),
+    REVU_LARGE("revuLarge"),
+    STATUS_BAR_INFO("statusBarInfo"),
+    STATUS_BAR_WARNING("statusBarWarning"),
+    STATUS_BAR_ERROR("statusBarError"),
+    TAG("tag");
     
     private final String imgName;
 

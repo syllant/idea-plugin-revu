@@ -43,11 +43,14 @@ public class ReviewItemsTable extends TableView<ReviewItem>
   implements DataProvider, OccurenceNavigator
 {
   private final Project project;
+  @Nullable
+  private final Review review;
 
   public ReviewItemsTable(@NotNull Project project, List<ReviewItem> items, @Nullable Review review)
   {
     super(new ReviewItemTableModel(project, items, review));
     this.project = project;
+    this.review = review;
 
     PopupHandler.installPopupHandler(this, "revu.reviewItemTable.popup", "reviewItemTable");
 
@@ -128,7 +131,7 @@ public class ReviewItemsTable extends TableView<ReviewItem>
       if (currentItem != null)
       {
         OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentItem.getFile(),
-          currentItem.getLineStart() - 1, 0);
+          currentItem.getLineStart(), 0);
         return new Navigatable[]{fileDescriptor};
       }
 
@@ -143,6 +146,13 @@ public class ReviewItemsTable extends TableView<ReviewItem>
     if (RevuDataKeys.REVIEW_ITEM_ARRAY.getName().equals(dataId))
     {
       return getSelection();
+    }
+
+    if (RevuDataKeys.REVIEW.getName().equals(dataId))
+    {
+      // Dont return 'review' since it's null in all tab
+      ReviewItem reviewItem = getSelectedObject();
+      return (reviewItem == null) ? null : review;
     }
 
     return null;

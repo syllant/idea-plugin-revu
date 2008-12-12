@@ -11,7 +11,9 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -50,18 +52,25 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     actions = buildActions(buildDetailDialogFactory());
     JPanel pnButtons = createButtonsPanel(actions);
 
+    // Used for error icon
+    JLabel label = new JLabel("");
+    label.setLabelFor(table);
+    
     contentPane = new JPanel(new BorderLayout());
     contentPane.add(new JScrollPane(table), BorderLayout.CENTER);
     contentPane.add(pnButtons, BorderLayout.EAST);
+    contentPane.add(label, BorderLayout.WEST);
   }
 
   protected java.util.List<AbstractTableAction<T>> buildActions(IDetailDialogFactory<T> detailDialogFactory)
   {
     java.util.List<AbstractTableAction<T>> result = new ArrayList<AbstractTableAction<T>>();
 
-    result.add(new AddAction<T>(table, detailDialogFactory));
+    AbstractTableAction<T> action = new AddAction<T>(table, detailDialogFactory);
+    addUpdatableFormListener(action);
+    result.add(action);
 
-    AbstractTableAction<T> action = new EditAction<T>(table, detailDialogFactory);
+    action = new EditAction<T>(table, detailDialogFactory);
     addUpdatableFormListener(action);
     result.add(action);
 
@@ -153,7 +162,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
   {
   }
 
-  protected void internalUpdateUI(ReferentialListHolder<T> data)
+  protected void internalUpdateUI(ReferentialListHolder<T> data, boolean requestFocus)
   {
     List<T> items;
     if (data == null)
@@ -171,14 +180,14 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
     
     table.getListTableModel().setItems(items);
-
-    for (AbstractTableAction<T> action : actions)
-    {
-      if (action != null)
-      {
-        action.checkEnabled();
-      }
-    }
+//
+//    for (AbstractTableAction<T> action : actions)
+//    {
+//      if (action != null)
+//      {
+//        action.checkEnabled();
+//      }
+//    }
   }
 
   protected void internalUpdateData(@NotNull ReferentialListHolder<T> data)
@@ -192,6 +201,11 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
     
     data.setItems(items);
+  }
+
+  @Override
+  protected void internalUpdateWriteAccess(@Nullable User user)
+  {
   }
 
   public JComponent getPreferredFocusedComponent()
@@ -210,11 +224,13 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     @NotNull AbstractDetailDialog<T> createDialog();
   }
 
-  protected static abstract class AbstractTableAction<T> extends AbstractAction implements UpdatableFormListener<ReferentialListHolder<T>>
+  protected static abstract class AbstractTableAction<T> extends AbstractAction
+    implements UpdatableFormListener<ReferentialListHolder<T>>
   {
     protected Review enclosingReview;
     protected ReferentialListHolder<T> referentialListHolder;
     protected final TableView<T> table;
+    private User currentUser;
 
     protected AbstractTableAction(String name, TableView<T> table)
     {
@@ -232,10 +248,10 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     public void checkEnabled()
     {
-      setEnabled(!isFromLinkedReferential() && isEnabledForSelection());
+      setEnabled((currentUser != null) && (currentUser.hasRole(User.Role.ADMIN)) && isEnabledForSelection());
     }
 
-    private boolean isFromLinkedReferential()
+    protected boolean isFromLinkedReferential()
     {
       if ((referentialListHolder == null) || (referentialListHolder.getLinkedItems() == null))
       {
@@ -256,7 +272,10 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     public void uiUpdated(Review enclosingReview, @Nullable ReferentialListHolder<T> data)
     {
       this.enclosingReview = enclosingReview;
+      currentUser = RevuUtils.getUser(enclosingReview);
       referentialListHolder = data;
+
+      checkEnabled();
     }
 
     public void dataUpdated(@NotNull ReferentialListHolder<T> data)
@@ -356,7 +375,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     protected boolean isEnabledForSelection()
     {
-      return (table.getSelectedRow() > -1);
+      return ((!isFromLinkedReferential()) && (table.getSelectedRow() > -1));
     }
   }
 
@@ -374,7 +393,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     protected boolean isEnabledForSelection()
     {
-      return (table.getSelectedRow() > -1);
+      return ((!isFromLinkedReferential()) && (table.getSelectedRow() > -1));
     }
   }
 
@@ -414,7 +433,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     protected boolean isEnabledForSelection()
     {
-      return (table.getSelectedRow() > 0);
+      return ((!isFromLinkedReferential()) && (table.getSelectedRow() > 0));
     }
   }
 
@@ -432,7 +451,8 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
 
     protected boolean isEnabledForSelection()
     {
-      return ((table.getSelectedRow() > -1) && (table.getSelectedRow() < table.getRowCount() - 1));
+      return ((!isFromLinkedReferential())
+        && (table.getSelectedRow() > -1) && (table.getSelectedRow() < table.getRowCount() - 1));
     }
   }
 

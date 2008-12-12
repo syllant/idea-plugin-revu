@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui.actions;
+package org.sylfra.idea.plugins.revu.ui.actions.reviewitem;
 
 import com.intellij.history.Clock;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -58,6 +58,8 @@ public class CreateReviewItemAction extends AbstractReviewItemAction
 
       Review review = item.getReview();
 
+      assert (RevuUtils.getCurrentUserLogin() != null) : "Login should be set";
+
       User user = review.getDataReferential().getUser(RevuUtils.getCurrentUserLogin(), true);
       assert (user != null) : "User should be declared in review";
 
@@ -69,9 +71,12 @@ public class CreateReviewItemAction extends AbstractReviewItemAction
       history.setLastUpdatedOn(now);
       item.setHistory(history);
 
-      // VCS revision number will be saved at commit
-      item.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
-      VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, vFile);
+      if (RevuVcsUtils.fileIsModifiedFromVcs(project, vFile))
+      {
+        item.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
+      }
+
+      VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, item.getFile());
       if (vcsRev != null)
       {
         item.setVcsRev(vcsRev.toString());
@@ -83,5 +88,4 @@ public class CreateReviewItemAction extends AbstractReviewItemAction
       reviewManager.save(review);
     }
   }
-
 }

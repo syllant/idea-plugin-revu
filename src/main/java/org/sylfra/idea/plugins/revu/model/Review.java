@@ -17,8 +17,8 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private Review extendedReview;
   private String path;
   private History history;
-  private String title;
-  private String desc;
+  private String name;
+  private String goal;
   private boolean template;
   private boolean shared;
   private boolean active;
@@ -27,9 +27,9 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private Map<VirtualFile, List<ReviewItem>> itemsByFiles;
   private final transient List<IReviewItemListener> reviewItemListeners;
 
-  public Review(@Nullable String title)
+  public Review(@Nullable String name)
   {
-    this.title = title;
+    this.name = name;
     history = new History();
     itemsByFiles = new HashMap<VirtualFile, List<ReviewItem>>();
     reviewItemListeners = new LinkedList<IReviewItemListener>();
@@ -111,24 +111,24 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     this.embedded = embedded;
   }
 
-  public String getTitle()
+  public String getName()
   {
-    return title;
+    return name;
   }
 
-  public void setTitle(String title)
+  public void setName(String name)
   {
-    this.title = title;
+    this.name = name;
   }
 
-  public String getDesc()
+  public String getGoal()
   {
-    return desc;
+    return goal;
   }
 
-  public void setDesc(String desc)
+  public void setGoal(String goal)
   {
-    this.desc = desc;
+    this.goal = goal;
   }
 
   @NotNull
@@ -240,6 +240,11 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     reviewItemListeners.remove(listener);
   }
 
+  public void clearReviewItemsListeners()
+  {
+    reviewItemListeners.clear();
+  }
+
   public void copyFrom(@NotNull Review otherReview)
   {
     dataReferential.copyFrom(otherReview.getDataReferential());
@@ -259,7 +264,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
 
   public int compareTo(Review o)
   {
-    return title.compareTo(o.getTitle());
+    return name.compareTo(o.getName());
   }
 
   @Override
@@ -296,7 +301,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     {
       return false;
     }
-    if (desc != null ? !desc.equals(review.desc) : review.desc != null)
+    if (goal != null ? !goal.equals(review.goal) : review.goal != null)
     {
       return false;
     }
@@ -316,12 +321,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     {
       return false;
     }
-    if (reviewItemListeners != null ? !reviewItemListeners.equals(review.reviewItemListeners) :
-      review.reviewItemListeners != null)
-    {
-      return false;
-    }
-    if (title != null ? !title.equals(review.title) : review.title != null)
+    if (name != null ? !name.equals(review.name) : review.name != null)
     {
       return false;
     }
@@ -332,18 +332,19 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   @Override
   public int hashCode()
   {
-    int result = extendedReview != null ? extendedReview.hashCode() : 0;
+    int result = extendedReview != null ? extendedReview.getName().hashCode() : 0;
+
     result = 31 * result + (path != null ? path.hashCode() : 0);
     result = 31 * result + (history != null ? history.hashCode() : 0);
-    result = 31 * result + (title != null ? title.hashCode() : 0);
-    result = 31 * result + (desc != null ? desc.hashCode() : 0);
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    result = 31 * result + (goal != null ? goal.hashCode() : 0);
     result = 31 * result + (template ? 1 : 0);
     result = 31 * result + (shared ? 1 : 0);
     result = 31 * result + (active ? 1 : 0);
     result = 31 * result + (embedded ? 1 : 0);
     result = 31 * result + (dataReferential != null ? dataReferential.hashCode() : 0);
     result = 31 * result + (itemsByFiles != null ? itemsByFiles.hashCode() : 0);
-    result = 31 * result + (reviewItemListeners != null ? reviewItemListeners.hashCode() : 0);
+
     return result;
   }
 
@@ -352,8 +353,8 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   {
     return new ToStringBuilder(this).
       append("history", history).
-      append("title", title).
-      append("desc", desc).
+      append("name", name).
+      append("goal", goal).
       append("active", active).
       append("embedded", embedded).
       append("itemsByFiles", itemsByFiles).

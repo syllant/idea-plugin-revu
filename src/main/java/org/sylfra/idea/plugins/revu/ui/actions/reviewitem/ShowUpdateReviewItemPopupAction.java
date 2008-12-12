@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui.actions;
+package org.sylfra.idea.plugins.revu.ui.actions.reviewitem;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
