@@ -49,7 +49,7 @@ class ReviewItemConverter extends AbstractConverter
     if ((tagList != null) && (!tagList.isEmpty()))
     {
       SortedSet<ItemTag> tags = new TreeSet<ItemTag>(tagList);
-      writer.addAttribute("tags", ConverterUtils.toString(tags, true));
+      writer.addAttribute("tags", ConverterUtils.toString(tags, false));
     }
 
     if (reviewItem.getPriority() != null)

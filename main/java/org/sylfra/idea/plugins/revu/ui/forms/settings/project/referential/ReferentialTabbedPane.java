@@ -63,8 +63,10 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   {
     return ((userReferentialForm.isModified(new ReferentialListHolder<User>(data.getUsers(true), null)))
       || (itemTagReferentialForm.isModified(new ReferentialListHolder<ItemTag>(data.getItemTags(true), null)))
-      || (itemPriorityReferentialForm.isModified(new ReferentialListHolder<ItemPriority>(data.getItemPriorities(true), null)))
-      || (itemResolutionTypeReferentialForm.isModified(new ReferentialListHolder<ItemResolutionType>(data.getItemResolutionTypes( true), null))));
+      || (itemPriorityReferentialForm.isModified(
+      new ReferentialListHolder<ItemPriority>(data.getItemPriorities(true), null)))
+      || (itemResolutionTypeReferentialForm.isModified(
+      new ReferentialListHolder<ItemResolutionType>(data.getItemResolutionTypes(true), null))));
   }
 
   @Override
@@ -77,7 +79,8 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
     updateError(itemTagReferentialForm.getContentPane(), !itemTagReferentialForm.validateInput(), null);
     updateError(itemPriorityReferentialForm.getContentPane(), !itemPriorityReferentialForm.validateInput(), null);
-    updateError(itemResolutionTypeReferentialForm.getContentPane(), !itemResolutionTypeReferentialForm.validateInput(), null);
+    updateError(itemResolutionTypeReferentialForm.getContentPane(), !itemResolutionTypeReferentialForm.validateInput(),
+      null);
   }
 
   protected void internalUpdateUI(DataReferential data, boolean requestFocus)
@@ -220,7 +223,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     List<ItemResolutionType> extendedResolutionTypes = new ArrayList<ItemResolutionType>(
       data.getReview().getExtendedReview().getDataReferential().getItemResolutionTypes(true));
     extendedResolutionTypes.removeAll(thisResolutionTypes);
-    
+
     return new ReferentialListHolder<ItemResolutionType>(thisResolutionTypes, extendedResolutionTypes);
   }
 

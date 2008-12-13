@@ -1,11 +1,8 @@
 package org.sylfra.idea.plugins.revu.ui.forms.reviewitem;
 
-import com.intellij.ide.util.ElementsChooser;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.util.containers.SortedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +13,7 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.ElementsChooserPopup;
 import org.sylfra.idea.plugins.revu.ui.editor.RevuEditorHandler;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
@@ -135,12 +133,15 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
 
           cbResolutionType.setModel(new DefaultComboBoxModel(buildComboItemsArray(
             new TreeSet<ItemResolutionType>(referential.getItemResolutionTypesByName(true).values()), false)));
+
+          tagsPane.setEnabled(true);
         }
         else
         {
           // "[Select a value]" String is selected
           cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
           cbResolutionType.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), false)));
+          tagsPane.setEnabled(false);
         }
       }
     });
@@ -206,6 +207,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
     cbResolutionType.setSelectedItem((data == null) ? null : data.getResolutionType());
     lbSync.setVisible((data != null) && (!isReviewItemSynchronized(data)));
     tagsPane.updateUI((data == null) ? null : data.getTags());
+    tagsPane.setEnabled(defaultReview != null);
 
     ReviewItem.LocationType locationType = (data == null) ? null : data.getLocationType();
     rbLocationFile.setEnabled(!ReviewItem.LocationType.GLOBAL.equals(locationType));
@@ -277,14 +279,14 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   protected void internalUpdateWriteAccess(@Nullable User user)
   {
     // @TODO
-    RevuUtils.setWriteAccess(((currentReviewItem == null)
+    RevuUtils.setWriteAccess((((currentReviewItem == null) || (currentReviewItem.getReview() == null))
       || ((user != null) && (user.hasRole(User.Role.ADMIN)))), cbReview);
 
-    boolean mayReview = (currentReviewItem == null)
+    boolean mayReview = ((currentReviewItem == null) || (currentReviewItem.getReview() == null))
       || (user != null) && (user.hasRole(User.Role.REVIEWER));
     RevuUtils.setWriteAccess(mayReview, cbPriority,
       rbLocationFile, rbLocationGlobal, rbLocationLineRange);
-    tagsPane.setEnabled(mayReview);
+    tagsPane.setEnabled(mayReview && (cbReview.getSelectedIndex() > 0));
   }
 
   public void internalValidateInput()
@@ -382,8 +384,7 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
   private final class TagsPane extends JPanel
   {
     private JPanel contentPane;
-    private ElementsChooser<ItemTag> chooser;
-    private JBPopup popup;
+    private ElementsChooserPopup<ItemTag> popup;
     private final JPanel pnTags;
     private final SortedList<ItemTag> selectedTags;
     private AnAction editAction;
@@ -401,8 +402,14 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         @Override
         public void actionPerformed(AnActionEvent e)
         {
-          List<ItemTag> tags = getEnclosingReview().getDataReferential().getItemTags(true);
+          List<ItemTag> tags = ((Review) cbReview.getSelectedItem()).getDataReferential().getItemTags(true);
           showEditPopup(tags);
+        }
+
+        @Override
+        public void update(AnActionEvent e)
+        {
+          e.getPresentation().setEnabled(getTemplatePresentation().isEnabled());
         }
       };
 
@@ -421,74 +428,32 @@ public class ReviewItemMainForm extends AbstractReviewItemForm
         }
       });
 
-      chooser = new ElementsChooser<ItemTag>(true)
-      {
-        @Override
-        protected String getItemText(ItemTag itemTag)
+      popup = new ElementsChooserPopup<ItemTag>(RevuBundle.message("form.reviewitem.tagsPopup.title"),
+        new ElementsChooserPopup.IPopupListener<ItemTag>()
         {
-          return itemTag.getName();
-        }
-      };
-      chooser.setColorUnmarkedElements(false);
-      configureUI();
+          public void apply(@NotNull List<ItemTag> markedElements)
+          {
+            updateUI(markedElements);
+          }
+        },
+        new ElementsChooserPopup.IItemRenderer<ItemTag>()
+        {
+          public String getText(ItemTag item)
+          {
+            return item.getName();
+          }
+        });
     }
 
     @Override
     public void setEnabled(boolean enabled)
     {
-      editAction.getTemplatePresentation().setEnabled(false);
-    }
-
-    private void configureUI()
-    {
-      JButton bnOK = new JButton(RevuBundle.message("general.ok.action"));
-      bnOK.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          popup.cancel();
-          updateUI(chooser.getMarkedElements());
-        }
-      });
-
-      JButton bnCancel = new JButton(RevuBundle.message("general.cancel.action"));
-      bnCancel.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          popup.cancel();
-        }
-      });
-
-      JPanel toolbar = new JPanel(new GridLayout(1, 2));
-      toolbar.add(bnOK);
-      toolbar.add(bnCancel);
-
-      contentPane = new JPanel(new BorderLayout());
-      contentPane.add(chooser, BorderLayout.CENTER);
-      contentPane.add(toolbar, BorderLayout.SOUTH);
+      editAction.getTemplatePresentation().setEnabled(enabled);
     }
 
     public void showEditPopup(@NotNull List<ItemTag> allTags)
     {
-      chooser.setElements(allTags, false);
-      chooser.markElements(selectedTags);
-
-      popup = JBPopupFactory.getInstance().createComponentPopupBuilder(contentPane, chooser)
-        .setModalContext(false)
-        .setMovable(true)
-        .setFocusable(true)
-        .setResizable(false)
-        .setRequestFocus(true)
-        .setCancelOnClickOutside(false)
-        .setTitle(RevuBundle.message("form.reviewitem.tagsPopup.title"))
-        .createPopup();
-
-      Point locationOnScreen = toolbar.getLocationOnScreen();
-      Point location = new Point(
-        (int) (locationOnScreen.getX()),
-        (int) locationOnScreen.getY() - popup.getContent().getPreferredSize().height);
-      popup.showInScreenCoordinates(toolbar, location);
+      popup.show(toolbar, false, allTags, selectedTags);
     }
 
     public void updateUI(@Nullable List<ItemTag> itemTags)

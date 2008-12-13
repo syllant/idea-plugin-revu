@@ -62,4 +62,5 @@ public abstract class AbstractNameHolderDetailForm<T extends IRevuNamedHolderEnt
   {
     return contentPane;
   }
+
 }

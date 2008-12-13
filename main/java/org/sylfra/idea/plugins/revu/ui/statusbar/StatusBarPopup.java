@@ -157,4 +157,5 @@ public class StatusBarPopup extends DialogWrapper
     tbPagination = ActionManager.getInstance().createActionToolbar("", actionGroup, true)
       .getComponent();
   }
+
 }

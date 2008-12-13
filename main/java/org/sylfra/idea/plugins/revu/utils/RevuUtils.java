@@ -15,11 +15,9 @@ import com.intellij.psi.PsiManager;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.model.DataReferential;
-import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
-import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
@@ -187,8 +185,15 @@ public class RevuUtils
     }
   }
 
+  @NotNull
   public static String buildFileNameFromReviewName(@NotNull String name)
   {
     return FileUtil.sanitizeFileName(name) + ".xml";
+  }
+
+  @NotNull
+  public static String buildStatusLabel(@NotNull ItemResolutionStatus status)
+  {
+    return RevuBundle.message("general.status." + status.toString().toLowerCase() + ".text");
   }
 }

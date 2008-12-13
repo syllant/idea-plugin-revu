@@ -143,4 +143,5 @@ public class UserDetailForm extends AbstractReferentialDetailForm<User>
   {
     return contentPane;
   }
+
 }

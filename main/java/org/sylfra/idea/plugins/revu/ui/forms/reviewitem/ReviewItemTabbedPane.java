@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.ItemResolutionStatus;
 import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.model.User;
-import org.sylfra.idea.plugins.revu.ui.ReviewItemsTable;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.ReviewItemsTable;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -113,7 +113,7 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
     currentReviewItem = data;
 
     lbStatus.setText((data == null) ? "" : RevuBundle.message("form.reviewitem.status.label",
-      RevuBundle.message("general.status." + data.getResolutionStatus().toString().toLowerCase() + ".text")));
+      RevuUtils.buildStatusLabel(data.getResolutionStatus())));
 
     mainForm.updateUI(getEnclosingReview(), data, requestFocus);
     historyForm.updateUI(getEnclosingReview(), data, requestFocus);
@@ -155,4 +155,5 @@ public class ReviewItemTabbedPane extends AbstractReviewItemForm
     historyForm.dispose();
     previewForm.dispose();
   }
+
 }
