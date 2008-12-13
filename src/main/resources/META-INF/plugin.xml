@@ -58,8 +58,8 @@
       </implementation-class>
     </component>
     <component>
-      <interface-class>org.sylfra.idea.plugins.revu.config.IReviewExternalizer</interface-class>
-      <implementation-class>org.sylfra.idea.plugins.revu.config.impl.ReviewExternalizerXmlImpl
+      <interface-class>org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer</interface-class>
+      <implementation-class>org.sylfra.idea.plugins.revu.externalizing.impl.ReviewExternalizerXmlImpl
       </implementation-class>
     </component>
     <component>
@@ -122,20 +122,20 @@
             text="Vertical split"
             icon="/actions/splitVertically.png"/>
 
-    <!-- Review item -->
-    <action id="revu.CreateReviewItem"
-            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.CreateReviewItemAction"
-            text="Add review item"
+    <!-- Issue -->
+    <action id="revu.CreateIssue"
+            class="org.sylfra.idea.plugins.revu.ui.actions.issue.CreateIssueAction"
+            text="Add issue"
             icon="/general/add.png">
       <keyboard-shortcut first-keystroke="alt r" keymap="$default"/>
     </action>
-    <action id="revu.ShowUpdateReviewItemPopup"
-            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.ShowUpdateReviewItemPopupAction"
-            text="Update review item"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/editReviewItem.png"/>
-    <action id="revu.RemoveReviewItem"
-            class="org.sylfra.idea.plugins.revu.ui.actions.reviewitem.RemoveReviewItemAction"
-            text="Remove review item"
+    <action id="revu.ShowUpdateIssuePopup"
+            class="org.sylfra.idea.plugins.revu.ui.actions.issue.ShowUpdateIssuePopupAction"
+            text="Update issue"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/editIssue.png"/>
+    <action id="revu.RemoveIssue"
+            class="org.sylfra.idea.plugins.revu.ui.actions.issue.RemoveIssueAction"
+            text="Remove issue"
             icon="/general/remove.png"/>
 
     <!-- Source -->
@@ -153,14 +153,14 @@
     <!-- Editor -->
     <group id="revu.editor.popup">
       <separator/>
-      <reference ref="revu.CreateReviewItem"/>
+      <reference ref="revu.CreateIssue"/>
       <add-to-group group-id="EditorPopupMenu" anchor="last"/>
     </group>
 
     <!-- Gutter -->
-    <group id="revu.reviewItemGutter.popup" popup="true">
-      <reference ref="revu.ShowUpdateReviewItemPopup"/>
-      <reference ref="revu.RemoveReviewItem"/>
+    <group id="revu.issueGutter.popup" popup="true">
+      <reference ref="revu.ShowUpdateIssuePopup"/>
+      <reference ref="revu.RemoveIssue"/>
     </group>
 
     <!-- Tool window -->
@@ -172,7 +172,7 @@
     <group id="revu.toolWindow.allReviews" popup="true">
       <reference ref="revu.ShowProjectSettings"/>
       <separator/>
-      <reference ref="revu.RemoveReviewItem"/>
+      <reference ref="revu.RemoveIssue"/>
       <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
@@ -186,7 +186,7 @@
     <group id="revu.toolWindow.review" popup="true">
       <reference ref="revu.ShowReviewEditForm"/>
       <separator/>
-      <reference ref="revu.RemoveReviewItem"/>
+      <reference ref="revu.RemoveIssue"/>
       <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
@@ -197,18 +197,18 @@
       <reference ref="revu.toolWindow.review.layout"/>
     </group>
 
-    <group id="revu.reviewItemTable.popup" popup="true">
+    <group id="revu.issueTable.popup" popup="true">
       <reference ref="revu.JumpToSource"/>
       <separator/>
-      <reference ref="revu.CreateReviewItem"/>
-      <reference ref="revu.RemoveReviewItem"/>
+      <reference ref="revu.CreateIssue"/>
+      <reference ref="revu.RemoveIssue"/>
     </group>
 
-    <group id="revu.reviewItemForm.toolbar" popup="true">
+    <group id="revu.issueForm.toolbar" popup="true">
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
       <separator/>
-      <reference ref="revu.RemoveReviewItem"/>
+      <reference ref="revu.RemoveIssue"/>
       <separator/>
       <reference ref="revu.JumpToSource"/>
       <separator/>

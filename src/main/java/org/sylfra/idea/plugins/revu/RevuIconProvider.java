@@ -23,10 +23,10 @@ public abstract class RevuIconProvider
   public static enum IconRef
   {
     DESYNCHRONIZED("desynchronized"),
-    GUTTER_REVU_ITEM("gutterReviewItem"),
-    GUTTER_REVU_ITEM_DESYNCHRONIZED("gutterReviewItemDesynchronized"),
-    GUTTER_REVU_ITEMS("gutterReviewItems"),
-    GUTTER_REVU_ITEMS_DESYNCHRONIZED("gutterReviewItemsDesynchronized"),
+    GUTTER_ISSUE("gutterIssue"),
+    GUTTER_ISSUE_DESYNCHRONIZED("gutterIssueDesynchronized"),
+    GUTTER_ISSUES("gutterIssues"),
+    GUTTER_ISSUES_DESYNCHRONIZED("gutterIssuesDesynchronized"),
     EDIT_CONFIG("editConfig"),
     EDIT_TAGS("editTags"),
     FIELD_ERROR("fieldError"),

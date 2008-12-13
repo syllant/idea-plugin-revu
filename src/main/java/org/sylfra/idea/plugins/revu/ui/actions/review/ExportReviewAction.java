@@ -10,7 +10,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.DocumentAdapter;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
+import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarMessage;

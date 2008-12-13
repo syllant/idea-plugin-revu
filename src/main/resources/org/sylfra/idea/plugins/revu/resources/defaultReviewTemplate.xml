@@ -15,9 +15,5 @@
       <tag name="tag1"/>
       <tag name="tag2"/>
     </tags>
-    <resolutionTypes>
-      <resolutionType name="resolutionType1"/>
-      <resolutionType name="resolutionType2"/>
-    </resolutionTypes>
   </referential>
 </review>

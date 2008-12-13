@@ -3,7 +3,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.sylfra.idea.plugins.revu.model.ItemTag;
+import org.sylfra.idea.plugins.revu.model.IssueTag;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractNameHolderReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.AbstractReferentialDetailForm;
 
@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.Abstra
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<ItemTag>
+public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<IssueTag>
 {
   public ItemTagReferentialForm(Project project)
   {
@@ -23,7 +23,7 @@ public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<It
     return false;
   }
 
-  protected AbstractReferentialDetailForm<ItemTag> buildNestedFormForDialog()
+  protected AbstractReferentialDetailForm<IssueTag> buildNestedFormForDialog()
   {
     return new org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.ItemTagDetailForm(table);
   }
@@ -37,8 +37,8 @@ public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<It
   }
 
   @NotNull
-  protected ItemTag createDefaultDataForDialog()
+  protected IssueTag createDefaultDataForDialog()
   {
-    return new ItemTag();
+    return new IssueTag();
   }
 }

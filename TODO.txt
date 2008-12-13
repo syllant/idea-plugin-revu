@@ -1,10 +1,9 @@
 1.0
 - review status : created, reviewing, fixing, verifying, closed
 
-- review item assignedTo (multiple)
+- issue assignedTo (multiple)
 
-- delete resolutionType
-- review item -> issue
+- issue -> issue
 - history panel finition
 - icon
   - template/share icon
@@ -12,13 +11,12 @@
 - changes on referential -> change on existing items
 
 - notes management
-- column selector
 
 - navigation popup in gutter
 
 - tool preferred size
 - IPR setting : review default dir => new tab in project settings !
-- IWS setting : see review items not assigned to me
+- IWS setting : see issues not assigned to me
 - permissions
   - reviewers/authors / creation
 
@@ -27,7 +25,7 @@
 
 - history
   - review modified
-  - review item modified/added/deleted
+  - issue modified/added/deleted
 
 - doc
 
@@ -38,7 +36,7 @@
 - assign files
   - from VCS changes
 - colored tags
-- multi-locations in a review item
+- multi-locations in a issue
 - errorSubmitter
 - option to show/hide 'all reviews' tool window
 - review config : required fields, ...

@@ -4,7 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
+import org.sylfra.idea.plugins.revu.business.IIssueListener;
 
 import java.util.*;
 
@@ -24,15 +24,15 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private boolean active;
   private boolean embedded;
   private DataReferential dataReferential;
-  private Map<VirtualFile, List<ReviewItem>> itemsByFiles;
-  private final transient List<IReviewItemListener> reviewItemListeners;
+  private Map<VirtualFile, List<Issue>> itemsByFiles;
+  private final transient List<IIssueListener> issueListeners;
 
   public Review(@Nullable String name)
   {
     this.name = name;
     history = new History();
-    itemsByFiles = new HashMap<VirtualFile, List<ReviewItem>>();
-    reviewItemListeners = new LinkedList<IReviewItemListener>();
+    itemsByFiles = new HashMap<VirtualFile, List<Issue>>();
+    issueListeners = new LinkedList<IIssueListener>();
     dataReferential = new DataReferential(this);
   }
 
@@ -143,20 +143,20 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   }
 
   @NotNull
-  public Map<VirtualFile, List<ReviewItem>> getItemsByFiles()
+  public Map<VirtualFile, List<Issue>> getItemsByFiles()
   {
     return Collections.unmodifiableMap(itemsByFiles);
   }
 
-  public void setItems(List<ReviewItem> items)
+  public void setItems(List<Issue> items)
   {
     itemsByFiles.clear();
-    for (ReviewItem item : items)
+    for (Issue item : items)
     {
-      List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
+      List<Issue> fileItems = itemsByFiles.get(item.getFile());
       if (fileItems == null)
       {
-        fileItems = new ArrayList<ReviewItem>();
+        fileItems = new ArrayList<Issue>();
         itemsByFiles.put(item.getFile(), fileItems);
       }
       fileItems.add(item);
@@ -164,10 +164,10 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   }
 
   @NotNull
-  public List<ReviewItem> getItems(@NotNull VirtualFile file)
+  public List<Issue> getItems(@NotNull VirtualFile file)
   {
-    List<ReviewItem> fileItems = itemsByFiles.get(file);
-    return (fileItems == null) ? new ArrayList<ReviewItem>(0) : Collections.unmodifiableList(fileItems);
+    List<Issue> fileItems = itemsByFiles.get(file);
+    return (fileItems == null) ? new ArrayList<Issue>(0) : Collections.unmodifiableList(fileItems);
   }
 
   @NotNull
@@ -177,13 +177,13 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   }
 
   @NotNull
-  public List<ReviewItem> getItems()
+  public List<Issue> getItems()
   {
-    List<ReviewItem> result = new ArrayList<ReviewItem>();
+    List<Issue> result = new ArrayList<Issue>();
 
-    for (List<ReviewItem> items : itemsByFiles.values())
+    for (List<Issue> items : itemsByFiles.values())
     {
-      for (ReviewItem item : items)
+      for (Issue item : items)
       {
         result.add(item);
       }
@@ -192,57 +192,57 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     return result;
   }
 
-  public void addItem(ReviewItem item)
+  public void addItem(Issue item)
   {
-    List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
+    List<Issue> fileItems = itemsByFiles.get(item.getFile());
     if (fileItems == null)
     {
-      fileItems = new ArrayList<ReviewItem>();
+      fileItems = new ArrayList<Issue>();
       itemsByFiles.put(item.getFile(), fileItems);
     }
     fileItems.add(item);
 
-    for (IReviewItemListener listener : reviewItemListeners)
+    for (IIssueListener listener : issueListeners)
     {
       listener.itemAdded(item);
     }
   }
 
-  public void removeItem(ReviewItem item)
+  public void removeItem(Issue item)
   {
-    List<ReviewItem> fileItems = itemsByFiles.get(item.getFile());
+    List<Issue> fileItems = itemsByFiles.get(item.getFile());
     if (fileItems != null)
     {
       fileItems.remove(item);
     }
 
-    for (IReviewItemListener listener : reviewItemListeners)
+    for (IIssueListener listener : issueListeners)
     {
       listener.itemDeleted(item);
     }
   }
 
-  public void fireItemUpdated(ReviewItem item)
+  public void fireItemUpdated(Issue item)
   {
-    for (IReviewItemListener listener : reviewItemListeners)
+    for (IIssueListener listener : issueListeners)
     {
       listener.itemUpdated(item);
     }
   }
 
-  public void addReviewItemListener(IReviewItemListener listener)
+  public void addIssueListener(IIssueListener listener)
   {
-    reviewItemListeners.add(listener);
+    issueListeners.add(listener);
   }
 
-  public void removeReviewItemListener(IReviewItemListener listener)
+  public void removeIssueListener(IIssueListener listener)
   {
-    reviewItemListeners.remove(listener);
+    issueListeners.remove(listener);
   }
 
-  public void clearReviewItemsListeners()
+  public void clearIssuesListeners()
   {
-    reviewItemListeners.clear();
+    issueListeners.clear();
   }
 
   public void copyFrom(@NotNull Review otherReview)
@@ -358,7 +358,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
       append("active", active).
       append("embedded", embedded).
       append("itemsByFiles", itemsByFiles).
-      append("reviewItemListeners", reviewItemListeners).
+      append("issueListeners", issueListeners).
       append("dataReferential", dataReferential).
       toString();
   }

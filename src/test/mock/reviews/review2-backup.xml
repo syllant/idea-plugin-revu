@@ -12,10 +12,6 @@
       <tag name="tag1b"/>
       <tag name="tag2b"/>
     </tags>
-    <resolutionTypes>
-      <resolutionType name="resolutionType1b"/>
-      <resolutionType name="resolutionType2b"/>
-    </resolutionTypes>
     <users>
       <user displayName="aa" login="aa" password="" roles="admin"/>
       <user displayName="user1b" login="u1b" password="p1" roles="admin"/>

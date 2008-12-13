@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.Issue;
 
 import javax.swing.*;
 import java.text.DateFormat;
@@ -24,7 +24,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
 {
   private boolean fullySynchronized;
   private final Integer lineStart;
-  private final Map<ReviewItem, RangeMarker> reviewItems;
+  private final Map<Issue, RangeMarker> issues;
   private RevuEditorHandler revuEditorHandler;
 
   public CustomGutterIconRenderer(RevuEditorHandler revuEditorHandler, Integer lineStart)
@@ -32,8 +32,8 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     this.revuEditorHandler = revuEditorHandler;
     this.lineStart = lineStart;
 
-    // Use IdentityHashMap to retrieve reviewItems by reference equality instead of content equality
-    reviewItems = new IdentityHashMap<ReviewItem, RangeMarker>();
+    // Use IdentityHashMap to retrieve issues by reference equality instead of content equality
+    issues = new IdentityHashMap<Issue, RangeMarker>();
     fullySynchronized = true;
   }
 
@@ -45,7 +45,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   public void checkFullySynchronized()
   {
     boolean tmp = true;
-    for (Map.Entry<ReviewItem, RangeMarker> entry : reviewItems.entrySet())
+    for (Map.Entry<Issue, RangeMarker> entry : issues.entrySet())
     {
       if (!revuEditorHandler.isSynchronized(entry.getKey(), entry.getValue()))
       {
@@ -57,20 +57,20 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     fullySynchronized = tmp;
   }
 
-  public void addItem(@NotNull ReviewItem reviewItem, @NotNull RangeMarker marker)
+  public void addItem(@NotNull Issue issue, @NotNull RangeMarker marker)
   {
-    reviewItems.put(reviewItem, marker);
-    fullySynchronized = ((fullySynchronized) && (revuEditorHandler.isSynchronized(reviewItem, marker)));
+    issues.put(issue, marker);
+    fullySynchronized = ((fullySynchronized) && (revuEditorHandler.isSynchronized(issue, marker)));
   }
 
   public boolean isEmpty()
   {
-    return reviewItems.isEmpty();
+    return issues.isEmpty();
   }
 
-  public void removeItem(ReviewItem reviewItem)
+  public void removeItem(Issue issue)
   {
-    reviewItems.remove(reviewItem);
+    issues.remove(issue);
 
     if (!fullySynchronized)
     {
@@ -82,7 +82,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   @Override
   public Icon getIcon()
   {
-    int count = reviewItems.size();
+    int count = issues.size();
 
     // Should not have to return an empty icon, but renderer is not removed when unset from RangeHighlighter !?
     if (count == 0)
@@ -92,18 +92,18 @@ class CustomGutterIconRenderer extends GutterIconRenderer
 
     return RevuIconProvider.getIcon((count == 1)
       ? (fullySynchronized
-        ? RevuIconProvider.IconRef.GUTTER_REVU_ITEM : RevuIconProvider.IconRef.GUTTER_REVU_ITEM_DESYNCHRONIZED)
+        ? RevuIconProvider.IconRef.GUTTER_ISSUE : RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED)
       : (fullySynchronized
-        ? RevuIconProvider.IconRef.GUTTER_REVU_ITEMS : RevuIconProvider.IconRef.GUTTER_REVU_ITEMS_DESYNCHRONIZED));
+        ? RevuIconProvider.IconRef.GUTTER_ISSUES : RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED));
   }
 
   @Override
   public String getTooltipText()
   {
     StringBuilder buffer = new StringBuilder("<html><body>");
-    for (Iterator<ReviewItem> it = reviewItems.keySet().iterator(); it.hasNext();)
+    for (Iterator<Issue> it = issues.keySet().iterator(); it.hasNext();)
     {
-      ReviewItem item = it.next();
+      Issue item = it.next();
       buffer.append("<b>")
         .append(item.getHistory().getCreatedBy().getDisplayName())
         .append("</b> - <i>")
@@ -125,14 +125,14 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   @Override
   public ActionGroup getPopupMenuActions()
   {
-    ActionGroup templateGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.reviewItemGutter.popup");
+    ActionGroup templateGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueGutter.popup");
 
     DefaultActionGroup result = new DefaultActionGroup();
-    if (reviewItems.size() == 1)
+    if (issues.size() == 1)
     {
       for (final AnAction templateAction : templateGroup.getChildren(null))
       {
-        result.add(buildActionProxy(templateAction, reviewItems.keySet().iterator().next()));
+        result.add(buildActionProxy(templateAction, issues.keySet().iterator().next()));
       }
     }
     else
@@ -141,10 +141,10 @@ class CustomGutterIconRenderer extends GutterIconRenderer
       {
         DefaultActionGroup actionGroup = new DefaultActionGroup("", true);
         actionGroup.copyFrom(templateAction);
-        for (ReviewItem reviewItem : reviewItems.keySet())
+        for (Issue issue : issues.keySet())
         {
-          AnAction action = buildActionProxy(templateAction, reviewItem);
-          action.getTemplatePresentation().setText(reviewItem.getSummary());
+          AnAction action = buildActionProxy(templateAction, issue);
+          action.getTemplatePresentation().setText(issue.getSummary());
           action.getTemplatePresentation().setIcon(null);
           actionGroup.add(action);
         }
@@ -155,9 +155,9 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     return result;
   }
 
-  // Build a proxy on actions to inject review item
+  // Build a proxy on actions to inject issue
   // Want to use DataContext, but didn't find any way to inject data into EditorComponent from this renderer
-  private AnAction buildActionProxy(final AnAction templateAction, final ReviewItem reviewItem)
+  private AnAction buildActionProxy(final AnAction templateAction, final Issue issue)
   {
     AnAction actionProxy = new AnAction()
     {
@@ -168,9 +168,9 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         {
           public Object getData(@NonNls String dataId)
           {
-            if (RevuDataKeys.REVIEW_ITEM.getName().equals(dataId))
+            if (RevuDataKeys.ISSUE.getName().equals(dataId))
             {
-              return reviewItem;
+              return issue;
             }
             return e.getDataContext().getData(dataId);
           }

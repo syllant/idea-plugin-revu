@@ -27,7 +27,6 @@
       <xsd:sequence>
         <xsd:element ref="xs:priorities"/>
         <xsd:element ref="xs:tags" minOccurs="0"/>
-        <xsd:element ref="xs:resolutionTypes"/>
         <xsd:element ref="xs:users" minOccurs="0"/>
       </xsd:sequence>
     </xsd:complexType>
@@ -49,14 +48,6 @@
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="resolutionTypes">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="xs:resolutionType" minOccurs="0" maxOccurs="unbounded"/>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
-
   <xsd:element name="users">
     <xsd:complexType>
       <xsd:sequence>
@@ -73,12 +64,6 @@
   </xsd:element>
 
   <xsd:element name="tag">
-    <xsd:complexType>
-      <xsd:attribute name="name" type="xsd:string" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="resolutionType">
     <xsd:complexType>
       <xsd:attribute name="name" type="xsd:string" use="required"/>
     </xsd:complexType>
@@ -124,16 +109,16 @@
       <xsd:attribute name="filePath" type="xsd:string" use="required"/>
       <xsd:attribute name="vcsRev" type="xsd:string" use="optional"/>
       <xsd:attribute name="localRev" type="xsd:string" use="optional"/>
-      <xsd:attribute name="lineStart" type="xsd:int" use="required"/>
-      <xsd:attribute name="lineEnd" type="xsd:int" use="required"/>
-      <xsd:attribute name="tags" type="xsd:string" use="required"/>
+      <xsd:attribute name="lineStart" type="xsd:int" use="optional"/>
+      <xsd:attribute name="lineEnd" type="xsd:int" use="optional"/>
+      <xsd:attribute name="hash" type="xsd:string" use="required"/>
+      <xsd:attribute name="tags" type="xsd:string" use="optional"/>
       <xsd:attribute name="priority" type="xsd:string" use="required"/>
-      <xsd:attribute name="resolutionStatus" type="xs:resolutionStatus" use="required"/>
-      <xsd:attribute name="resolutionType" type="xsd:string" use="required"/>
+      <xsd:attribute name="status" type="xs:status" use="required"/>
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:simpleType name="resolutionStatus">
+  <xsd:simpleType name="status">
     <xsd:restriction base="xsd:NMTOKEN">
       <xsd:enumeration value="to_resolve"/>
       <xsd:enumeration value="resolved"/>
