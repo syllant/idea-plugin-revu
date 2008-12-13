@@ -6,8 +6,8 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.ReviewBrowsingPane;
 import org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager;
-import org.sylfra.idea.plugins.revu.ui.forms.ReviewBrowsingForm;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -18,13 +18,13 @@ public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction
   public void setSelected(AnActionEvent e, boolean state)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    ReviewBrowsingForm reviewBrowsingForm = retrieveReviewBrowsingForm(e);
+    ReviewBrowsingPane reviewBrowsingPane = retrieveReviewBrowsingForm(e);
 
-    if (reviewBrowsingForm != null)
+    if (reviewBrowsingPane != null)
     {
       int orientation = getOrientation();
-      reviewBrowsingForm.getSplitPane().setOrientation(orientation);
-      reviewBrowsingForm.getSplitPane().setDividerLocation(0.5d);
+      reviewBrowsingPane.getSplitPane().setOrientation(orientation);
+      reviewBrowsingPane.getSplitPane().setDividerLocation(0.5d);
 
       RevuWorkspaceSettingsComponent workspaceSettingsComponent =
         project.getComponent(RevuWorkspaceSettingsComponent.class);
@@ -36,12 +36,12 @@ public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction
 
   public boolean isSelected(AnActionEvent e)
   {
-    ReviewBrowsingForm reviewBrowsingForm = retrieveReviewBrowsingForm(e);
+    ReviewBrowsingPane reviewBrowsingPane = retrieveReviewBrowsingForm(e);
 
-    return ((reviewBrowsingForm != null) && (reviewBrowsingForm.getSplitPane().getOrientation() == getOrientation()));
+    return ((reviewBrowsingPane != null) && (reviewBrowsingPane.getSplitPane().getOrientation() == getOrientation()));
   }
 
-  private ReviewBrowsingForm retrieveReviewBrowsingForm(AnActionEvent e)
+  private ReviewBrowsingPane retrieveReviewBrowsingForm(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
     if (project == null)

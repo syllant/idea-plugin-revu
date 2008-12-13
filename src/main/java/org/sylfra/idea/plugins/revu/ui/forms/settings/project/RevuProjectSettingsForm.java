@@ -230,7 +230,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
     {
       return false;
     }
-    
+
     List<Review> previousReviews = project.getComponent(ReviewManager.class).getReviews();
 
     // Review count
@@ -284,7 +284,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
       {
         continue;
       }
-      
+
       String reviewFilePath = RevuVfsUtils.buildRelativePath(project, currentReview.getPath());
 
       if (currentReview.isShared())

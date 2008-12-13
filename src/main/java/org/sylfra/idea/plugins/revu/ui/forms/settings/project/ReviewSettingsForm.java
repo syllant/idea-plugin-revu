@@ -172,9 +172,9 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     Review review = reviewManager.getReviewByName(tfName.getText());
-    boolean nameAlreadyExists = ((review !=  null) && (getEnclosingReview() != null)
+    boolean nameAlreadyExists = ((review != null) && (getEnclosingReview() != null)
       && (!review.getPath().equals(getEnclosingReview().getPath())));
-    updateError(tfName, nameAlreadyExists, 
+    updateError(tfName, nameAlreadyExists,
       RevuBundle.message("settings.project.review.importDialog.nameAlreadyExists.text"));
   }
 
@@ -240,4 +240,5 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
   {
     referentialForm = new ReferentialTabbedPane(project);
   }
+
 }

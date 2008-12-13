@@ -3,7 +3,7 @@
   "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin version="2" url="http://idea-revu.googlecode.com/">
   <id>org.sylfra.idea.plugins.revu</id>
-  <name>revu</name>
+  <name>reVu</name>
   <description><![CDATA[
 <html>
   Team Code Reviewer for Intellij IDEA
@@ -170,7 +170,8 @@
     </group>
 
     <group id="revu.toolWindow.allReviews" popup="true">
-      <reference ref="revu.CreateReviewItem"/>
+      <reference ref="revu.ShowProjectSettings"/>
+      <separator/>
       <reference ref="revu.RemoveReviewItem"/>
       <separator/>
       <reference ref="PreviousOccurence"/>
@@ -180,20 +181,19 @@
       <reference ref="revu.AutoscrollToSource"/>
       <separator/>
       <reference ref="revu.toolWindow.review.layout"/>
-      <separator/>
-      <reference ref="revu.ShowProjectSettings"/>
     </group>
 
     <group id="revu.toolWindow.review" popup="true">
       <reference ref="revu.ShowReviewEditForm"/>
       <separator/>
-      <reference ref="revu.CreateReviewItem"/>
       <reference ref="revu.RemoveReviewItem"/>
       <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
       <separator/>
+      <reference ref="revu.JumpToSource"/>
       <reference ref="revu.AutoscrollToSource"/>
+      <separator/>
       <reference ref="revu.toolWindow.review.layout"/>
     </group>
 

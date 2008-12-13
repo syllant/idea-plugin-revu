@@ -1,12 +1,10 @@
 1.0
-
-- save review from tool window
-
 - review status : created, reviewing, fixing, verifying, closed
 
 - review item assignedTo (multiple)
 
 - delete resolutionType
+- review item -> issue
 - history panel finition
 - icon
   - template/share icon
@@ -14,7 +12,6 @@
 - changes on referential -> change on existing items
 
 - notes management
-- table items filters
 - column selector
 
 - navigation popup in gutter

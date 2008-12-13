@@ -282,4 +282,5 @@ public class ReviewItemPreviewForm extends AbstractReviewItemForm
   protected void internalUpdateWriteAccess(@Nullable User user)
   {
   }
+
 }

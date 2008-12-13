@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 public class CreateReviewDialog extends DialogWrapper
 {
+
   public static enum ImportType
   {
     BLANK,
