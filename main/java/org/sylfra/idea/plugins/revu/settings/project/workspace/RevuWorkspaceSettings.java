@@ -1,8 +1,8 @@
 package org.sylfra.idea.plugins.revu.settings.project.workspace;
 
 import org.sylfra.idea.plugins.revu.settings.IRevuSettings;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.ReviewItemColumnInfo;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.ReviewItemColumnInfoRegistry;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueColumnInfo;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueColumnInfoRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,9 @@ public class RevuWorkspaceSettings implements IRevuSettings
   {
     reviewFiles = new ArrayList<String>();
 
-    ReviewItemColumnInfo[] defaultColumnInfos = ReviewItemColumnInfoRegistry.DEFAULT_COLUMN_INFOS;
+    IssueColumnInfo[] defaultColumnInfos = IssueColumnInfoRegistry.DEFAULT_COLUMN_INFOS;
     browsingColNames = new ArrayList<String>(defaultColumnInfos.length);
-    for (ReviewItemColumnInfo columnInfo : defaultColumnInfos)
+    for (IssueColumnInfo columnInfo : defaultColumnInfos)
     {
       browsingColNames.add(columnInfo.getName());
     }

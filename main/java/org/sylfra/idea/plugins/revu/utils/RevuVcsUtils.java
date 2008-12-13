@@ -14,7 +14,7 @@ import com.intellij.vcsUtil.VcsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.Issue;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -57,9 +57,9 @@ public class RevuVcsUtils
   }
 
   @Nullable
-  public static boolean isUnderVcs(@NotNull Project project, @NotNull ReviewItem reviewItem)
+  public static boolean isUnderVcs(@NotNull Project project, @NotNull Issue issue)
   {
-    VirtualFile vFile = reviewItem.getFile();
+    VirtualFile vFile = issue.getFile();
     AbstractVcs vcs = VcsUtil.getVcsFor(project, vFile);
 
     return (vcs != null);

@@ -20,7 +20,7 @@ import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
-import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
+import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;

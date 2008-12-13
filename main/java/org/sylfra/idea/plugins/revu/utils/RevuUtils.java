@@ -38,20 +38,20 @@ public class RevuUtils
   private static final Logger LOGGER = Logger.getInstance(RevuUtils.class.getName());
 
   @Nullable
-  public static PsiFile getPsiFile(@NotNull Project project, @NotNull ReviewItem reviewItem)
+  public static PsiFile getPsiFile(@NotNull Project project, @NotNull Issue issue)
   {
-    return PsiManager.getInstance(project).findFile(reviewItem.getFile());
+    return PsiManager.getInstance(project).findFile(issue.getFile());
   }
 
   @Nullable
-  public static Document getDocument(@NotNull Project project, @NotNull ReviewItem reviewItem)
+  public static Document getDocument(@NotNull Project project, @NotNull Issue issue)
   {
-    PsiFile psiFile = getPsiFile(project, reviewItem);
+    PsiFile psiFile = getPsiFile(project, issue);
     return (psiFile == null) ? null : PsiDocumentManager.getInstance(project).getDocument(psiFile);
   }
 
   @NotNull
-  public static List<Editor> getEditors(@NotNull ReviewItem reviewItem)
+  public static List<Editor> getEditors(@NotNull Issue issue)
   {
     List<Editor> result = new ArrayList<Editor>();
 
@@ -59,7 +59,7 @@ public class RevuUtils
     for (Editor editor : editors)
     {
       VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-      if (reviewItem.getFile().equals(vFile))
+      if (issue.getFile().equals(vFile))
       {
         result.add(editor);
       }
@@ -192,7 +192,7 @@ public class RevuUtils
   }
 
   @NotNull
-  public static String buildStatusLabel(@NotNull ItemResolutionStatus status)
+  public static String buildStatusLabel(@NotNull IssueStatus status)
   {
     return RevuBundle.message("general.status." + status.toString().toLowerCase() + ".text");
   }

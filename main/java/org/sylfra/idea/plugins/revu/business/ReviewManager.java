@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.config.IReviewExternalizer;
+import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
@@ -321,7 +321,7 @@ public class ReviewManager implements ProjectComponent
       {
         fireReviewDeleted(review);
       }
-      review.clearReviewItemsListeners();
+      review.clearIssuesListeners();
       reviewsByPaths.remove(review.getPath());
       reviewsByNames.remove(review.getName());
       reviewsSavedHashs.remove(review);

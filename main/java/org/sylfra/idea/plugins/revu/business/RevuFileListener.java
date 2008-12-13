@@ -50,7 +50,7 @@ public class RevuFileListener implements ProjectComponent
       @Override
       public void beforeAllDocumentsSaving()
       {
-        // File with review items
+        // File with issues
         ReviewManager reviewManager = project.getComponent(ReviewManager.class);
         reviewManager.saveChangedReviews();
       }

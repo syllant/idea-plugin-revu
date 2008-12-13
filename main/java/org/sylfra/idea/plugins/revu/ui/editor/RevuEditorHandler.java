@@ -16,11 +16,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.business.IReviewItemListener;
+import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
+import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.HashMap;
@@ -37,8 +37,8 @@ public class RevuEditorHandler implements ProjectComponent
   private final Project project;
   private Map<VirtualFile, DocumentChangeTracker> changeTrackers;
   private final Map<Editor, Map<Integer, CustomGutterIconRenderer>> renderers;
-  private final Map<Editor, Map<ReviewItem, RangeHighlighter>> highlighters;
-  private final IReviewItemListener reviewItemListener;
+  private final Map<Editor, Map<Issue, RangeHighlighter>> highlighters;
+  private final IIssueListener issueListener;
   private final IReviewListener reviewListener;
   private final EditorFactoryListener editorFactoryListener;
 
@@ -46,12 +46,12 @@ public class RevuEditorHandler implements ProjectComponent
   {
     this.project = project;
 
-    highlighters = new HashMap<Editor, Map<ReviewItem, RangeHighlighter>>();
+    highlighters = new HashMap<Editor, Map<Issue, RangeHighlighter>>();
     renderers = new HashMap<Editor, Map<Integer, CustomGutterIconRenderer>>();
     changeTrackers = new HashMap<VirtualFile, DocumentChangeTracker>();
 
     // Listeners
-    reviewItemListener = new CustomReviewItemListener();
+    issueListener = new CustomIssueListener();
     reviewListener = new CustomReviewListener();
     editorFactoryListener = new CustomEditorFactoryListener();
   }
@@ -75,7 +75,7 @@ public class RevuEditorHandler implements ProjectComponent
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     for (Review review : reviewManager.getReviews())
     {
-      review.addReviewItemListener(reviewItemListener);
+      review.addIssueListener(issueListener);
     }
 
     reviewManager.addReviewListener(reviewListener);
@@ -88,7 +88,7 @@ public class RevuEditorHandler implements ProjectComponent
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     for (Review review : reviewManager.getReviews())
     {
-      review.removeReviewItemListener(reviewItemListener);
+      review.removeIssueListener(issueListener);
     }
 
     reviewManager.removeReviewListener(reviewListener);
@@ -97,7 +97,7 @@ public class RevuEditorHandler implements ProjectComponent
   }
 //
 //  @Nullable
-//  Map<ReviewItem, RangeHighlighter> getAllMarkers(@NotNull VirtualFile vFile, boolean lazyInit)
+//  Map<Issue, RangeHighlighter> getAllMarkers(@NotNull VirtualFile vFile, boolean lazyInit)
 //  {
 //    DocumentChangeTracker documentChangeTracker = changeTrackers.get(vFile);
 //    if (documentChangeTracker == null)
@@ -105,13 +105,13 @@ public class RevuEditorHandler implements ProjectComponent
 //      return null;
 //    }
 //
-//    Map<ReviewItem, RangeHighlighter> result = new IdentityHashMap<ReviewItem, RangeHighlighter>();
+//    Map<Issue, RangeHighlighter> result = new IdentityHashMap<Issue, RangeHighlighter>();
 //    for (Editor editor : documentChangeTracker.getEditors())
 //    {
 //      result = markers.get(editor);
 //      if ((result == null) && (lazyInit))
 //      {
-//        result = new IdentityHashMap<ReviewItem, RangeHighlighter>();
+//        result = new IdentityHashMap<Issue, RangeHighlighter>();
 //        markers.put(editor, result);
 //      }
 //    }
@@ -120,47 +120,47 @@ public class RevuEditorHandler implements ProjectComponent
 //  }
 
   @Nullable
-  private RangeMarker findMarker(@NotNull ReviewItem reviewItem)
+  private RangeMarker findMarker(@NotNull Issue issue)
   {
-    DocumentChangeTracker documentChangeTracker = changeTrackers.get(reviewItem.getFile());
+    DocumentChangeTracker documentChangeTracker = changeTrackers.get(issue.getFile());
     if (documentChangeTracker == null)
     {
       return null;
     }
 
-    return documentChangeTracker.getMarker(reviewItem);
+    return documentChangeTracker.getMarker(issue);
   }
 
-  private RangeMarker addMarker(@Nullable Editor editor, @NotNull ReviewItem reviewItem, boolean orphanMarker)
+  private RangeMarker addMarker(@Nullable Editor editor, @NotNull Issue issue, boolean orphanMarker)
   {
-    if (!reviewItem.getReview().isActive())
+    if (!issue.getReview().isActive())
     {
       return null;
     }
 
-    DocumentChangeTracker documentChangeTracker = changeTrackers.get(reviewItem.getFile());
+    DocumentChangeTracker documentChangeTracker = changeTrackers.get(issue.getFile());
     if (documentChangeTracker == null)
     {
       return null;
     }
 
-    RangeMarker marker = documentChangeTracker.addMarker(reviewItem, orphanMarker);
+    RangeMarker marker = documentChangeTracker.addMarker(issue, orphanMarker);
     if (editor == null)
     {
       for (Editor editor2 : documentChangeTracker.getEditors())
       {
-        installHightlighters(editor2, reviewItem, marker);
+        installHightlighters(editor2, issue, marker);
       }
     }
     else
     {
-      installHightlighters(editor, reviewItem, marker);
+      installHightlighters(editor, issue, marker);
     }
 
     return marker;
   }
 
-  private void installHightlighters(@NotNull Editor editor, @NotNull ReviewItem reviewItem, @NotNull RangeMarker marker)
+  private void installHightlighters(@NotNull Editor editor, @NotNull Issue issue, @NotNull RangeMarker marker)
   {
     Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
     if (editorRenderers == null)
@@ -170,17 +170,17 @@ public class RevuEditorHandler implements ProjectComponent
     }
 
     // Gutter renderer, only one renderer for same line start
-    CustomGutterIconRenderer renderer = editorRenderers.get(reviewItem.getLineStart());
+    CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
     if (renderer == null)
     {
-      renderer = new CustomGutterIconRenderer(this, reviewItem.getLineStart());
-      editorRenderers.put(reviewItem.getLineStart(), renderer);
+      renderer = new CustomGutterIconRenderer(this, issue.getLineStart());
+      editorRenderers.put(issue.getLineStart(), renderer);
     }
 
-    Map<ReviewItem, RangeHighlighter> editorHighlighters = highlighters.get(editor);
+    Map<Issue, RangeHighlighter> editorHighlighters = highlighters.get(editor);
     if (editorHighlighters == null)
     {
-      editorHighlighters = new IdentityHashMap<ReviewItem, RangeHighlighter>();
+      editorHighlighters = new IdentityHashMap<Issue, RangeHighlighter>();
       highlighters.put(editor, editorHighlighters);
     }
 
@@ -191,27 +191,27 @@ public class RevuEditorHandler implements ProjectComponent
         HighlighterLayer.FIRST - 1,
         null,
         HighlighterTargetArea.LINES_IN_RANGE);
-    editorHighlighters.put(reviewItem, highlighter);
-    renderer.addItem(reviewItem, highlighter);
+    editorHighlighters.put(issue, highlighter);
+    renderer.addItem(issue, highlighter);
 
     highlighter.setGutterIconRenderer(renderer);
   }
 
-  private void removeMarker(ReviewItem reviewItem)
+  private void removeMarker(Issue issue)
   {
-    DocumentChangeTracker documentChangeTracker = changeTrackers.get(reviewItem.getFile());
+    DocumentChangeTracker documentChangeTracker = changeTrackers.get(issue.getFile());
     if (documentChangeTracker == null)
     {
       return;
     }
 
-    documentChangeTracker.removeMarker(reviewItem);
+    documentChangeTracker.removeMarker(issue);
     for (Editor editor : documentChangeTracker.getEditors())
     {
-      Map<ReviewItem, RangeHighlighter> editorHighlighters = highlighters.get(editor);
+      Map<Issue, RangeHighlighter> editorHighlighters = highlighters.get(editor);
       if (editorHighlighters != null)
       {
-        RangeHighlighter highlighter = editorHighlighters.remove(reviewItem);
+        RangeHighlighter highlighter = editorHighlighters.remove(issue);
 
         if (highlighter != null)
         {
@@ -219,7 +219,7 @@ public class RevuEditorHandler implements ProjectComponent
           CustomGutterIconRenderer renderer = (CustomGutterIconRenderer) highlighter.getGutterIconRenderer();
           if (renderer != null)
           {
-            renderer.removeItem(reviewItem);
+            renderer.removeItem(issue);
             if (renderer.isEmpty())
             {
               Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
@@ -232,23 +232,23 @@ public class RevuEditorHandler implements ProjectComponent
   }
 
 
-  public boolean isSynchronized(@NotNull ReviewItem reviewItem, boolean checkEvenIfEditorNotAvailable)
+  public boolean isSynchronized(@NotNull Issue issue, boolean checkEvenIfEditorNotAvailable)
   {
-    RangeMarker marker = findMarker(reviewItem);
+    RangeMarker marker = findMarker(issue);
     if ((marker == null) && (checkEvenIfEditorNotAvailable))
     {
-      Document document = RevuUtils.getDocument(project, reviewItem);
+      Document document = RevuUtils.getDocument(project, issue);
       if (document != null)
       {
-        marker = document.createRangeMarker(document.getLineStartOffset(reviewItem.getLineStart()),
-          document.getLineEndOffset(reviewItem.getLineEnd()));
+        marker = document.createRangeMarker(document.getLineStartOffset(issue.getLineStart()),
+          document.getLineEndOffset(issue.getLineEnd()));
       }
     }
 
-    return isSynchronized(reviewItem, marker);
+    return isSynchronized(issue, marker);
   }
 
-  public boolean isSynchronized(@NotNull ReviewItem reviewItem, @Nullable RangeMarker marker)
+  public boolean isSynchronized(@NotNull Issue issue, @Nullable RangeMarker marker)
   {
     if (marker == null)
     {
@@ -263,12 +263,12 @@ public class RevuEditorHandler implements ProjectComponent
     CharSequence fragment = marker.getDocument().getCharsSequence()
       .subSequence(marker.getStartOffset(), marker.getEndOffset());
 
-    return (reviewItem.getHash() == fragment.toString().hashCode());
+    return (issue.getHash() == fragment.toString().hashCode());
   }
 
-  public int buildNewHash(ReviewItem reviewItem)
+  public int buildNewHash(Issue issue)
   {
-    RangeMarker marker = findMarker(reviewItem);
+    RangeMarker marker = findMarker(issue);
     if (marker == null)
     {
       return 0;
@@ -305,7 +305,7 @@ public class RevuEditorHandler implements ProjectComponent
       {
         if (review.isActive())
         {
-          for (ReviewItem item : review.getItems(vFile))
+          for (Issue item : review.getItems(vFile))
           {
             addMarker(editor, item, false);
           }
@@ -340,19 +340,19 @@ public class RevuEditorHandler implements ProjectComponent
     }
   }
 
-  private class CustomReviewItemListener implements IReviewItemListener
+  private class CustomIssueListener implements IIssueListener
   {
-    public void itemAdded(ReviewItem item)
+    public void itemAdded(Issue item)
     {
       addMarker(null, item, false);
     }
 
-    public void itemDeleted(ReviewItem item)
+    public void itemDeleted(Issue item)
     {
       removeMarker(item);
     }
 
-    public void itemUpdated(ReviewItem item)
+    public void itemUpdated(Issue item)
     {
       DocumentChangeTracker documentChangeTracker = changeTrackers.get(item.getFile());
       if (documentChangeTracker == null)
@@ -394,9 +394,9 @@ public class RevuEditorHandler implements ProjectComponent
 
     public void reviewAdded(Review review)
     {
-      review.addReviewItemListener(reviewItemListener);
+      review.addIssueListener(issueListener);
 
-      for (ReviewItem item : review.getItems())
+      for (Issue item : review.getItems())
       {
         addMarker(null, item, false);
       }
@@ -404,11 +404,11 @@ public class RevuEditorHandler implements ProjectComponent
 
     public void reviewDeleted(Review review)
     {
-      for (ReviewItem item : review.getItems())
+      for (Issue item : review.getItems())
       {
         removeMarker(item);
       }
-      review.removeReviewItemListener(reviewItemListener);
+      review.removeIssueListener(issueListener);
     }
   }
 }

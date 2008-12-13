@@ -12,10 +12,6 @@
       <tag name="tag1b"/>
       <tag name="tag2b"/>
     </tags>
-    <resolutionTypes>
-      <resolutionType name="resolutionType1b"/>
-      <resolutionType name="resolutionType2b"/>
-    </resolutionTypes>
     <users>
       <user displayName="aa" login="aa" password="" roles="admin"/>
       <user displayName="user1b" login="u1b" password="p1" roles="admin"/>
@@ -24,12 +20,18 @@
     </users>
   </referential>
   <items>
-    <item summary="item1" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229170637843" lineStart="64" lineEnd="64" hash="-1972990618" resolutionStatus="to_resolve" resolutionType="resolutionType1b">
+    <item summary="item1" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229170637843" lineStart="64" lineEnd="64" hash="-1972990618" status="to_resolve">
       <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T01:17:17" lastUpdatedOn="2008-12-13T01:17:17"/>
+    </item>
+    <item summary="aa zz" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:14:05" lastUpdatedOn="2008-12-13T02:14:05"/>
+    </item>
+    <item summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176219156" lineStart="76" lineEnd="76" hash="363132110" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:50:19" lastUpdatedOn="2008-12-13T02:50:19"/>
       <desc></desc>
     </item>
-    <item summary="aa zz" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" resolutionStatus="to_resolve" resolutionType="resolutionType1b">
-      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:14:05" lastUpdatedOn="2008-12-13T02:14:05"/>
+    <item summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176349296" lineStart="75" lineEnd="75" hash="-1527490382" tags="tag2b" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:52:29" lastUpdatedOn="2008-12-13T02:52:29"/>
       <desc></desc>
     </item>
   </items>

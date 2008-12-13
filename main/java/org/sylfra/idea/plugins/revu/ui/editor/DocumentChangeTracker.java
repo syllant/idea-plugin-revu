@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
+import org.sylfra.idea.plugins.revu.model.Issue;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -28,7 +28,7 @@ class DocumentChangeTracker implements DocumentListener
   private final VirtualFile vFile;
   private final Document document;
   private final Set<Editor> editors;
-  private final Map<ReviewItem, RangeMarker> markers;
+  private final Map<Issue, RangeMarker> markers;
   private RevuEditorHandler revuEditorHandler;
 
   public DocumentChangeTracker(RevuEditorHandler revuEditorHandler, VirtualFile vFile, Document document)
@@ -38,7 +38,7 @@ class DocumentChangeTracker implements DocumentListener
     this.document = document;
 
     editors = new HashSet<Editor>();
-    markers = new IdentityHashMap<ReviewItem, RangeMarker>();
+    markers = new IdentityHashMap<Issue, RangeMarker>();
 
     document.addDocumentListener(this);
   }
@@ -50,26 +50,26 @@ class DocumentChangeTracker implements DocumentListener
   }
 
   @NotNull
-  RangeMarker addMarker(@NotNull ReviewItem reviewItem, boolean orphanMarker)
+  RangeMarker addMarker(@NotNull Issue issue, boolean orphanMarker)
   {
-    RangeMarker marker = document.createRangeMarker(document.getLineStartOffset(reviewItem.getLineStart()),
-      document.getLineEndOffset(reviewItem.getLineEnd()));
+    RangeMarker marker = document.createRangeMarker(document.getLineStartOffset(issue.getLineStart()),
+      document.getLineEndOffset(issue.getLineEnd()));
 
     marker.putUserData(ORPHAN_MARKER_KEY, orphanMarker);
-    markers.put(reviewItem, marker);
+    markers.put(issue, marker);
 
     return marker;
   }
 
   @Nullable
-  RangeMarker getMarker(@NotNull ReviewItem reviewItem)
+  RangeMarker getMarker(@NotNull Issue issue)
   {
-    return markers.get(reviewItem);
+    return markers.get(issue);
   }
 
-  void removeMarker(@NotNull ReviewItem reviewItem)
+  void removeMarker(@NotNull Issue issue)
   {
-    markers.remove(reviewItem);
+    markers.remove(issue);
   }
 
   boolean isOrphanMarker(RangeMarker marker)
@@ -88,7 +88,7 @@ class DocumentChangeTracker implements DocumentListener
     updateItems(lineStart);
   }
 
-  private void updateReviewItem(@NotNull ReviewItem item, @NotNull RangeMarker marker)
+  private void updateIssue(@NotNull Issue item, @NotNull RangeMarker marker)
   {
     if ((marker.isValid()) && (!isOrphanMarker(marker)))
     {
@@ -111,13 +111,13 @@ class DocumentChangeTracker implements DocumentListener
 
   private void updateItems(int lineStart)
   {
-    for (Map.Entry<ReviewItem, RangeMarker> entry : markers.entrySet())
+    for (Map.Entry<Issue, RangeMarker> entry : markers.entrySet())
     {
-      ReviewItem item = entry.getKey();
+      Issue item = entry.getKey();
       RangeMarker marker = entry.getValue();
       if (item.getLineStart() >= lineStart)
       {
-        updateReviewItem(item, marker);
+        updateIssue(item, marker);
       }
     }
   }

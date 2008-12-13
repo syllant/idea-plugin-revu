@@ -12,10 +12,6 @@
       <tag name="tag1"/>
       <tag name="tag2"/>
     </tags>
-    <resolutionTypes>
-      <resolutionType name="resolutionType1"/>
-      <resolutionType name="resolutionType2"/>
-    </resolutionTypes>
     <users>
       <user displayName="aaaa" login="aa" password="zz" roles="admin,reviewer,author"/>
       <user displayName="user1" login="u1" password="p1" roles="admin"/>
@@ -24,17 +20,17 @@
     </users>
   </referential>
   <items>
-    <item summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" tags="tag1" priority="priority1" resolutionStatus="to_resolve" resolutionType="resolutionType1">
+    <item summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" tags="tag1" priority="priority1" status="to_resolve">
       <history createdBy="u2" lastUpdatedBy="u3" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
       <goal>Test item review 1. Test item review 1. Test item review 1. Test item review 1.
         Test item review 1. Test item review 1. Test item review 1. Test item review 1.
       </goal>
     </item>
-    <item summary="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" tags="tag2" priority="priority2" resolutionStatus="to_resolve" resolutionType="resolutionType1">
+    <item summary="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" tags="tag2" priority="priority2" status="to_resolve">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
       <goal>Test item review 2. Test item review 2.</goal>
     </item>
-    <item summary="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28" tags="tag2" priority="priority2" resolutionStatus="to_resolve" resolutionType="resolutionType1">
+    <item summary="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28" tags="tag2" priority="priority2" status="to_resolve">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
       <goal>Test item review 3. Test item review 3.</goal>
     </item>

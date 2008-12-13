@@ -1,8 +1,8 @@
 package org.sylfra.idea.plugins.revu;
 
 import com.intellij.openapi.actionSystem.DataKey;
+import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.ReviewItem;
 
 import java.util.List;
 
@@ -13,6 +13,6 @@ import java.util.List;
 public final class RevuDataKeys
 {
   public static final DataKey<Review> REVIEW = DataKey.create("revu.Review");
-  public static final DataKey<ReviewItem> REVIEW_ITEM = DataKey.create("revu.ReviewItem");
-  public static final DataKey<List<ReviewItem>> REVIEW_ITEM_ARRAY = DataKey.create("revu.ReviewItemArray");
+  public static final DataKey<Issue> ISSUE = DataKey.create("revu.Issue");
+  public static final DataKey<List<Issue>> ISSUE_ARRAY = DataKey.create("revu.IssueArray");
 }

@@ -11,7 +11,7 @@ import com.intellij.pom.Navigatable;
 import com.intellij.util.Alarm;
 import com.intellij.util.OpenSourceUtil;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.ReviewItemsTable;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -36,7 +36,7 @@ public final class CustomAutoScrollToSourceHandler
     this.revuWorkspaceSettings = revuWorkspaceSettings;
   }
 
-  public void install(final ReviewItemsTable table)
+  public void install(final IssueTable table)
   {
     autoScrollAlarm = new Alarm();
     table.addMouseListener(new MouseAdapter()
