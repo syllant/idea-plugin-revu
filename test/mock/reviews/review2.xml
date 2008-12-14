@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" name="Test review2" template="false" active="true" shared="true">
-  <history createdBy="[unknown]" lastUpdatedBy="[unknown]" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-12-13T12:03:42"/>
+<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" name="Test review2" status="reviewing" shared="true">
+  <history createdBy="[unknown]" lastUpdatedBy="[unknown]" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-12-13T05:33:55"/>
   <goal>A test review. A test review. A test review. A test review. A test review.</goal>
   <referential>
     <priorities>
@@ -19,20 +19,18 @@
       <user displayName="user3b" login="u3b" password="p3" roles="reviewer,author"/>
     </users>
   </referential>
-  <items>
-    <item summary="item1" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229170637843" lineStart="64" lineEnd="64" hash="-1972990618" status="to_resolve">
-      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T01:17:17" lastUpdatedOn="2008-12-13T01:17:17"/>
-    </item>
-    <item summary="aa zz" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" status="to_resolve">
-      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:14:05" lastUpdatedOn="2008-12-13T02:14:05"/>
-    </item>
-    <item summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176219156" lineStart="76" lineEnd="76" hash="363132110" status="to_resolve">
+  <issues>
+    <issue summary="item1" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229170637843" lineStart="-1" lineEnd="-1" hash="-1972990618" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T01:17:17" lastUpdatedOn="2008-12-14T11:25:00"/>
+    </issue>
+    <issue summary="aa zz" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T02:14:05" lastUpdatedOn="2008-12-14T11:25:00"/>
+    </issue>
+    <issue summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176219156" lineStart="76" lineEnd="76" hash="363132110" status="to_resolve">
       <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:50:19" lastUpdatedOn="2008-12-13T02:50:19"/>
-      <desc></desc>
-    </item>
-    <item summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176349296" lineStart="75" lineEnd="75" hash="-1527490382" tags="tag2b" status="to_resolve">
+    </issue>
+    <issue summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176349296" lineStart="75" lineEnd="75" hash="-1527490382" tags="tag2b" status="to_resolve">
       <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:52:29" lastUpdatedOn="2008-12-13T02:52:29"/>
-      <desc></desc>
-    </item>
-  </items>
+    </issue>
+  </issues>
 </review>

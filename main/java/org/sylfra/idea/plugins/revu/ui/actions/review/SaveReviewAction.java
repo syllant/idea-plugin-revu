@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.project.Project;
-import org.sylfra.idea.plugins.revu.ui.ReviewBrowsingPane;
+import org.sylfra.idea.plugins.revu.ui.IssueBrowsingPane;
 import org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager;
 
 /**
@@ -21,7 +21,7 @@ public class SaveReviewAction extends AnAction
       return;
     }
 
-    ReviewBrowsingPane browsingPane = project.getComponent(RevuToolWindowManager.class).getSelectedReviewBrowsingForm();
+    IssueBrowsingPane browsingPane = project.getComponent(RevuToolWindowManager.class).getSelectedReviewBrowsingForm();
     browsingPane.saveIfModified();
   }
 }

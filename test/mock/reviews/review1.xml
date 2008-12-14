@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" name="Test review1" template="false" active="true" shared="true">
+<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" name="Test review1" status="true" shared="true">
   <history createdBy="u1" lastUpdatedBy="aa" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-12-04T07:45:34"/>
   <goal>A test review. A test review. A test review. A test review. A test review.</goal>
   <referential>
@@ -19,20 +19,20 @@
       <user displayName="user3" login="u3" password="p3" roles="reviewer,author"/>
     </users>
   </referential>
-  <items>
-    <item summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" tags="tag1" priority="priority1" status="to_resolve">
+  <issues>
+    <issue summary="Test item review 1" filePath="src/ClassA.java" lineStart="1" lineEnd="2" tags="tag1" priority="priority1" status="to_resolve" hash="0">
       <history createdBy="u2" lastUpdatedBy="u3" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
-      <goal>Test item review 1. Test item review 1. Test item review 1. Test item review 1.
+      <desc>Test item review 1. Test item review 1. Test item review 1. Test item review 1.
         Test item review 1. Test item review 1. Test item review 1. Test item review 1.
-      </goal>
-    </item>
-    <item summary="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" tags="tag2" priority="priority2" status="to_resolve">
+      </desc>
+    </issue>
+    <issue summary="Test item review 2" filePath="src/ClassA.java" lineStart="2" lineEnd="5" tags="tag2" priority="priority2" status="to_resolve" hash="0">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
-      <goal>Test item review 2. Test item review 2.</goal>
-    </item>
-    <item summary="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28" tags="tag2" priority="priority2" status="to_resolve">
+      <desc>Test item review 2. Test item review 2.</desc>
+    </issue>
+    <issue summary="Test item review 3" filePath="src/com/sample/ClassB.java" lineStart="20" lineEnd="28" tags="tag2" priority="priority2" status="to_resolve" hash="0">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
-      <goal>Test item review 3. Test item review 3.</goal>
-    </item>
-  </items>
+      <desc>Test item review 3. Test item review 3.</desc>
+    </issue>
+  </issues>
 </review>

@@ -24,7 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -176,11 +175,10 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
       {
         items.add(item.clone());
       }
-      Collections.sort(items);
     }
     
     table.getListTableModel().setItems(items);
-//
+// @TODO
 //    for (AbstractTableAction<T> action : actions)
 //    {
 //      if (action != null)
@@ -224,7 +222,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     @NotNull AbstractDetailDialog<T> createDialog();
   }
 
-  protected static abstract class AbstractTableAction<T> extends AbstractAction
+  protected static abstract class AbstractTableAction<T extends IRevuEntity> extends AbstractAction
     implements UpdatableFormListener<ReferentialListHolder<T>>
   {
     protected Review enclosingReview;
@@ -272,7 +270,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     public void uiUpdated(Review enclosingReview, @Nullable ReferentialListHolder<T> data)
     {
       this.enclosingReview = enclosingReview;
-      currentUser = RevuUtils.getUser(enclosingReview);
+      currentUser = RevuUtils.getCurrentUser(enclosingReview);
       referentialListHolder = data;
 
       checkEnabled();
@@ -379,7 +377,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
   }
 
-  private static final class RemoveAction<T> extends AbstractTableAction<T>
+  private static final class RemoveAction<T extends IRevuEntity> extends AbstractTableAction<T>
   {
     private RemoveAction(TableView<T> table)
     {
@@ -397,7 +395,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
   }
 
-  private static abstract class AbstractMoveTableAction<T> extends AbstractTableAction<T>
+  private static abstract class AbstractMoveTableAction<T extends IRevuEntity> extends AbstractTableAction<T>
   {
     protected AbstractMoveTableAction(String name, TableView<T> table)
     {
@@ -419,7 +417,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
   }
 
-  private static final class MoveUpAction<T> extends AbstractMoveTableAction<T>
+  private static final class MoveUpAction<T extends IRevuEntity> extends AbstractMoveTableAction<T>
   {
     private MoveUpAction(TableView<T> table)
     {
@@ -437,7 +435,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
   }
 
-  private static final class MoveDownAction<T> extends AbstractMoveTableAction<T>
+  private static final class MoveDownAction<T extends IRevuEntity> extends AbstractMoveTableAction<T>
   {
     private MoveDownAction(TableView<T> table)
     {
@@ -456,8 +454,8 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     }
   }
 
-  protected abstract static class ReferentialColumnInfo<Item, Aspect> extends ColumnInfo<Item, Aspect>
-    implements UpdatableFormListener<ReferentialListHolder<Item>>
+  protected abstract static class ReferentialColumnInfo<Item extends IRevuEntity, Aspect>
+    extends ColumnInfo<Item, Aspect> implements UpdatableFormListener<ReferentialListHolder<Item>>
   {
     private ReferentialListHolder<Item> referentialListHolder;
 

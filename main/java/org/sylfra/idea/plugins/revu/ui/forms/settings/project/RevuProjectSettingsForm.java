@@ -103,13 +103,9 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         Review review = (Review) value;
         value = review.getName();
 
-        Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        if (!review.isActive())
-        {
-          result.setForeground(Color.GRAY);
-        }
-
-        //@TODO icon private/public
+        JLabel result = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        result.setIcon(RevuIconProvider.getIcon(review.isShared()
+          ? RevuIconProvider.IconRef.REVIEW_SHARED : RevuIconProvider.IconRef.REVIEW_LOCAL));
 
         return result;
       }
@@ -123,8 +119,9 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         {
           super.setSelectionInterval(index0, index1);
           updateReviewUI();
-          ActionManager.getInstance().getAction("revu.RemoveReview").getTemplatePresentation()
-            .setEnabled(!liReviews.getSelectionModel().isSelectionEmpty());
+          // @TODO needed ?
+//          ActionManager.getInstance().getAction("revu.RemoveReview").getTemplatePresentation()
+//            .setEnabled(!liReviews.getSelectionModel().isSelectionEmpty());
         }
       }
     });
@@ -268,7 +265,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
     if (!updateReviewData())
     {
       throw new ConfigurationException(
-        RevuBundle.message("general.form.hasErrors.text"), RevuBundle.message("plugin.revu.title"));
+        RevuBundle.message("general.form.hasErrors.text"), RevuBundle.message("general.plugin.title"));
     }
 
     IReviewExternalizer reviewExternalizer =
@@ -304,8 +301,8 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
       catch (RevuException e)
       {
         throw new ConfigurationException(
-          RevuBundle.message("settings.project.error.save.title.text", currentReview.getName(), e.getMessage()),
-          RevuBundle.message("plugin.revu.title"));
+          RevuBundle.message("projectSettings.error.save.title.text", currentReview.getName(), e.getMessage()),
+          RevuBundle.message("general.plugin.title"));
       }
     }
 
@@ -332,7 +329,7 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
     DefaultListModel liReviewsModel = new DefaultListModel();
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    for (Review review : reviewManager.getReviews(null, null))
+    for (Review review : reviewManager.getReviews())
     {
       // List stores shallow clones so changes may be properly canceled
       liReviewsModel.addElement(review.clone());

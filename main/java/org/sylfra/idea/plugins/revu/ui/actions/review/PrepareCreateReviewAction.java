@@ -30,7 +30,7 @@ public class PrepareCreateReviewAction extends AbstractReviewSettingsAction
     actionGroup.add(new CreateReviewAction(true, editedReviews));
 
     ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-      RevuBundle.message("settings.project.review.addReview.title"), actionGroup, e.getDataContext(),
+      RevuBundle.message("projectSettings.review.addReview.title"), actionGroup, e.getDataContext(),
       JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false);
 
     Component component = (Component) e.getInputEvent().getSource();
@@ -39,10 +39,5 @@ public class PrepareCreateReviewAction extends AbstractReviewSettingsAction
       (int) (locationOnScreen.getX()),
       (int) locationOnScreen.getY() + component.getHeight());
     popup.showInScreenCoordinates(component, location);
-  }
-
-  protected boolean isEnabledOnlyForNonEmbedded()
-  {
-    return false;
   }
 }

@@ -5,7 +5,7 @@ package org.sylfra.idea.plugins.revu.model;
  * @version $Id$
  */
 public class IssueTag extends AbstractRevuEntity<IssueTag> implements Comparable<IssueTag>,
-  IRevuNamedHolderEntity<IssueTag>
+  IRevuUniqueNameHolderEntity<IssueTag>
 {
   private String name;
 

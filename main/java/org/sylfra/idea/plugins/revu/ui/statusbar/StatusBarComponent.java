@@ -101,15 +101,16 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
     setToolTipText(RevuBundle.message("statusPopup.tip", messages.size()));
 
     // Icon
-    StatusBarMessage.Type priorType = StatusBarMessage.Type.INFO;
+    StatusBarMessage.Type priorType = null;
     for (StatusBarMessage message : messages)
     {
-      if (message.getType().getPriority() > priorType.getPriority())
+      if ((priorType == null) || (message.getType().getPriority() > priorType.getPriority()))
       {
         priorType = message.getType();
       }
     }
-    setIcon(RevuIconProvider.getIcon(priorType.getIconRef()));
+    setIcon(RevuIconProvider.getIcon((priorType == null)
+      ? RevuIconProvider.IconRef.STATUS_BAR_DEFAULT : priorType.getIconRef()));
 
     if (mustBlink)
     {
@@ -215,14 +216,6 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
   {
     final RevuAppSettingsComponent appSettingsComponent =
       ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
-    appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
-    {
-      public void settingsChanged(RevuAppSettings settings)
-      {
-        checkLogin(settings);
-      }
-    };
-    appSettingsComponent.addListener(appSettingsListener);
 
     if (project != null)
     {
@@ -265,17 +258,17 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
     public Blinker()
     {
-      swapIcon = RevuIconProvider.getIcon(StatusBarMessage.Type.INFO.getIconRef());
+      swapIcon = RevuIconProvider.getIcon(RevuIconProvider.IconRef.STATUS_BAR_DEFAULT);
     }
 
     public void run()
     {
-      final Icon tmpIcon = swapIcon;
-      swapIcon = StatusBarComponent.this.getIcon();
       SwingUtilities.invokeLater(new Runnable()
       {
         public void run()
         {
+          final Icon tmpIcon = swapIcon;
+          swapIcon = StatusBarComponent.this.getIcon();
           StatusBarComponent.this.setIcon(tmpIcon);
         }
       });
@@ -290,7 +283,8 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
     public PopupNotifier()
     {
       label = new JLabel();
-      label.setBorder(BorderFactory.createLineBorder(LightColors.BLUE));
+      label.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(LightColors.BLUE),
+        BorderFactory.createEmptyBorder(0, 0, 10, 0)));
       label.setForeground(Colors.DARK_BLUE);
       label.addMouseListener(new MouseAdapter()
       {
@@ -324,8 +318,11 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
       label.setIcon(messageType.getDefaultIcon());
       label.setText(RevuBundle.message("statusPopup.alert.text", message.getTitle()));
 
-      WindowManager.getInstance().getStatusBar(project).fireNotificationPopup(label,
-        messageType.getPopupBackground());
+      StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+      if (statusBar != null)
+      {
+        statusBar.fireNotificationPopup(label, messageType.getPopupBackground());
+      }
     }
   }
 

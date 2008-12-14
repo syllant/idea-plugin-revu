@@ -77,6 +77,12 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     boolean hasErrorBorder = component.getBorder() instanceof ErrorBorder;
     if (hasError)
     {
+      // Can't report an error on a disabled component because user won't be able to fix it !
+      if (!component.isEnabled())
+      {
+        return;
+      }
+
       if (message != null)
       {
         if (!hasErrorBorder)
@@ -114,6 +120,24 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     }
   }
 
+  protected void updateTabIcons(JTabbedPane tabbedPane)
+  {
+    for (int i = 0; i < tabbedPane.getComponents().length; i++)
+    {
+      boolean hasError = false;
+      Component component = tabbedPane.getComponentAt(i);
+      for (JComponent errorComponent : errors)
+      {
+        if (SwingUtilities.isDescendingFrom(errorComponent, component))
+        {
+          hasError = true;
+          break;
+        }
+      }
+      tabbedPane.setIconAt(i, hasError ? RevuIconProvider.getIcon(RevuIconProvider.IconRef.FIELD_ERROR) : null);
+    }
+  }
+
   public void dispose()
   {
   }
@@ -126,10 +150,11 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
   public final void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus)
   {
     this.enclosingReview = enclosingReview;
+    errors.clear();
 
     internalUpdateUI(data, requestFocus);
 
-    internalUpdateWriteAccess(RevuUtils.getUser(enclosingReview));
+    internalUpdateWriteAccess(RevuUtils.getCurrentUser(enclosingReview));
 
     if ((requestFocus) && (getPreferredFocusedComponent() != null))
     {

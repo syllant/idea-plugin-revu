@@ -85,10 +85,10 @@ class DocumentChangeTracker implements DocumentListener
   {
     int lineStart = document.getLineNumber(event.getOffset());
 
-    updateItems(lineStart);
+    updateIssues(lineStart);
   }
 
-  private void updateIssue(@NotNull Issue item, @NotNull RangeMarker marker)
+  private void updateIssue(@NotNull Issue issue, @NotNull RangeMarker marker)
   {
     if ((marker.isValid()) && (!isOrphanMarker(marker)))
     {
@@ -102,22 +102,22 @@ class DocumentChangeTracker implements DocumentListener
         lineEnd--;
       }
 
-      item.setLineStart(lineStart);
-      item.setLineEnd(lineEnd);
+      issue.setLineStart(lineStart);
+      issue.setLineEnd(lineEnd);
     }
 
-    item.getReview().fireItemUpdated(item);
+    issue.getReview().fireIssueUpdated(issue);
   }
 
-  private void updateItems(int lineStart)
+  private void updateIssues(int lineStart)
   {
     for (Map.Entry<Issue, RangeMarker> entry : markers.entrySet())
     {
-      Issue item = entry.getKey();
+      Issue issue = entry.getKey();
       RangeMarker marker = entry.getValue();
-      if (item.getLineStart() >= lineStart)
+      if (issue.getLineStart() >= lineStart)
       {
-        updateIssue(item, marker);
+        updateIssue(issue, marker);
       }
     }
   }

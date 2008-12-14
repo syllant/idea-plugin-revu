@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.lang.reflect.ParameterizedType;
 import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,11 +26,79 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
   }
 
   private final FilterType filterType;
+  private final int preferredWidth;
+  private final int minWidth;
+  private final int maxWidth;
+  private int horizontalAlignment;
 
-  public IssueColumnInfo(String name, FilterType filterType)
+  public IssueColumnInfo(String name, FilterType filterType, int preferredWidth, int minWidth, int maxWidth)
   {
     super(name);
     this.filterType = filterType;
+    this.preferredWidth = preferredWidth;
+    this.minWidth = minWidth;
+    this.maxWidth = maxWidth;
+
+    Class aspectClass = (Class) ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    horizontalAlignment = (Number.class.isAssignableFrom(aspectClass) || Date.class.isAssignableFrom(aspectClass))
+      ? SwingConstants.CENTER : SwingConstants.LEFT;
+  }
+
+  @Override
+  public int getWidth(JTable table)
+  {
+    return preferredWidth;
+  }
+
+  public int getMinWidth(JTable table)
+  {
+    return minWidth;
+  }
+
+  public int getMaxWidth(JTable table)
+  {
+    return maxWidth;
+  }
+
+  @Override
+  public TableCellRenderer getRenderer(final Issue issue)
+  {
+    return new DefaultTableCellRenderer()
+    {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+        int row, int column)
+      {
+        value = IssueColumnInfo.this.formatValue((Aspect) value);
+
+        JLabel result = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        result.setHorizontalAlignment(IssueColumnInfo.this.getHorizontalAlignment());
+
+        return result;
+      }
+
+      @Override
+      public String getToolTipText()
+      {
+        String tip = IssueColumnInfo.this.getToolTipText(issue);
+        return ("".equals(tip)) ? null : tip;
+      }
+    };
+  }
+
+  protected String formatValue(Aspect value)
+  {
+    return (value == null) ? "" : value.toString();
+  }
+
+  protected int getHorizontalAlignment()
+  {
+    return horizontalAlignment;
+  }
+
+  protected String getToolTipText(Issue issue)
+  {
+    return formatValue(valueOf(issue));
   }
 
   @Override
@@ -44,9 +113,9 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
     };
   }
 
-  public boolean matchFilter(@NotNull Issue item, @NotNull String filterValue)
+  public boolean matchFilter(@NotNull Issue issue, @NotNull String filterValue)
   {
-    String value = valueOf(item).toString();
+    String value = valueOf(issue).toString();
 
     switch (filterType)
     {
@@ -60,41 +129,24 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
   }
 
 
-  static abstract class IssueDateColumnInfo extends IssueColumnInfo<Date>
+  static abstract class IssueDateColumnInfo<Aspect extends Date> extends IssueColumnInfo<Aspect>
   {
     public IssueDateColumnInfo(@NotNull String name)
     {
-      super(name, FilterType.CONTAINS);
+      super(name, FilterType.CONTAINS, 80, 50, 80);
     }
 
     @Override
-    public TableCellRenderer getRenderer(final Issue issue)
+    protected String formatValue(Date value)
     {
-      return new DefaultTableCellRenderer()
-      {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-          boolean hasFocus, int row, int column)
-        {
-          if (value != null)
-          {
-            value = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format((Date) value);
-          }
+      return (value == null) ? null : DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(value);
+    }
 
-          return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        }
-
-        @Override
-        public String getToolTipText()
-        {
-          if (issue != null)
-          {
-            return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(valueOf(issue));
-          }
-
-          return null;
-        }
-      };
+    @Override
+    protected String getToolTipText(Issue issue)
+    {
+      return (issue == null) ? null
+        : DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(valueOf(issue));
     }
   }
 }

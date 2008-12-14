@@ -4,7 +4,6 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -12,6 +11,7 @@ import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
@@ -97,41 +97,34 @@ public class ReviewManager implements ProjectComponent
   }
 
   @NotNull
-  public List<Review> getReviews(@Nullable Boolean active, Boolean template)
+  public List<Review> getReviews(@Nullable String userLogin, @Nullable ReviewStatus... statuses)
   {
-    return getReviews(null, active, template, null);
+    return getReviews(null, userLogin, statuses);
   }
 
   @NotNull
-  public List<Review> getReviews(@Nullable List<Review> customReviews, @Nullable Boolean active, Boolean template,
-    @Nullable String userLogin)
+  public List<Review> getReviews(@Nullable String userLogin, boolean active)
+  {
+    return getReviews(userLogin, (active ? new ReviewStatus[] {ReviewStatus.REVIEWING, ReviewStatus.FIXING} : null));
+  }
+
+  @NotNull
+  public List<Review> getReviews(@Nullable List<Review> customReviews, @Nullable String userLogin,
+    @Nullable ReviewStatus... statuses)
   {
     if (customReviews == null)
     {
       customReviews = reviews;
     }
 
+    List<ReviewStatus> statusList = (statuses == null)
+      ? Collections.<ReviewStatus>emptyList() : Arrays.asList(ReviewStatus.values());
+
     List<Review> result = new ArrayList<Review>();
     for (Review review : customReviews)
     {
-      if (((active == null) || (review.isActive() == active))
-        && ((template == null) || (review.isTemplate() == template))
-        && ((userLogin == null) || (review.isEmbedded()) || (review.getDataReferential().getUser(userLogin, true) != null)))
-      {
-        result.add(review);
-      }
-    }
-
-    return Collections.unmodifiableList(result);
-  }
-
-  @NotNull
-  public List<Review> getActiveReviews(@NotNull VirtualFile vFile)
-  {
-    List<Review> result = new ArrayList<Review>();
-    for (Review review : reviews)
-    {
-      if ((review.isActive()) && (!review.isTemplate()) && (review.hasItems(vFile)))
+      if ((statusList.contains(review.getStatus())
+        && ((userLogin == null) || (review.getDataReferential().getUser(userLogin, true) != null))))
       {
         result.add(review);
       }
@@ -481,6 +474,7 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewAdded(Review review)
   {
+    // Defensive copy against concurrent modifications
     List<IReviewListener> copy = new ArrayList<IReviewListener>(reviewListeners);
     for (IReviewListener listener : copy)
     {
@@ -490,6 +484,7 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewChanged(Review review)
   {
+    // Defensive copy against concurrent modifications
     List<IReviewListener> copy = new ArrayList<IReviewListener>(reviewListeners);
     for (IReviewListener listener : copy)
     {
@@ -499,6 +494,7 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewDeleted(Review review)
   {
+    // Defensive copy against concurrent modifications
     List<IReviewListener> copy = new ArrayList<IReviewListener>(reviewListeners);
     for (IReviewListener listener : copy)
     {

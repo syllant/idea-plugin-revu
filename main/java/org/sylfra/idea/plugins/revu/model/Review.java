@@ -19,19 +19,18 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private History history;
   private String name;
   private String goal;
-  private boolean template;
   private boolean shared;
-  private boolean active;
+  private ReviewStatus status;
   private boolean embedded;
   private DataReferential dataReferential;
-  private Map<VirtualFile, List<Issue>> itemsByFiles;
+  private Map<VirtualFile, List<Issue>> issuesByFiles;
   private final transient List<IIssueListener> issueListeners;
 
   public Review(@Nullable String name)
   {
     this.name = name;
     history = new History();
-    itemsByFiles = new HashMap<VirtualFile, List<Issue>>();
+    issuesByFiles = new HashMap<VirtualFile, List<Issue>>();
     issueListeners = new LinkedList<IIssueListener>();
     dataReferential = new DataReferential(this);
   }
@@ -71,16 +70,6 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     this.history = history;
   }
 
-  public boolean isTemplate()
-  {
-    return template;
-  }
-
-  public void setTemplate(boolean template)
-  {
-    this.template = template;
-  }
-
   public boolean isShared()
   {
     return shared;
@@ -91,14 +80,14 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     this.shared = shared;
   }
 
-  public boolean isActive()
+  public ReviewStatus getStatus()
   {
-    return active;
+    return status;
   }
 
-  public void setActive(boolean active)
+  public void setStatus(ReviewStatus status)
   {
-    this.active = active;
+    this.status = status;
   }
 
   public boolean isEmbedded()
@@ -143,90 +132,96 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   }
 
   @NotNull
-  public Map<VirtualFile, List<Issue>> getItemsByFiles()
+  public Map<VirtualFile, List<Issue>> getIssuesByFiles()
   {
-    return Collections.unmodifiableMap(itemsByFiles);
+    return Collections.unmodifiableMap(issuesByFiles);
   }
 
-  public void setItems(List<Issue> items)
+  public void setIssues(List<Issue> issues)
   {
-    itemsByFiles.clear();
-    for (Issue item : items)
+    issuesByFiles.clear();
+    for (Issue issue : issues)
     {
-      List<Issue> fileItems = itemsByFiles.get(item.getFile());
-      if (fileItems == null)
+      List<Issue> fileIssues = issuesByFiles.get(issue.getFile());
+      if (fileIssues == null)
       {
-        fileItems = new ArrayList<Issue>();
-        itemsByFiles.put(item.getFile(), fileItems);
+        fileIssues = new ArrayList<Issue>();
+        issuesByFiles.put(issue.getFile(), fileIssues);
       }
-      fileItems.add(item);
+      fileIssues.add(issue);
     }
   }
 
   @NotNull
-  public List<Issue> getItems(@NotNull VirtualFile file)
+  public List<Issue> getIssues(@NotNull VirtualFile file)
   {
-    List<Issue> fileItems = itemsByFiles.get(file);
-    return (fileItems == null) ? new ArrayList<Issue>(0) : Collections.unmodifiableList(fileItems);
+    List<Issue> fileIssues = issuesByFiles.get(file);
+    return (fileIssues == null) ? new ArrayList<Issue>(0) : Collections.unmodifiableList(fileIssues);
   }
 
   @NotNull
-  public boolean hasItems(@NotNull VirtualFile file)
+  public boolean hasIssues(@NotNull VirtualFile file)
   {
-    return itemsByFiles.containsKey(file);
+    return issuesByFiles.containsKey(file);
   }
 
   @NotNull
-  public List<Issue> getItems()
+  public List<Issue> getIssues()
   {
     List<Issue> result = new ArrayList<Issue>();
 
-    for (List<Issue> items : itemsByFiles.values())
+    for (List<Issue> issues : issuesByFiles.values())
     {
-      for (Issue item : items)
+      for (Issue issue : issues)
       {
-        result.add(item);
+        result.add(issue);
       }
     }
 
     return result;
   }
 
-  public void addItem(Issue item)
+  public void addIssue(Issue issue)
   {
-    List<Issue> fileItems = itemsByFiles.get(item.getFile());
-    if (fileItems == null)
+    List<Issue> fileIssues = issuesByFiles.get(issue.getFile());
+    if (fileIssues == null)
     {
-      fileItems = new ArrayList<Issue>();
-      itemsByFiles.put(item.getFile(), fileItems);
+      fileIssues = new ArrayList<Issue>();
+      issuesByFiles.put(issue.getFile(), fileIssues);
     }
-    fileItems.add(item);
+    fileIssues.add(issue);
 
-    for (IIssueListener listener : issueListeners)
+    // Defensive copy against concurrent modifications
+    List<IIssueListener> copy = new ArrayList<IIssueListener>(issueListeners);
+    for (IIssueListener listener : copy)
     {
-      listener.itemAdded(item);
+      listener.issueAdded(issue);
     }
   }
 
-  public void removeItem(Issue item)
+  public void removeIssue(Issue issue)
   {
-    List<Issue> fileItems = itemsByFiles.get(item.getFile());
-    if (fileItems != null)
+    List<Issue> fileIssues = issuesByFiles.get(issue.getFile());
+    if (fileIssues != null)
     {
-      fileItems.remove(item);
+      fileIssues.remove(issue);
     }
 
-    for (IIssueListener listener : issueListeners)
+    // Defensive copy against concurrent modifications
+    List<IIssueListener> copy = new ArrayList<IIssueListener>(issueListeners);
+    for (IIssueListener listener : copy)
     {
-      listener.itemDeleted(item);
+      listener.issueDeleted(issue);
     }
   }
 
-  public void fireItemUpdated(Issue item)
+  public void fireIssueUpdated(Issue issue)
   {
-    for (IIssueListener listener : issueListeners)
+    // Defensive copy against concurrent modifications
+    List<IIssueListener> copy = new ArrayList<IIssueListener>(issueListeners);
+    for (IIssueListener listener : copy)
     {
-      listener.itemUpdated(item);
+      listener.issueUpdated(issue);
     }
   }
 
@@ -281,7 +276,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
 
     Review review = (Review) o;
 
-    if (active != review.active)
+    if (status != review.status)
     {
       return false;
     }
@@ -290,10 +285,6 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
       return false;
     }
     if (shared != review.shared)
-    {
-      return false;
-    }
-    if (template != review.template)
     {
       return false;
     }
@@ -313,7 +304,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     {
       return false;
     }
-    if (itemsByFiles != null ? !itemsByFiles.equals(review.itemsByFiles) : review.itemsByFiles != null)
+    if (issuesByFiles != null ? !issuesByFiles.equals(review.issuesByFiles) : review.issuesByFiles != null)
     {
       return false;
     }
@@ -338,12 +329,11 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     result = 31 * result + (history != null ? history.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     result = 31 * result + (goal != null ? goal.hashCode() : 0);
-    result = 31 * result + (template ? 1 : 0);
     result = 31 * result + (shared ? 1 : 0);
-    result = 31 * result + (active ? 1 : 0);
+    result = 31 * result + (status != null ? status.hashCode() : 0);
     result = 31 * result + (embedded ? 1 : 0);
     result = 31 * result + (dataReferential != null ? dataReferential.hashCode() : 0);
-    result = 31 * result + (itemsByFiles != null ? itemsByFiles.hashCode() : 0);
+    result = 31 * result + (issuesByFiles != null ? issuesByFiles.hashCode() : 0);
 
     return result;
   }
@@ -355,9 +345,9 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
       append("history", history).
       append("name", name).
       append("goal", goal).
-      append("active", active).
+      append("status", status).
       append("embedded", embedded).
-      append("itemsByFiles", itemsByFiles).
+      append("issuesByFiles", issuesByFiles).
       append("issueListeners", issueListeners).
       append("dataReferential", dataReferential).
       toString();

@@ -10,6 +10,7 @@ public class SplitReviewBrowsingFormVerticallyAction extends AbstractSplitReview
 {
   protected int getOrientation()
   {
-    return JSplitPane.VERTICAL_SPLIT;
+    // Invert split, like IDEA does: action icon is vertical whereas split is horizontal and vice et versa
+    return JSplitPane.HORIZONTAL_SPLIT;
   }
 }

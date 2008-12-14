@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * @version $Id$
  */
 public class IssuePriority extends AbstractRevuEntity<IssuePriority> implements Comparable<IssuePriority>,
-  IRevuNamedHolderEntity<IssuePriority>
+  IRevuUniqueNameHolderEntity<IssuePriority>
 {
   private byte order;
   private String name;

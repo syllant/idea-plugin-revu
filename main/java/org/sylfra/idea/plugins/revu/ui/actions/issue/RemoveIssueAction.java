@@ -7,6 +7,8 @@ import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,15 +24,15 @@ public class RemoveIssueAction extends AbstractIssueAction
   public void actionPerformed(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    List<Issue> items = e.getData(RevuDataKeys.ISSUE_ARRAY);
+    List<Issue> issues = e.getData(RevuDataKeys.ISSUE_ARRAY);
 
     Set<Review> reviewsToSave = new HashSet<Review>();
-    if (items != null)
+    if (issues != null)
     {
-      for (Issue item : items)
+      for (Issue issue : issues)
       {
-        Review review = item.getReview();
-        review.removeItem(item);
+        Review review = issue.getReview();
+        review.removeIssue(issue);
 
         reviewsToSave.add(review);
       }
@@ -41,5 +43,26 @@ public class RemoveIssueAction extends AbstractIssueAction
         reviewManager.save(review);
       }
     }
+  }
+
+  @Override
+  public void update(AnActionEvent e)
+  {
+    boolean enabled;
+
+    Issue currentIssue = e.getData(RevuDataKeys.ISSUE);
+    if (currentIssue == null)
+    {
+      enabled = false;
+    }
+    else
+    {
+      Review review = currentIssue.getReview();
+      User user = RevuUtils.getCurrentUser(review);
+      enabled = (user != null) &&
+        (RevuUtils.isActive(review) && user.hasRole(User.Role.REVIEWER) || (user.hasRole(User.Role.ADMIN)));
+    }
+
+    e.getPresentation().setEnabled(enabled);
   }
 }

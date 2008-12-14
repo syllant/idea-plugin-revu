@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.browsingtable;
 
 import com.intellij.ui.SpeedSearchBase;
 import com.intellij.ui.TableUtil;
+import org.sylfra.idea.plugins.revu.model.Issue;
 
 /**
  * @author <a href="mailto:sylfrade@yahoo.fr">Sylvain FRANCOIS</a>
@@ -24,14 +25,18 @@ public class IssueTableSearchBar extends SpeedSearchBase<IssueTable>
     return myComponent.getListTableModel().getItems().toArray();
   }
 
-  public String getElementText(Object obj)
+  public String getElementText(Object item)
   {
-    return obj.toString();
+    return ((Issue) item).getSummary();
   }
 
-  public void selectElement(Object obj, String s1)
+  public void selectElement(Object item, String text)
   {
-    myComponent.setRowSelectionInterval(0, 0);
-    TableUtil.scrollSelectionToVisible(myComponent);
+    int index = myComponent.getListTableModel().indexOf((Issue) item);
+    if (index > -1)
+    {
+      myComponent.setRowSelectionInterval(index, index);
+      TableUtil.scrollSelectionToVisible(myComponent);
+    }
   }
 }

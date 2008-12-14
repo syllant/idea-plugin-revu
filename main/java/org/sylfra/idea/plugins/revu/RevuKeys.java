@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu;
 
 import com.intellij.openapi.util.Key;
-import org.sylfra.idea.plugins.revu.ui.ReviewBrowsingPane;
+import org.sylfra.idea.plugins.revu.ui.IssueBrowsingPane;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -9,5 +9,5 @@ import org.sylfra.idea.plugins.revu.ui.ReviewBrowsingPane;
  */
 public final class RevuKeys
 {
-  public static final Key<ReviewBrowsingPane> REVIEW_BROWSING_FORM_KEY = Key.create("revu.ReviewBrowsingPane");
+  public static final Key<IssueBrowsingPane> ISSUE_BROWSING_PANE_KEY = Key.create("revu.IssueBrowsingPane");
 }

@@ -17,18 +17,18 @@ public class ShowUpdateIssuePopupAction extends AnAction
   public void actionPerformed(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    Issue item = e.getData(RevuDataKeys.ISSUE);
+    Issue issue = e.getData(RevuDataKeys.ISSUE);
 
-    if (item == null)
+    if (issue == null)
     {
       return;
     }
 
     IssueDialog dialog = new IssueDialog(project);
-    dialog.show(item, false);
+    dialog.show(issue, false);
     if (dialog.isOK())
     {
-      dialog.updateData(item);
+      dialog.updateData(issue);
     }
   }
 }

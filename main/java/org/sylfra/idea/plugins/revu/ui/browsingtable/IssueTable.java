@@ -11,6 +11,7 @@ import com.intellij.pom.Navigatable;
 import com.intellij.ui.FilterComponent;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.table.TableView;
+import com.intellij.util.ui.ColumnInfo;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +22,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -37,11 +39,13 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
   private final Review review;
   private String filterValue;
 
-  public IssueTable(@NotNull Project project, @NotNull List<Issue> items, @Nullable Review review)
+  public IssueTable(@NotNull Project project, @NotNull List<Issue> issues, @Nullable Review review)
   {
-    super(new IssueTableModel(project, items, review));
+    super(new IssueTableModel(project, issues, review));
     this.project = project;
     this.review = review;
+
+    setSizes();
 
     installListeners();
   }
@@ -101,7 +105,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
           {
             newValue = "<html>" + newValue + "</html";
           }
-          
+
           jLabel.setText(newValue);
         }
 
@@ -114,11 +118,11 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
   {
     if (PlatformDataKeys.NAVIGATABLE_ARRAY.getName().equals(dataId))
     {
-      Issue currentItem = getSelectedObject();
-      if (currentItem != null)
+      Issue currentIssue = getSelectedObject();
+      if (currentIssue != null)
       {
-        OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentItem.getFile(),
-          currentItem.getLineStart(), 0);
+        OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentIssue.getFile(),
+          currentIssue.getLineStart(), 0);
         return new Navigatable[]{fileDescriptor};
       }
 
@@ -154,6 +158,40 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
         IssueTable.this.filter(getFilter().toLowerCase());
       }
     };
+  }
+
+  public void setColumnInfos(ColumnInfo[] columnInfos)
+  {
+    getListTableModel().setColumnInfos(columnInfos);
+    setSizes();
+  }
+
+  // IDEA bug: com.intellij.ui.table.TableView#setSizes() not called when updating cols
+  private void setSizes()
+  {
+    ColumnInfo[] columns = getListTableModel().getColumnInfos();
+    for (int i = 0; i < columns.length; i++)
+    {
+      IssueColumnInfo columnInfo = (IssueColumnInfo) columns[i];
+      TableColumn column = getColumnModel().getColumn(i);
+
+      int preferredWidth = columnInfo.getWidth(this);
+      int minWidth = columnInfo.getMinWidth(this);
+      int maxWidth = columnInfo.getMaxWidth(this);
+
+      if (preferredWidth > 0)
+      {
+        column.setPreferredWidth(preferredWidth);
+      }
+      if (minWidth > 0)
+      {
+        column.setMinWidth(minWidth);
+      }
+      if (maxWidth > 0)
+      {
+        column.setMaxWidth(maxWidth);
+      }
+    }
   }
 
   public boolean hasNextOccurence()
@@ -203,12 +241,11 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
 
   public String getNextOccurenceActionName()
   {
-    return RevuBundle.message("action.next.description");
+    return RevuBundle.message("browsing.issues.next.description");
   }
 
   public String getPreviousOccurenceActionName()
   {
-    return RevuBundle.message("action.previous.description");
+    return RevuBundle.message("browsing.issues.previous.description");
   }
-
 }

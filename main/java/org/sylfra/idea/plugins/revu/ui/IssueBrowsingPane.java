@@ -6,16 +6,19 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.TableUtil;
 import com.intellij.util.ui.ColumnInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
@@ -40,7 +43,7 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewBrowsingPane implements Disposable
+public class IssueBrowsingPane implements Disposable
 {
   private JPanel contentPane;
   private final Project project;
@@ -55,8 +58,9 @@ public class ReviewBrowsingPane implements Disposable
   private JLabel lbCount;
   private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
   private MessageClickHandler messageClickHandler;
+  private IIssueListener issueListener;
 
-  public ReviewBrowsingPane(@NotNull Project project, @Nullable Review review)
+  public IssueBrowsingPane(@NotNull Project project, @Nullable Review review)
   {
     this.project = project;
     this.review = review;
@@ -71,9 +75,9 @@ public class ReviewBrowsingPane implements Disposable
 
   private void createUIComponents()
   {
-    final List<Issue> items = retrieveIssues();
+    final List<Issue> issues = retrieveIssues();
 
-    issueTable = new IssueTable(project, items, review);
+    issueTable = new IssueTable(project, issues, review);
     issueTable.setSelectionModel(new DefaultListSelectionModel()
     {
       @Override
@@ -86,11 +90,12 @@ public class ReviewBrowsingPane implements Disposable
         }
       }
     });
+    issueTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     IssueTableModel tableModel = (IssueTableModel) issueTable.getListTableModel();
     tableModel.addTableModelListener(new TableModelListener()
     {
-      public void tableChanged(TableModelEvent e)
+      public void tableChanged(final TableModelEvent e)
       {
         if (e.getType() == TableModelEvent.DELETE)
         {
@@ -106,8 +111,15 @@ public class ReviewBrowsingPane implements Disposable
         }
         else if (e.getType() == TableModelEvent.INSERT)
         {
-          issueTable.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
-          checkMessageInsteadOfPane();
+          SwingUtilities.invokeLater(new Runnable()
+          {
+            public void run()
+            {
+              issueTable.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
+              TableUtil.scrollSelectionToVisible(issueTable);
+              checkMessageInsteadOfPane();
+            }
+          });
         }
       }
     });
@@ -122,7 +134,7 @@ public class ReviewBrowsingPane implements Disposable
     autoScrollToSourceHandler.install(issueTable);
 
     tbMain = createToolbar((review == null) ? "revu.toolWindow.allReviews" : "revu.toolWindow.review").getComponent();
-    tbTable = createToolbar(new SelectColumnsAction(tableModel)).getComponent();
+    tbTable = createToolbar(new SelectColumnsAction(issueTable)).getComponent();
 
     new IssueTableSearchBar(issueTable);
     filter = issueTable.buildFilterComponent();
@@ -138,7 +150,6 @@ public class ReviewBrowsingPane implements Disposable
 
     RevuWorkspaceSettings workspaceSettings = project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
     splitPane.setOrientation(Integer.parseInt(workspaceSettings.getToolWindowSplitOrientation()));
-    splitPane.setDividerLocation(0.5d);
   }
 
   @Nullable
@@ -163,23 +174,23 @@ public class ReviewBrowsingPane implements Disposable
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
 
     // Issues
-    final IIssueListener issueListener = new IIssueListener()
+    issueListener = new IIssueListener()
     {
-      public void itemAdded(Issue item)
+      public void issueAdded(Issue issue)
       {
         updateMessageCount();
 
         // Let table add item so we may select it AFTER
       }
 
-      public void itemDeleted(Issue item)
+      public void issueDeleted(Issue issue)
       {
         updateMessageCount();
 
         // Let table remove item so we may select first row if possible
       }
 
-      public void itemUpdated(final Issue item)
+      public void issueUpdated(final Issue issue)
       {
         // Don't waste time to update UI if form is not visible (but will have to update on show)
         if (!contentPane.isVisible())
@@ -188,16 +199,16 @@ public class ReviewBrowsingPane implements Disposable
         }
 
         // Compare by identity since item content has changed
-        if (item == issueTable.getSelectedObject())
+        if (issue == issueTable.getSelectedObject())
         {
-          issuePane.updateUI(review, item, false);
+          issuePane.updateUI(issue.getReview(), issue, false);
         }
       }
     };
 
     if (review == null)
     {
-      for (Review review : reviewManager.getReviews(true, false))
+      for (Review review : reviewManager.getReviews(null, ReviewStatus.REVIEWING, ReviewStatus.FIXING))
       {
         review.addIssueListener(issueListener);
       }
@@ -206,6 +217,8 @@ public class ReviewBrowsingPane implements Disposable
       {
         public void reviewChanged(Review review)
         {
+          issueTable.getListTableModel().setItems(retrieveIssues());
+          checkRowSelected();
         }
 
         public void reviewAdded(Review review)
@@ -290,7 +303,7 @@ public class ReviewBrowsingPane implements Disposable
 
   private void updateMessageCount()
   {
-    lbCount.setText(RevuBundle.message("browsing.count.text", issueTable.getRowCount()));
+    lbCount.setText(RevuBundle.message("browsing.count.text", issueTable.getListTableModel().getRowCount()));
   }
 
   public void updateReview()
@@ -314,10 +327,10 @@ public class ReviewBrowsingPane implements Disposable
     else
     {
       // No review
-      List<Review> reviews = project.getComponent(ReviewManager.class).getReviews(true, false);
+      List<Review> reviews = project.getComponent(ReviewManager.class).getReviews(null, true);
       if (reviews.isEmpty())
       {
-        message = RevuBundle.message("toolwindow.noReview.text");
+        message = RevuBundle.message("browsing.issues.noReview.text");
         messageClickHandler.setType(MessageClickHandler.Type.NO_REVIEW);
       }
       else
@@ -326,7 +339,7 @@ public class ReviewBrowsingPane implements Disposable
         if (issueTable.getRowCount() == 0)
         {
           message = RevuBundle.message((review == null)
-            ? "toolwindow.noIssueForAll.text" : "toolwindow.noIssueForThis.text");
+            ? "browsing.issues.noIssueForAll.text" : "browsing.issues.noIssueForThis.text");
           messageClickHandler.setType(MessageClickHandler.Type.NO_ISSUE);
         }
       }
@@ -346,23 +359,35 @@ public class ReviewBrowsingPane implements Disposable
 
   private List<Issue> retrieveIssues()
   {
-    final List<Issue> items;
+    final List<Issue> issues;
 
     if (review == null)
     {
-      items = new ArrayList<Issue>();
+      issues = new ArrayList<Issue>();
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewManager.getReviews(true, false))
+      for (Review review : reviewManager.getReviews(null, true))
       {
-        items.addAll(review.getItems());
+        issues.addAll(review.getIssues());
       }
     }
     else
     {
-      items = review.getItems();
+      issues = review.getIssues();
     }
 
-    return items;
+    // @TODO Filter according to recipients
+//    // Filter issues according to recipients when set
+//    for (Iterator<Issue> it = issues.listIterator(); it.hasNext();)
+//    {
+//      Issue issue = it.next();
+//      User user = RevuUtils.getCurrentUser(issue.getReview());
+//      if ((user == null) || ((!user.hasRole(User.Role.REVIEWER)) && (!issue.getRecipients().contains(user))))
+//      {
+//        it.remove();
+//      }
+//    }
+
+    return issues;
   }
 
   private ActionToolbar createToolbar(@NotNull String toolbarId)
@@ -395,6 +420,14 @@ public class ReviewBrowsingPane implements Disposable
     issuePane.dispose();
     ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
       .removeListener(appSettingsListener);
+
+    List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+    for (Review review : reviews)
+    {
+      review.removeIssueListener(issueListener);
+      // @TODO IssueTableModel should do it by itslef
+      review.removeIssueListener((IIssueListener) issueTable.getListTableModel());
+    }
   }
 
   private static class MessageClickHandler extends MouseAdapter
@@ -441,32 +474,28 @@ public class ReviewBrowsingPane implements Disposable
   private class SelectColumnsAction extends AnAction
   {
     private ElementsChooserPopup<IssueColumnInfo> popup;
-    private final IssueTableModel tableModel;
+    private final IssueTable table;
 
-    private SelectColumnsAction(final IssueTableModel tableModel)
+    private SelectColumnsAction(final @NotNull IssueTable table)
     {
       super(null, RevuBundle.message("browsing.table.selectColumns.text"),
         RevuIconProvider.getIcon(RevuIconProvider.IconRef.SELECT_COLUMNS));
-      this.tableModel = tableModel;
+      this.table = table;
 
-      popup = new ElementsChooserPopup<IssueColumnInfo>(RevuBundle.message("browsing.table.selectColumns.text"),
+      popup = new ElementsChooserPopup<IssueColumnInfo>(project,
+        RevuBundle.message("browsing.table.selectColumns.text"),
+        RevuPlugin.PLUGIN_NAME + ".ColumnsChooser",
         new ElementsChooserPopup.IPopupListener<IssueColumnInfo>()
         {
           public void apply(@NotNull List<IssueColumnInfo> markedElements)
           {
-            tableModel.setColumnInfos(toArray(markedElements));
+            table.setColumnInfos(toArray(markedElements));
 
             RevuWorkspaceSettingsComponent workspaceSettingsComponent =
               project.getComponent(RevuWorkspaceSettingsComponent.class);
             RevuWorkspaceSettings workspaceSettings = workspaceSettingsComponent.getState();
 
-            List<String> colNames = new ArrayList<String>(markedElements.size());
-            for (IssueColumnInfo columnInfo : markedElements)
-            {
-              colNames.add(columnInfo.getName());
-            }
-
-            workspaceSettings.setBrowsingColNames(colNames);
+            workspaceSettings.setBrowsingColNames(IssueColumnInfoRegistry.getColumnNames(markedElements));
             workspaceSettingsComponent.loadState(workspaceSettings);
           }
         },
@@ -484,7 +513,7 @@ public class ReviewBrowsingPane implements Disposable
       Component owner = (Component) e.getInputEvent().getSource();
       popup.show(owner, false,
         Arrays.asList(IssueColumnInfoRegistry.ALL_COLUMN_INFOS),
-        asList(tableModel.getColumnInfos()));
+        asList(table.getListTableModel().getColumnInfos()));
     }
 
     private List<IssueColumnInfo> asList(@NotNull ColumnInfo[] columnInfos)

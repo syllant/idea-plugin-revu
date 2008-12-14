@@ -34,16 +34,15 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
   private IssuePriority priority;
   private List<IssueTag> tags;
   private IssueStatus status;
-
-//  private String resolutionComment;
-//  private List<User> recipients;
-//  private String codeAlternative;
-//  private List<Issue> relations;
+  private List<User> recipients;
+  private List<IssueNote> notes;
 
   public Issue()
   {
     history = new History();
     tags = new ArrayList<IssueTag>();
+    recipients = new ArrayList<User>();
+    notes = new ArrayList<IssueNote>();
     lineStart = -1;
     lineEnd = -1;
   }
@@ -189,6 +188,26 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     this.status = status;
   }
 
+  public List<User> getRecipients()
+  {
+    return recipients;
+  }
+
+  public void setRecipients(List<User> recipients)
+  {
+    this.recipients = recipients;
+  }
+
+  public List<IssueNote> getNotes()
+  {
+    return notes;
+  }
+
+  public void setNotes(List<IssueNote> notes)
+  {
+    this.notes = notes;
+  }
+
   public LocationType getLocationType()
   {
     if (file == null)
@@ -225,6 +244,8 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
     result = 31 * result + (tags != null ? tags.hashCode() : 0);
     result = 31 * result + (status != null ? status.hashCode() : 0);
+    result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
+    result = 31 * result + (notes != null ? notes.hashCode() : 0);
 
     // /!\ Cyclic call with review
     result = 31 * result + (review != null ? review.getName().hashCode() : 0);
@@ -298,6 +319,14 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     {
       return false;
     }
+    if (recipients != null ? !recipients.equals(that.recipients) : that.recipients != null)
+    {
+      return false;
+    }
+    if (notes != null ? !notes.equals(that.notes) : that.notes != null)
+    {
+      return false;
+    }
 
     // /!\ Cyclic call with review
     if (review != null ? !review.getName().equals(that.review.getName()) : that.review != null)
@@ -326,6 +355,8 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
       append("priority", priority).
       append("tags", tags).
       append("status", status).
+      append("recipients", recipients).
+      append("notes", notes).
       toString();
   }
 }

@@ -19,7 +19,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.preview.currentRev.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.preview.currentRev.text"/>
             </properties>
           </component>
           <component id="657df" class="javax.swing.JRadioButton" binding="rbInitial">
@@ -27,7 +27,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.preview.initialRev.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.preview.initialRev.text"/>
             </properties>
           </component>
           <hspacer id="d7649">
@@ -48,7 +48,7 @@
             </constraints>
             <properties>
               <horizontalAlignment value="0"/>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.preview.unavailable.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.preview.unavailable.text"/>
             </properties>
           </component>
         </children>

@@ -13,9 +13,9 @@ public class StatusBarMessage
 {
   public static enum Type
   {
-    INFO(0, RevuIconProvider.IconRef.STATUS_BAR_INFO, MessageType.INFO),
-    WARNING(1, RevuIconProvider.IconRef.STATUS_BAR_WARNING, MessageType.WARNING),
-    ERROR(2, RevuIconProvider.IconRef.STATUS_BAR_ERROR, MessageType.ERROR);
+    INFO(1, RevuIconProvider.IconRef.STATUS_BAR_INFO, MessageType.INFO),
+    WARNING(2, RevuIconProvider.IconRef.STATUS_BAR_WARNING, MessageType.WARNING),
+    ERROR(3, RevuIconProvider.IconRef.STATUS_BAR_ERROR, MessageType.ERROR);
 
     private final int priority;
     private final RevuIconProvider.IconRef iconRef;

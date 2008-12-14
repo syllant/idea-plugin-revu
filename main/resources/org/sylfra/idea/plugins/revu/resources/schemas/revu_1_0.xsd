@@ -12,11 +12,10 @@
         <xsd:element ref="xs:history"/>
         <xsd:element ref="xs:goal" minOccurs="0"/>
         <xsd:element ref="xs:referential"/>
-        <xsd:element ref="xs:items" minOccurs="0"/>
+        <xsd:element ref="xs:issues" minOccurs="0"/>
       </xsd:sequence>
       <xsd:attribute name="name" type="xsd:string" use="required"/>
-      <xsd:attribute name="active" type="xsd:boolean" use="required"/>
-      <xsd:attribute name="template" type="xsd:boolean" use="required"/>
+      <xsd:attribute name="status" type="xsd:string" use="required"/>
       <xsd:attribute name="shared" type="xsd:boolean" use="required"/>
       <xsd:attribute name="extends" type="xsd:string" use="optional"/>
     </xsd:complexType>
@@ -91,19 +90,20 @@
     <xsd:complexType mixed="true" />
   </xsd:element>
 
-  <xsd:element name="items">
+  <xsd:element name="issues">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="xs:item" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="xs:issue" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="item">
+  <xsd:element name="issue">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="xs:history"/>
-        <xsd:element ref="xs:goal"/>
+        <xsd:element ref="xs:desc" minOccurs="0"/>
+        <xsd:element ref="xs:notes" minOccurs="0"/>
       </xsd:sequence>
       <xsd:attribute name="summary" type="xsd:string" use="required"/>
       <xsd:attribute name="filePath" type="xsd:string" use="required"/>
@@ -115,6 +115,7 @@
       <xsd:attribute name="tags" type="xsd:string" use="optional"/>
       <xsd:attribute name="priority" type="xsd:string" use="required"/>
       <xsd:attribute name="status" type="xs:status" use="required"/>
+      <xsd:attribute name="recipients" type="xsd:string" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -126,5 +127,24 @@
       <xsd:enumeration value="closed"/>
     </xsd:restriction>
   </xsd:simpleType>
+
+  <xsd:element name="desc">
+    <xsd:complexType mixed="true" />
+  </xsd:element>
+
+  <xsd:element name="notes">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="xs:note" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="note">
+    <xsd:complexType mixed="true">
+      <xsd:attribute name="createdBy" type="xsd:string" use="required"/>
+      <xsd:attribute name="createdOn" type="xsd:dateTime" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
 
 </xsd:schema>

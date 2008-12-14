@@ -9,18 +9,18 @@ import java.util.*;
 public class DataReferential extends AbstractRevuEntity<DataReferential>
 {
   private transient Review review;
-  private Map<String, IssueTag> itemTagsByName;
-  private Map<String, IssuePriority> itemPrioritiesByName;
-  private Map<User.Role, List<User>> usersByRole;
+  private Map<String, IssueTag> issueTagsByName;
+  private Map<String, IssuePriority> issuePrioritiesByName;
+  private Map<User.Role, Set<User>> usersByRole;
   private Map<String, User> usersByLogin;
 
   public DataReferential(@NotNull Review review)
   {
     this.review = review;
-    itemTagsByName = new HashMap<String, IssueTag>();
-    itemPrioritiesByName = new HashMap<String, IssuePriority>();
+    issueTagsByName = new HashMap<String, IssueTag>();
+    issuePrioritiesByName = new HashMap<String, IssuePriority>();
     usersByLogin = new HashMap<String, User>();
-    usersByRole = new HashMap<User.Role, List<User>>();
+    usersByRole = new HashMap<User.Role, Set<User>>();
   }
 
   public Review getReview()
@@ -34,61 +34,61 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   }
 
   @NotNull
-  public Map<String, IssuePriority> getItemPrioritiesByName(boolean useLink)
+  public Map<String, IssuePriority> getIssuePrioritiesByName(boolean useLink)
   {
-    return getMapUsingLinkedReferential(itemPrioritiesByName, ((review.getExtendedReview() == null)
-      ? null : review.getExtendedReview().getDataReferential().getItemPrioritiesByName(true)), useLink);
+    return getMapUsingLinkedReferential(issuePrioritiesByName, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getIssuePrioritiesByName(true)), useLink);
   }
 
   @NotNull
-  public List<IssuePriority> getItemPriorities(boolean useLink)
+  public List<IssuePriority> getIssuePriorities(boolean useLink)
   {
-    return getListUsingLinkedReferential(itemPrioritiesByName, ((review.getExtendedReview() == null)
-      ? null : review.getExtendedReview().getDataReferential().getItemPriorities(true)), useLink);
+    return getListUsingLinkedReferential(issuePrioritiesByName, ((review.getExtendedReview() == null)
+      ? null : review.getExtendedReview().getDataReferential().getIssuePriorities(true)), useLink);
   }
 
-  public void setItemPriorities(@NotNull Collection<IssuePriority> priorities)
+  public void setIssuePriorities(@NotNull Collection<IssuePriority> priorities)
   {
-    itemPrioritiesByName = new HashMap<String, IssuePriority>(priorities.size());
+    issuePrioritiesByName = new HashMap<String, IssuePriority>(priorities.size());
     for (IssuePriority priority : priorities)
     {
-      itemPrioritiesByName.put(priority.getName(), priority);
+      issuePrioritiesByName.put(priority.getName(), priority);
     }
   }
 
   @Nullable
-  public IssuePriority getItemPriority(@NotNull String priorityName)
+  public IssuePriority getIssuePriority(@NotNull String priorityName)
   {
-    return getItemPrioritiesByName(true).get(priorityName);
+    return getIssuePrioritiesByName(true).get(priorityName);
   }
 
   @NotNull
-  public Map<String, IssueTag> getItemTagsByName(boolean useLink)
+  public Map<String, IssueTag> getIssueTagsByName(boolean useLink)
   {
-    return getMapUsingLinkedReferential(itemTagsByName, ((review.getExtendedReview() == null) ? null :
-        review.getExtendedReview().getDataReferential().getItemTagsByName(true)), useLink);
+    return getMapUsingLinkedReferential(issueTagsByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getIssueTagsByName(true)), useLink);
   }
 
   @NotNull
-  public List<IssueTag> getItemTags(boolean useLink)
+  public List<IssueTag> getIssueTags(boolean useLink)
   {
-    return getListUsingLinkedReferential(itemTagsByName, ((review.getExtendedReview() == null) ? null :
-        review.getExtendedReview().getDataReferential().getItemTags(true)), useLink);
+    return getListUsingLinkedReferential(issueTagsByName, ((review.getExtendedReview() == null) ? null :
+        review.getExtendedReview().getDataReferential().getIssueTags(true)), useLink);
   }
 
-  public void setItemTags(@NotNull Collection<IssueTag> tags)
+  public void setIssueTags(@NotNull Collection<IssueTag> tags)
   {
-    itemTagsByName = new HashMap<String, IssueTag>(tags.size());
+    issueTagsByName = new HashMap<String, IssueTag>(tags.size());
     for (IssueTag tag : tags)
     {
-      itemTagsByName.put(tag.getName(), tag);
+      issueTagsByName.put(tag.getName(), tag);
     }
   }
 
   @Nullable
-  public IssueTag getItemTag(@NotNull String tagName)
+  public IssueTag getIssueTag(@NotNull String tagName)
   {
-    return getItemTagsByName(true).get(tagName);
+    return getIssueTagsByName(true).get(tagName);
   }
 
   @NotNull
@@ -99,7 +99,7 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   }
 
   @NotNull
-  public Map<User.Role, List<User>> getUsersByRole(boolean useLink)
+  public Map<User.Role, Set<User>> getUsersByRole(boolean useLink)
   {
     return getMapUsingLinkedReferential(usersByRole, ((review.getExtendedReview() == null)
       ? null : review.getExtendedReview().getDataReferential().getUsersByRole(true)), useLink);
@@ -115,21 +115,10 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   public void setUsers(@NotNull Collection<User> users)
   {
     usersByLogin = new HashMap<String, User>(users.size());
-    usersByRole = new HashMap<User.Role, List<User>>(users.size());
+    usersByRole = new HashMap<User.Role, Set<User>>(users.size());
     for (User user : users)
     {
-      this.usersByLogin.put(user.getLogin(), user);
-      for (User.Role role : user.getRoles())
-      {
-        List<User> usersForRole = usersByRole.get(role);
-        if (usersForRole == null)
-        {
-          usersForRole = new ArrayList<User>();
-          usersByRole.put(role, usersForRole);
-        }
-
-        usersForRole.add(user);
-      }
+      addUser(user);
     }
   }
 
@@ -137,16 +126,20 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   {
     usersByLogin.put(user.getLogin(), user);
 
-    for (User.Role role : user.getRoles())
+    // Add roles using role power, e.g. a user with reviewer role has also author role 
+    for (User.Role role : User.Role.values())
     {
-      List<User> usersForRole = usersByRole.get(role);
-      if (usersForRole == null)
+      if (user.hasRole(role))
       {
-        usersForRole = new ArrayList<User>();
-        usersByRole.put(role, usersForRole);
+        Set<User> usersForRole = usersByRole.get(role);
+        if (usersForRole == null)
+        {
+          usersForRole = new HashSet<User>();
+          usersByRole.put(role, usersForRole);
+        }
+  
+        usersForRole.add(user);
       }
-
-      usersForRole.add(user);
     }
   }
 
@@ -158,8 +151,8 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
 
   public void copyFrom(@NotNull DataReferential dataReferential)
   {
-    itemTagsByName.putAll(dataReferential.getItemTagsByName(false));
-    itemPrioritiesByName.putAll(dataReferential.getItemPrioritiesByName(false));
+    issueTagsByName.putAll(dataReferential.getIssueTagsByName(false));
+    issuePrioritiesByName.putAll(dataReferential.getIssuePrioritiesByName(false));
     usersByRole.putAll(dataReferential.getUsersByRole(false));
     usersByLogin.putAll(dataReferential.getUsersByLogin(false));
   }
@@ -169,8 +162,8 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   {
     DataReferential clone = super.clone();
 
-    clone.setItemTags(cloneList(clone.getItemTags(false)));
-    clone.setItemPriorities(cloneList(clone.getItemPriorities(false)));
+    clone.setIssueTags(cloneList(clone.getIssueTags(false)));
+    clone.setIssuePriorities(cloneList(clone.getIssuePriorities(false)));
     clone.setUsers(cloneList(clone.getUsers(false)));
 
     return clone;
@@ -227,13 +220,13 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
 
     DataReferential that = (DataReferential) o;
 
-    if (itemTagsByName != null ? !itemTagsByName.equals(that.itemTagsByName) :
-      that.itemTagsByName != null)
+    if (issueTagsByName != null ? !issueTagsByName.equals(that.issueTagsByName) :
+      that.issueTagsByName != null)
     {
       return false;
     }
-    if (itemPrioritiesByName != null ? !itemPrioritiesByName.equals(that.itemPrioritiesByName) :
-      that.itemPrioritiesByName != null)
+    if (issuePrioritiesByName != null ? !issuePrioritiesByName.equals(that.issuePrioritiesByName) :
+      that.issuePrioritiesByName != null)
     {
       return false;
     }
@@ -252,8 +245,8 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   @Override
   public int hashCode()
   {
-    int result = itemTagsByName != null ? itemTagsByName.hashCode() : 0;
-    result = 31 * result + (itemPrioritiesByName != null ? itemPrioritiesByName.hashCode() : 0);
+    int result = issueTagsByName != null ? issueTagsByName.hashCode() : 0;
+    result = 31 * result + (issuePrioritiesByName != null ? issuePrioritiesByName.hashCode() : 0);
     result = 31 * result + (usersByRole != null ? usersByRole.hashCode() : 0);
     result = 31 * result + (usersByLogin != null ? usersByLogin.hashCode() : 0);
     return result;
@@ -263,8 +256,8 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   public String toString()
   {
     return new ToStringBuilder(this).
-      append("itemTagsByName", itemTagsByName).
-      append("itemPrioritiesByName", itemPrioritiesByName).
+      append("issueTagsByName", issueTagsByName).
+      append("issuePrioritiesByName", issuePrioritiesByName).
       append("usersByRole", usersByRole).
       append("usersByLogin", usersByLogin).
       toString();

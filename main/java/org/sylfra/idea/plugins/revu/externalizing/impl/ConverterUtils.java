@@ -1,6 +1,6 @@
 package org.sylfra.idea.plugins.revu.externalizing.impl;
 
-import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
+import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 
 import java.util.Collection;
 
@@ -15,7 +15,7 @@ public class ConverterUtils
     StringBuilder b = new StringBuilder();
     for (Object o : collection)
     {
-      String value = (o instanceof IRevuNamedHolderEntity) ? ((IRevuNamedHolderEntity) o).getName() : o.toString();
+      String value = (o instanceof IRevuUniqueNameHolderEntity) ? ((IRevuUniqueNameHolderEntity) o).getName() : o.toString();
       b.append(value).append(",");
     }
 

@@ -11,9 +11,9 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.Abstra
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<IssueTag>
+public class IssueTagReferentialForm extends AbstractNameHolderReferentialForm<IssueTag>
 {
-  public ItemTagReferentialForm(Project project)
+  public IssueTagReferentialForm(Project project)
   {
     super(project);
   }
@@ -25,15 +25,15 @@ public class ItemTagReferentialForm extends AbstractNameHolderReferentialForm<Is
 
   protected AbstractReferentialDetailForm<IssueTag> buildNestedFormForDialog()
   {
-    return new org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.ItemTagDetailForm(table);
+    return new IssueTagDetailForm(table);
   }
 
   @Nls
   protected String getTitleKeyForDialog(boolean addMode)
   {
     return addMode
-      ? "settings.project.review.referential.itemTag.addDialog.title"
-      : "settings.project.review.referential.itemTag.editDialog.title";
+      ? "projectSettings.review.referential.issueTag.addDialog.title"
+      : "projectSettings.review.referential.issueTag.editDialog.title";
   }
 
   @NotNull

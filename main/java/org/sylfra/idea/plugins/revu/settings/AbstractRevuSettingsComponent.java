@@ -1,5 +1,8 @@
 package org.sylfra.idea.plugins.revu.settings;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,18 +43,20 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings>
   {
     settings = object;
 
-    for (IRevuSettingsListener<T> listener : listeners)
+    // Defensive copy against concurrent modifications
+    List<IRevuSettingsListener<T>> copy = new ArrayList<IRevuSettingsListener<T>>(listeners);
+    for (IRevuSettingsListener<T> listener : copy)
     {
       listener.settingsChanged(settings);
     }
   }
 
-  public void addListener(IRevuSettingsListener<T> listener)
+  public void addListener(@NotNull IRevuSettingsListener<T> listener)
   {
     listeners.add(listener);
   }
 
-  public void removeListener(IRevuSettingsListener<T> listener)
+  public void removeListener(@NotNull IRevuSettingsListener<T> listener)
   {
     listeners.remove(listener);
   }

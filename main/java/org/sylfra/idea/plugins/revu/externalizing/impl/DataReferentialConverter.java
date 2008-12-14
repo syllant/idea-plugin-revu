@@ -32,7 +32,7 @@ class DataReferentialConverter extends AbstractConverter
     // Priorities
     writer.startNode("priorities");
     SortedSet<IssuePriority> priorities = new TreeSet<IssuePriority>(
-      referential.getItemPrioritiesByName(false).values());
+      referential.getIssuePrioritiesByName(false).values());
     for (IssuePriority priority : priorities)
     {
       writer.startNode("priority");
@@ -44,7 +44,7 @@ class DataReferentialConverter extends AbstractConverter
     // Tags
     writer.startNode("tags");
     SortedSet<IssueTag> tags = new TreeSet<IssueTag>(
-      referential.getItemTagsByName(false).values());
+      referential.getIssueTagsByName(false).values());
     for (IssueTag tag : tags)
     {
       writer.startNode("tag");
@@ -81,7 +81,7 @@ class DataReferentialConverter extends AbstractConverter
           priorities.add((IssuePriority) context.convertAnother(priorities, IssuePriority.class));
           reader.moveUp();
         }
-        referential.setItemPriorities(priorities);
+        referential.setIssuePriorities(priorities);
       }
       else if ("tags".equals(reader.getNodeName()))
       {
@@ -92,7 +92,7 @@ class DataReferentialConverter extends AbstractConverter
           tags.add((IssueTag) context.convertAnother(tags, IssueTag.class));
           reader.moveUp();
         }
-        referential.setItemTags(tags);
+        referential.setIssueTags(tags);
       }
       else if ("users".equals(reader.getNodeName()))
       {

@@ -4,8 +4,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
+import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -35,11 +38,11 @@ public class RemoveReviewAction extends AbstractReviewSettingsAction
     }
 
     String msgKey = afferentReviews.isEmpty()
-      ? "settings.project.confirmRemoveReview.text"
-      : "settings.project.confirmRemoveReviewWithAfferentLink.text";
+      ? "projectSettings.confirmRemoveReview.text"
+      : "projectSettings.confirmRemoveReviewWithAfferentLink.text";
     int result = Messages.showOkCancelDialog(liReviews,
       RevuBundle.message(msgKey, selectedReview.getName()),
-      RevuBundle.message("settings.project.confirmRemoveReview.title"),
+      RevuBundle.message("projectSettings.confirmRemoveReview.title"),
       Messages.getWarningIcon());
 
     if (result == DialogWrapper.OK_EXIT_CODE)
@@ -53,8 +56,9 @@ public class RemoveReviewAction extends AbstractReviewSettingsAction
     }
   }
 
-  protected boolean isEnabledOnlyForNonEmbedded()
+  protected boolean isEnabledForReview(@NotNull Review review)
   {
-    return true;
+    User user = RevuUtils.getCurrentUser(review);
+    return (user != null) && (user.hasRole(User.Role.ADMIN));
   }
 }

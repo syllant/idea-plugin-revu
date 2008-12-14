@@ -58,16 +58,38 @@ class IssueConverter extends AbstractConverter
     }
     writer.addAttribute("status", issue.getStatus().toString().toLowerCase());
 
+    // Recipients
+    List<User> recipients = issue.getRecipients();
+    if ((recipients != null) && (!recipients.isEmpty()))
+    {
+      SortedSet<User> users = new TreeSet<User>(recipients);
+      writer.addAttribute("recipients", ConverterUtils.toString(users, false));
+    }
+
     // History
     writer.startNode("history");
     context.convertAnother(issue.getHistory());
     writer.endNode();
 
     // Desc
-    if (issue.getDesc() != null)
+    if ((issue.getDesc() != null) && (issue.getDesc().length() > 0))
     {
       writer.startNode("desc");
       writer.setValue(issue.getDesc());
+      writer.endNode();
+    }
+
+    // Notes
+    List<IssueNote> notes = issue.getNotes();
+    if ((notes != null) && (!notes.isEmpty()))
+    {
+      writer.startNode("notes");
+      for (IssueNote note : notes)
+      {
+        writer.startNode("note");
+        context.convertAnother(note);
+        writer.endNode();
+      }
       writer.endNode();
     }
   }
@@ -84,6 +106,7 @@ class IssueConverter extends AbstractConverter
     String tags = reader.getAttribute("tags");
     String priority = reader.getAttribute("priority");
     String status = reader.getAttribute("status");
+    String recipients = reader.getAttribute("recipients");
 
     Review review = getReview(context);
 
@@ -107,7 +130,7 @@ class IssueConverter extends AbstractConverter
       List<IssueTag> tagSet = new ArrayList<IssueTag>();
       for (String tagName : tagNames)
       {
-        IssueTag issueTag = review.getDataReferential().getItemTag(tagName);
+        IssueTag issueTag = review.getDataReferential().getIssueTag(tagName);
         if (issueTag == null)
         {
           // @TODO report error to user
@@ -120,9 +143,28 @@ class IssueConverter extends AbstractConverter
       }
       issue.setTags(tagSet);
     }
+    if (recipients != null)
+    {
+      String[] userLogins = recipients.split(",");
+      List<User> userSet = new ArrayList<User>();
+      for (String login : userLogins)
+      {
+        User user = review.getDataReferential().getUser(login, true);
+        if (user == null)
+        {
+          // @TODO report error to user
+          logger.warn("Can't find user in referential. Login:'" + login + "', review: " + review.getPath());
+        }
+        else
+        {
+          userSet.add(user);
+        }
+      }
+      issue.setRecipients(userSet);
+    }
     if (priority != null)
     {
-      issue.setPriority(review.getDataReferential().getItemPriority(priority));
+      issue.setPriority(review.getDataReferential().getIssuePriority(priority));
     }
     issue.setStatus(IssueStatus.valueOf(status.toUpperCase()));
     issue.setSummary(summary);
@@ -137,6 +179,17 @@ class IssueConverter extends AbstractConverter
       else if ("desc".equals(reader.getNodeName()))
       {
         issue.setDesc(reader.getValue());
+      }
+      else if ("notes".equals(reader.getNodeName()))
+      {
+        List<IssueNote> notes = new ArrayList<IssueNote>();
+        while (reader.hasMoreChildren())
+        {
+          reader.moveDown();
+          notes.add((IssueNote) context.convertAnother(notes, IssueNote.class));
+          reader.moveUp();
+        }
+        issue.setNotes(notes);
       }
       reader.moveUp();
     }
