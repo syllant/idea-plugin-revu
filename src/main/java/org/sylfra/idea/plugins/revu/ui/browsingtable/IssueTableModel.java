@@ -3,7 +3,6 @@ package org.sylfra.idea.plugins.revu.ui.browsingtable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
-import com.intellij.util.ui.SortableColumnModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
@@ -11,10 +10,12 @@ import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,19 +25,24 @@ import java.util.List;
 */
 public final class IssueTableModel extends ListTableModel<Issue> implements IIssueListener
 {
-  // ListTableModel does not expose items list (#getItems() provides a copy)
+  // ListTableModel does not expose issues list (#getIssues() provides a copy)
   private java.util.List<Issue> allItems;
   private java.util.List<Issue> visibleItems;
 
-  public IssueTableModel(@NotNull Project project, @NotNull java.util.List<Issue> items,
+  public IssueTableModel(@NotNull Project project, @NotNull java.util.List<Issue> issues,
     @Nullable Review review)
   {
-    super(retrieveColumnsFromSettings(project), items, 0);
-    visibleItems = items;
-    allItems = new ArrayList<Issue>(items);
+    super(retrieveColumnsFromSettings(project), issues, 0);
+    visibleItems = issues;
+    allItems = new ArrayList<Issue>(issues);
 
     setSortable(true);
 
+    installListeners(project, review);
+  }
+
+  private void installListeners(final Project project, Review review)
+  {
     if (review != null)
     {
       review.addIssueListener(this);
@@ -52,8 +58,8 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
 
         public void reviewAdded(Review review)
         {
-          allItems.addAll(review.getItems());
-          visibleItems.addAll(review.getItems());
+          allItems.addAll(review.getIssues());
+          visibleItems.addAll(review.getIssues());
           resort(visibleItems);
 
           fireTableDataChanged();
@@ -71,41 +77,55 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
         aReview.addIssueListener(this);
       }
     }
+
+    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(new IRevuSettingsListener<RevuWorkspaceSettings>()
+    {
+      public void settingsChanged(RevuWorkspaceSettings settings)
+      {
+        List<String> currentColumnNames = IssueColumnInfoRegistry.getColumnNames(Arrays.asList(getColumnInfos()));
+        if (!settings.getBrowsingColNames().equals(currentColumnNames))
+        {
+          setColumnInfos(retrieveColumnsFromSettings(project));
+        }
+      }
+    });
   }
 
   @Override
-  public void setItems(java.util.List<Issue> items)
+  public void setItems(java.util.List<Issue> issues)
   {
-    super.setItems(items);
-    visibleItems = items;
-    allItems = new ArrayList<Issue>(items);
+    super.setItems(issues);
+    visibleItems = issues;
+    allItems = new ArrayList<Issue>(issues);
   }
 
-  public void itemAdded(Issue item)
+  public void issueAdded(Issue issue)
   {
-    allItems.add(item);
-    visibleItems.add(item);
+    allItems.add(issue);
+    visibleItems.add(issue);
 
     resort(visibleItems);
-    int index = visibleItems.indexOf(item);
+    fireTableDataChanged();
+
+    int index = visibleItems.indexOf(issue);
     fireTableRowsInserted(index, index);
   }
 
-  public void itemDeleted(Issue item)
+  public void issueDeleted(Issue issue)
   {
-    allItems.remove(item);
+    allItems.remove(issue);
 
-    int index = visibleItems.indexOf(item);
+    int index = visibleItems.indexOf(issue);
     if (index > -1)
     {
-      visibleItems.remove(item);
+      visibleItems.remove(issue);
       fireTableRowsDeleted(index, index);
     }
   }
 
-  public void itemUpdated(Issue item)
+  public void issueUpdated(Issue issue)
   {
-    int index = visibleItems.indexOf(item);
+    int index = visibleItems.indexOf(issue);
     if (index > -1)
     {
       fireTableRowsUpdated(index, index);
@@ -113,7 +133,7 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
   }
 
   // Already defined in ListTableModel, but private...
-  private void resort(java.util.List<Issue> items)
+  private void resort(java.util.List<Issue> issues)
   {
     int sortedColumnIndex = getSortedColumnIndex();
     if ((sortedColumnIndex >= 0) && (sortedColumnIndex < IssueColumnInfoRegistry.ALL_COLUMN_INFOS.length))
@@ -122,13 +142,7 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
       if (columnInfo.isSortable())
       {
         //noinspection unchecked
-        columnInfo.sort(items);
-        if (getSortingType() == SortableColumnModel.SORT_DESCENDING)
-        {
-          reverseModelItems(items);
-        }
-
-        fireTableDataChanged();
+        columnInfo.sort(issues);
       }
     }
   }
@@ -143,12 +157,13 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
     }
     else
     {
-      for (Issue item : allItems)
+      for (Issue issue : allItems)
       {
         boolean match = false;
-        for (IssueColumnInfo columnInfo : IssueColumnInfoRegistry.ALL_COLUMN_INFOS)
+        for (ColumnInfo columnInfo : getColumnInfos())
         {
-          if (columnInfo.matchFilter(item, filter))
+          IssueColumnInfo issueColumnInfo = (IssueColumnInfo) columnInfo;
+          if (issueColumnInfo.matchFilter(issue, filter))
           {
             match = true;
             break;
@@ -157,7 +172,7 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
 
         if (match)
         {
-          visibleItems.add(item);
+          visibleItems.add(issue);
         }
       }
     }

@@ -5,10 +5,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.sylfra.idea.plugins.revu.model.DataReferential;
-import org.sylfra.idea.plugins.revu.model.History;
-import org.sylfra.idea.plugins.revu.model.Issue;
-import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.*;
 
 import java.util.*;
 
@@ -35,8 +32,7 @@ class ReviewConverter extends AbstractConverter
     writer.addAttribute("xsi:schemaLocation", REVU_SCHEMA_ID + " " + REVU_SCHEMA_LOCATION);
 
     writer.addAttribute("name", review.getName());
-    writer.addAttribute("template", String.valueOf(review.isTemplate()));
-    writer.addAttribute("active", String.valueOf(review.isActive()));
+    writer.addAttribute("status", review.getStatus().toString().toLowerCase());
     writer.addAttribute("shared", String.valueOf(review.isShared()));
 
     if (review.getExtendedReview() != null)
@@ -62,17 +58,17 @@ class ReviewConverter extends AbstractConverter
     context.convertAnother(review.getDataReferential());
     writer.endNode();
 
-    // Items
-    writer.startNode("items");
-    SortedMap<VirtualFile, List<Issue>> itemsByFiles
+    // Issues
+    writer.startNode("issues");
+    SortedMap<VirtualFile, List<Issue>> issuesByFiles
       = new TreeMap<VirtualFile, List<Issue>>(new VirtualFileComparator());
-    itemsByFiles.putAll(review.getItemsByFiles());
-    for (List<Issue> items : itemsByFiles.values())
+    issuesByFiles.putAll(review.getIssuesByFiles());
+    for (List<Issue> issues : issuesByFiles.values())
     {
-      for (Issue item : items)
+      for (Issue issue : issues)
       {
-        writer.startNode("item");
-        context.convertAnother(item);
+        writer.startNode("issue");
+        context.convertAnother(issue);
         writer.endNode();
       }
     }
@@ -82,16 +78,14 @@ class ReviewConverter extends AbstractConverter
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
     String name = reader.getAttribute("name");
-    String template = reader.getAttribute("template");
-    String active = reader.getAttribute("active");
+    String status = reader.getAttribute("status");
     String shared = reader.getAttribute("shared");
     String extendedReviewName = reader.getAttribute("extends");
 
     Review review = getReview(context);
     
     review.setName(name);
-    review.setTemplate("true".equals(template));
-    review.setActive("true".equals(active));
+    review.setStatus(ReviewStatus.valueOf(status.toUpperCase()));
     review.setShared("true".equals(shared));
 
     if (extendedReviewName != null)
@@ -102,16 +96,16 @@ class ReviewConverter extends AbstractConverter
     while (reader.hasMoreChildren())
     {
       reader.moveDown();
-      if ("items".equals(reader.getNodeName()))
+      if ("issues".equals(reader.getNodeName()))
       {
-        List<Issue> items = new ArrayList<Issue>();
+        List<Issue> issues = new ArrayList<Issue>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
-          items.add((Issue) context.convertAnother(items, Issue.class));
+          issues.add((Issue) context.convertAnother(issues, Issue.class));
           reader.moveUp();
         }
-        review.setItems(items);
+        review.setIssues(issues);
       }
       else if ("history".equals(reader.getNodeName()))
       {

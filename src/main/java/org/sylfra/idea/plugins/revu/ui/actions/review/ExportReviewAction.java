@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.DocumentAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
@@ -115,7 +116,7 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
       tfFile.getDocument().addDocumentListener(textFieldsListener);
 
       setOKActionEnabled(false);
-      setTitle(RevuBundle.message("settings.project.review.export.title"));
+      setTitle(RevuBundle.message("projectSettings.review.export.title"));
       init();
     }
 
@@ -142,7 +143,7 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
       if (validatedFile.equals(new File(review.getPath())))
       {
         validatedFile = null;
-        setErrorText(RevuBundle.message("settings.project.review.export.sameFile.text"));
+        setErrorText(RevuBundle.message("projectSettings.review.export.sameFile.text"));
         return;
       }
 
@@ -160,7 +161,7 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
       if (!parentDir.isDirectory())
       {
         validatedFile = null;
-        setErrorText(RevuBundle.message("settings.project.review.export.dirDoesntExist.text", parentDir.getPath()));
+        setErrorText(RevuBundle.message("projectSettings.review.export.dirDoesntExist.text", parentDir.getPath()));
         return;
       }
 
@@ -169,7 +170,7 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
 
     protected JComponent createCenterPanel()
     {
-      JLabel label = new JLabel(RevuBundle.message("settings.project.review.export.exportTo.label"));
+      JLabel label = new JLabel(RevuBundle.message("projectSettings.review.export.exportTo.label"));
       label.setLabelFor(tfFile);
 
       JButton bnBrowse = new JButton("...");
@@ -219,26 +220,8 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
     }
   }
 
-  @Override
-  public void update(AnActionEvent e)
+  protected boolean isEnabledForReview(@NotNull Review review)
   {
-    boolean enabled = false;
-
-    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
-    if (liReviews != null)
-    {
-      Review selectedReview = (Review) liReviews.getSelectedValue();
-      if ((selectedReview != null) && (!selectedReview.isEmbedded()))
-      {
-        enabled = true;
-      }
-    }
-    
-    e.getPresentation().setEnabled(enabled);
-  }
-
-  protected boolean isEnabledOnlyForNonEmbedded()
-  {
-    return true;
+    return !review.isEmbedded();
   }
 }

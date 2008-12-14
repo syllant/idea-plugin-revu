@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.ReviewBrowsingPane;
+import org.sylfra.idea.plugins.revu.ui.IssueBrowsingPane;
 import org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager;
 
 /**
@@ -18,13 +18,12 @@ public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction
   public void setSelected(AnActionEvent e, boolean state)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    ReviewBrowsingPane reviewBrowsingPane = retrieveReviewBrowsingForm(e);
+    IssueBrowsingPane issueBrowsingPane = retrieveReviewBrowsingForm(e);
 
-    if (reviewBrowsingPane != null)
+    if (issueBrowsingPane != null)
     {
       int orientation = getOrientation();
-      reviewBrowsingPane.getSplitPane().setOrientation(orientation);
-      reviewBrowsingPane.getSplitPane().setDividerLocation(0.5d);
+      issueBrowsingPane.getSplitPane().setOrientation(orientation);
 
       RevuWorkspaceSettingsComponent workspaceSettingsComponent =
         project.getComponent(RevuWorkspaceSettingsComponent.class);
@@ -36,12 +35,12 @@ public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction
 
   public boolean isSelected(AnActionEvent e)
   {
-    ReviewBrowsingPane reviewBrowsingPane = retrieveReviewBrowsingForm(e);
+    IssueBrowsingPane issueBrowsingPane = retrieveReviewBrowsingForm(e);
 
-    return ((reviewBrowsingPane != null) && (reviewBrowsingPane.getSplitPane().getOrientation() == getOrientation()));
+    return ((issueBrowsingPane != null) && (issueBrowsingPane.getSplitPane().getOrientation() == getOrientation()));
   }
 
-  private ReviewBrowsingPane retrieveReviewBrowsingForm(AnActionEvent e)
+  private IssueBrowsingPane retrieveReviewBrowsingForm(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
     if (project == null)

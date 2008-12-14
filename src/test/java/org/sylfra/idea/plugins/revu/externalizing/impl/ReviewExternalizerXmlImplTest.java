@@ -61,24 +61,24 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
       // Note: assertions are redundant but allow to debug errors more easily
 
       // Referential
-      assertEquals(review.getDataReferential().getItemPrioritiesByName(true),
-        sampleReview.getDataReferential().getItemPrioritiesByName(true));
+      assertEquals(review.getDataReferential().getIssuePrioritiesByName(true),
+        sampleReview.getDataReferential().getIssuePrioritiesByName(true));
       assertEquals(review.getDataReferential().getUsersByRole(true),
         sampleReview.getDataReferential().getUsersByRole(true));
-      assertEquals(review.getDataReferential().getItemPrioritiesByName(true),
-        sampleReview.getDataReferential().getItemPrioritiesByName(true));
+      assertEquals(review.getDataReferential().getIssuePrioritiesByName(true),
+        sampleReview.getDataReferential().getIssuePrioritiesByName(true));
       assertEquals(review.getDataReferential(),
         sampleReview.getDataReferential());
 
-      // Items
-      Map<VirtualFile,List<Issue>> actualItems = review.getItemsByFiles();
-      Map<VirtualFile, List<Issue>> expectedItems = sampleReview.getItemsByFiles();
-      assertEquals(actualItems.size(), expectedItems.size());
-      for (Map.Entry<VirtualFile, List<Issue>> entry : actualItems.entrySet())
+      // Issues
+      Map<VirtualFile,List<Issue>> actualIssues = review.getIssuesByFiles();
+      Map<VirtualFile, List<Issue>> expectedIssues = sampleReview.getIssuesByFiles();
+      assertEquals(actualIssues.size(), expectedIssues.size());
+      for (Map.Entry<VirtualFile, List<Issue>> entry : actualIssues.entrySet())
       {
-        assertEquals(entry.getValue(), expectedItems.get(entry.getKey()));
+        assertEquals(entry.getValue(), expectedIssues.get(entry.getKey()));
       }
-      assertEquals(actualItems, expectedItems);
+      assertEquals(actualIssues, expectedIssues);
 
       // Whole review
       assertEquals(review, sampleReview);
@@ -105,7 +105,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
       // XStream produces Unix line separators
       expected = expected.replaceAll("\\r\n", "\n");
 
-      // Items
+      // Issues
       assertEquals(actual, expected);
     }
     catch (RevuException e)
@@ -123,13 +123,12 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
 
     review.setName("Test review");
     review.setGoal("A test review. A test review. A test review. A test review. A test review.");
-    review.setActive(true);
+    review.setStatus(ReviewStatus.DRAFT);
     review.setShared(true);
-    review.setTemplate(false);
     review.setHistory(createHistory(referential, 0, 1));
 
-    // Items
-    review.setItems(Arrays.asList(createIssue(review, 1),
+    // Issues
+    review.setIssues(Arrays.asList(createIssue(review, 1),
       createIssue(review, 2)));
 
     // Users
@@ -143,13 +142,13 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     IssuePriority priority1 = new IssuePriority((byte) 1, "priority1");
     IssuePriority priority2 = new IssuePriority((byte) 2, "priority2");
     IssuePriority priority3 = new IssuePriority((byte) 3, "priority3");
-    referential.setItemPriorities(new HashSet<IssuePriority>(
+    referential.setIssuePriorities(new HashSet<IssuePriority>(
       Arrays.asList(priority1, priority2, priority3)));
 
     // Tags
     IssueTag tag1 = new IssueTag("tag1");
     IssueTag tag2 = new IssueTag("tag2");
-    referential.setItemTags(new HashSet<IssueTag>(
+    referential.setIssueTags(new HashSet<IssueTag>(
       Arrays.asList(tag1, tag2)));
 
     return review;
@@ -158,21 +157,21 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
   private Issue createIssue(Review review, int i)
   {
     DataReferential referential = review.getDataReferential();
-    Issue item = new Issue();
-    item.setReview(review);
+    Issue issue = new Issue();
+    issue.setReview(review);
 
-    item.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
-    item.setLineStart(i);
-    item.setLineEnd(i * i + 1);
-    item.setPriority(referential.getItemPriority("priority" + i % referential.getItemPrioritiesByName(true).size()));
-    item.setStatus(IssueStatus.TO_RESOLVE);
-    item.setDesc("Test item review " + i + ". Test item review " + i + ".");
-    item.setSummary("Test item review " + i + ".");
-    item.setHistory(createHistory(referential, i, i + 1));
+    issue.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
+    issue.setLineStart(i);
+    issue.setLineEnd(i * i + 1);
+    issue.setPriority(referential.getIssuePriority("priority" + i % referential.getIssuePrioritiesByName(true).size()));
+    issue.setStatus(IssueStatus.TO_RESOLVE);
+    issue.setDesc("Test issue review " + i + ". Test issue review " + i + ".");
+    issue.setSummary("Test issue review " + i + ".");
+    issue.setHistory(createHistory(referential, i, i + 1));
 
-    item.setTags(Arrays.asList(referential.getItemTag("tag" + i % referential.getItemTagsByName(true).size())));
+    issue.setTags(Arrays.asList(referential.getIssueTag("tag" + i % referential.getIssueTagsByName(true).size())));
 
-    return item;
+    return issue;
   }
 
   private History createHistory(DataReferential referential, int createdByNb, int lastUpdatedByNb)

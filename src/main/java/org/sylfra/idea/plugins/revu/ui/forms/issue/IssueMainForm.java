@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
@@ -20,10 +21,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -33,7 +31,6 @@ import java.util.List;
  */
 public class IssueMainForm extends AbstractIssueForm
 {
-  private Issue currentIssue;
   private final boolean createMode;
   private TagsPane tagsPane;
   private JPanel contentPane;
@@ -46,6 +43,9 @@ public class IssueMainForm extends AbstractIssueForm
   private JRadioButton rbLocationGlobal;
   private JRadioButton rbLocationLineRange;
   private JLabel lbSync;
+  private JLabel lbTags;
+  private JLabel lbReview;
+  private JPanel pnReview;
   private ButtonGroup bgLocation;
 
   public IssueMainForm(@NotNull Project project, boolean createMode)
@@ -55,32 +55,74 @@ public class IssueMainForm extends AbstractIssueForm
     configureUI();
   }
 
+  private void createUIComponents()
+  {
+    tagsPane = new TagsPane();
+  }
+
   private void configureUI()
   {
     RevuUtils.configureTextAreaAsStandardField(taDesc, taSummary);
 
-    RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+    ((CardLayout) pnReview.getLayout()).show(pnReview, createMode ? "combo" : "label");
 
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    cbReview.setEnabled(createMode);
-    cbReview.setModel(new ReviewComboBoxModel(buildComboItemsArray(reviewManager.getReviews(null, true,
-      false, appSettings.getLogin()), true)));
-    cbReview.setRenderer(new DefaultListCellRenderer()
+    if (createMode)
     {
-      public Component getListCellRendererComponent(JList list, Object value, int index,
-        boolean isSelected, boolean cellHasFocus)
+      cbReview.setModel(new ReviewComboBoxModel(project));
+      cbReview.setRenderer(new DefaultListCellRenderer()
       {
-        if (value == null)
+        public Component getListCellRendererComponent(JList list, Object value, int index,
+          boolean isSelected, boolean cellHasFocus)
         {
-          value = RevuBundle.message("general.selectComboValue.text");
+          String tooltip;
+          if (value == null)
+          {
+            tooltip = null;
+            value = RevuBundle.message("general.selectComboValue.text");
+          }
+          else
+          {
+            Review review = (Review) value;
+            tooltip = review.getPath();
+            value = review.getName();
+          }
+
+          JComponent result = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected,
+            cellHasFocus);
+
+          if (tooltip != null)
+          {
+            result.setToolTipText(tooltip);
+          }
+
+          return result;
         }
-        else
+      });
+
+      cbReview.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
         {
-          value = ((Review) value).getName();
+          Object selectedReview = cbReview.getSelectedItem();
+          if (selectedReview != null)
+          {
+            DataReferential referential = ((Review) selectedReview).getDataReferential();
+
+            cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
+              new TreeSet<IssuePriority>(referential.getIssuePrioritiesByName(true).values()), true)));
+
+            tagsPane.setEnabled(true);
+          }
+          else
+          {
+            // "[Select a value]" String is selected
+            cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
+
+            tagsPane.setEnabled(false);
+          }
         }
-        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-      }
-    });
+      });
+    }
 
     cbPriority.setRenderer(new DefaultListCellRenderer()
     {
@@ -89,7 +131,7 @@ public class IssueMainForm extends AbstractIssueForm
       {
         if (value == null)
         {
-          value = RevuBundle.message(cbReview.getSelectedItem() == null
+          value = RevuBundle.message(((createMode) && (cbReview.getSelectedItem() == null))
             ? "general.selectReviewBeforeFillingCombo.text" : "general.selectComboValue.text");
         }
         else
@@ -97,30 +139,6 @@ public class IssueMainForm extends AbstractIssueForm
           value = ((IssuePriority) value).getName();
         }
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-      }
-    });
-
-    cbReview.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        Object selectedReview = cbReview.getSelectedItem();
-        if (selectedReview instanceof Review)
-        {
-          DataReferential referential = ((Review) selectedReview).getDataReferential();
-
-          cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
-            new TreeSet<IssuePriority>(referential.getItemPrioritiesByName(true).values()), true)));
-
-          tagsPane.setEnabled(true);
-        }
-        else
-        {
-          // "[Select a value]" String is selected
-          cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
-
-          tagsPane.setEnabled(false);
-        }
       }
     });
 
@@ -147,14 +165,16 @@ public class IssueMainForm extends AbstractIssueForm
 
         RevuEditorHandler editorHandler = project.getComponent(RevuEditorHandler.class);
         currentIssue.setHash(editorHandler.buildNewHash(currentIssue));
-        currentIssue.getReview().fireItemUpdated(currentIssue);
+        currentIssue.getReview().fireIssueUpdated(currentIssue);
       }
     });
+
+    tagsPane.configureUI();
   }
 
   public JComponent getPreferredFocusedComponent()
   {
-    return taSummary;
+    return ((currentIssue == null) || (currentIssue.getReview() == null)) ? cbReview : taSummary;
   }
 
   @NotNull
@@ -165,39 +185,48 @@ public class IssueMainForm extends AbstractIssueForm
 
   protected void internalUpdateUI(@Nullable Issue data, boolean requestFocus)
   {
-    // This is not the standard behaviour used in other forms, but this one is not cancelable, so current review
-    // item may be modified at any time, don't need to manage a copy before applying changes
-    currentIssue = data;
+    super.internalUpdateUI(data, requestFocus);
 
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    if (createMode)
+    {
+      ReviewComboBoxModel reviewComboBoxModel = (ReviewComboBoxModel) cbReview.getModel();
+      reviewComboBoxModel.updateReviews();
 
-    Collection<Review> reviews = reviewManager.getReviews(true, false);
+      // Select default review if only one exists (but combo as 2 items with [Select ...])
+      Review defaultReview = ((data == null) || (data.getReview() == null))
+        ? (Review) ((reviewComboBoxModel.getSize() == 2) ? reviewComboBoxModel.getElementAt(1) : null)
+        : data.getReview();
 
-    Review defaultReview = ((data == null) || (data.getReview() == null))
-      ? ((reviews.size() == 1) ? reviews.iterator().next() : null)
-      : data.getReview();
-
-    cbReview.setSelectedItem(defaultReview);
+      cbReview.setSelectedItem(defaultReview);
+    }
+    else
+    {
+      if ((data != null) && (data.getReview() != null))
+      {
+        cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
+          new TreeSet<IssuePriority>(currentIssue.getReview().getDataReferential().getIssuePrioritiesByName(true).values()), true)));
+        lbReview.setText(RevuBundle.message("issueForm.main.review.text", data.getReview().getName(),
+          RevuUtils.buildReviewStatusLabel(data.getReview().getStatus())));
+      }
+    }
 
     taDesc.setText((data == null) ? "" : data.getDesc());
     taSummary.setText((data == null) ? "" : data.getSummary());
     cbPriority.setSelectedItem((data == null) ? null : data.getPriority());
     lbSync.setVisible((data != null) && (!isIssueSynchronized(data)));
     tagsPane.updateUI((data == null) ? null : data.getTags());
-    tagsPane.setEnabled(defaultReview != null);
+    tagsPane.setEnabled((!createMode) || (cbReview.getSelectedItem() != null));
 
     Issue.LocationType locationType = (data == null) ? null : data.getLocationType();
-    rbLocationFile.setEnabled(!Issue.LocationType.GLOBAL.equals(locationType));
-    rbLocationLineRange.setEnabled(!Issue.LocationType.GLOBAL.equals(locationType)
-      && !Issue.LocationType.FILE.equals(locationType));
     updateLocation(locationType);
   }
 
   protected void internalUpdateData(@NotNull Issue data)
   {
-    Review review = (Review) cbReview.getSelectedItem();
-
-    data.setReview(review);
+    if (createMode)
+    {
+      data.setReview((Review) cbReview.getSelectedItem());
+    }
 
     data.setDesc(taDesc.getText());
     data.setSummary(taSummary.getText());
@@ -209,10 +238,12 @@ public class IssueMainForm extends AbstractIssueForm
     {
       data.setFile(null);
       data.setLineStart(-1);
+      data.setLineEnd(-1);
     }
     else if (rbLocationFile.isSelected())
     {
       data.setLineStart(-1);
+      data.setLineEnd(-1);
     }
   }
 
@@ -228,7 +259,7 @@ public class IssueMainForm extends AbstractIssueForm
       return true;
     }
 
-    if (!checkEquals(cbReview.getSelectedItem(), data.getReview()))
+    if ((createMode) && (!checkEquals(cbReview.getSelectedItem(), data.getReview())))
     {
       return true;
     }
@@ -254,31 +285,37 @@ public class IssueMainForm extends AbstractIssueForm
   @Override
   protected void internalUpdateWriteAccess(@Nullable User user)
   {
-    // @TODO
-    RevuUtils.setWriteAccess((((currentIssue == null) || (currentIssue.getReview() == null))
-      || ((user != null) && (user.hasRole(User.Role.ADMIN)))), cbReview);
+    // @TODO handle status
+    boolean mayReview = (((createMode) || (user != null))
+      && ((currentIssue == null) || (currentIssue.getReview() == null)
+        || (IssueStatus.CLOSED != currentIssue.getStatus())));
+    RevuUtils.setWriteAccess(mayReview, cbPriority, taSummary, taDesc, rbLocationGlobal);
 
-    boolean mayReview = ((currentIssue == null) || (currentIssue.getReview() == null))
-      || (user != null) && (user.hasRole(User.Role.REVIEWER));
-    RevuUtils.setWriteAccess(mayReview, cbPriority,
-      rbLocationFile, rbLocationGlobal, rbLocationLineRange);
-    tagsPane.setEnabled(mayReview && (cbReview.getSelectedIndex() > 0));
+    Issue.LocationType locationType = (currentIssue == null) ? null : currentIssue.getLocationType();
+    rbLocationFile.setEnabled(mayReview && !Issue.LocationType.GLOBAL.equals(locationType));
+    rbLocationLineRange.setEnabled(mayReview && !Issue.LocationType.GLOBAL.equals(locationType)
+      && !Issue.LocationType.FILE.equals(locationType));
+
+    tagsPane.setEnabled(mayReview && ((!createMode) || (cbReview.getSelectedIndex() > 0)));
   }
 
   public void internalValidateInput()
   {
     updateRequiredError(taSummary, "".equals(taSummary.getText().trim()));
-    updateRequiredError(cbReview, (!(cbReview.getSelectedItem() instanceof Review)));
-
-    // Check is user is declared in selected review
-    if (cbReview.getSelectedItem() instanceof Review)
+    if (createMode)
     {
-      Review review = (Review) cbReview.getSelectedItem();
+      updateRequiredError(cbReview, (!(cbReview.getSelectedItem() instanceof Review)));
 
-      RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
-      User user = review.getDataReferential().getUser(appSettings.getLogin(), true);
+      // Check is user is declared in selected review
+      if (cbReview.getSelectedItem() instanceof Review)
+      {
+        Review review = (Review) cbReview.getSelectedItem();
 
-      updateRequiredError(cbReview, user == null);
+        RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+        User user = review.getDataReferential().getUser(appSettings.getLogin(), true);
+
+        updateRequiredError(cbReview, user == null);
+      }
     }
   }
 
@@ -302,7 +339,7 @@ public class IssueMainForm extends AbstractIssueForm
     {
       case GLOBAL:
         rbLocationGlobal.setSelected(true);
-        locationPath = RevuBundle.message("form.issue.main.location.global.text");
+        locationPath = RevuBundle.message("issueForm.main.location.global.text");
         break;
 
       case FILE:
@@ -310,7 +347,7 @@ public class IssueMainForm extends AbstractIssueForm
         filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
         locationPath = (currentIssue.getVcsRev() == null)
           ? filePath
-          : RevuBundle.message("form.issue.main.location.pathWithVcsRev.text", filePath,
+          : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
           currentIssue.getVcsRev());
         break;
 
@@ -319,41 +356,119 @@ public class IssueMainForm extends AbstractIssueForm
         filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
         String filePathWithVcsRev = (currentIssue.getVcsRev() == null)
           ? filePath
-          : RevuBundle.message("form.issue.main.location.pathWithVcsRev.text", filePath,
+          : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
           currentIssue.getVcsRev());
-        locationPath = RevuBundle.message("form.issue.main.location.range.path.text",
+        locationPath = RevuBundle.message("issueForm.main.location.range.path.text",
           filePathWithVcsRev, (currentIssue.getLineStart() + 1), (currentIssue.getLineEnd() + 1));
     }
 
     lbLocation.setText(locationPath);
   }
 
-  private void createUIComponents()
+  private static class ReviewComboBoxModel extends AbstractListModel implements IReviewListener, ComboBoxModel
   {
-    tagsPane = new TagsPane();
-  }
-
-  private class ReviewComboBoxModel extends DefaultComboBoxModel implements IReviewListener
-  {
-    private ReviewComboBoxModel(Object[] objects)
+    private final static Comparator<Review> REVIEW_COMPARATOR = new Comparator<Review>()
     {
-      super(objects);
+      /**
+       * {@inheritDoc}
+       */
+      public int compare(Review r1, Review r2)
+      {
+        return (r1 == null) ? -1 : ((r2 == null) ? 1 : r1.getName().compareTo(r2.getName()));
+      }
+    };
+    
+    private final Project project;
+    private final List<Review> reviews;
+    private Review selectedReview;
+
+    private ReviewComboBoxModel(@NotNull Project project)
+    {
+      this.project = project;
+      reviews = new ArrayList<Review>(1);
+      reviews.add(null);
+
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       reviewManager.addReviewListener(this);
     }
 
+    public int getSize()
+    {
+      return reviews.size();
+    }
+
+    public Object getElementAt(int index)
+    {
+      return reviews.get(index);
+    }
+
+    public void setSelectedItem(Object item)
+    {
+      if (((selectedReview != null) && !selectedReview.equals(item)) || ((selectedReview == null) && (item != null)))
+      {
+        selectedReview = (Review) item;
+        fireContentsChanged(this, -1, -1);
+      }
+    }
+
+    public Object getSelectedItem()
+    {
+      return selectedReview;
+    }
+
+    public void updateReviews()
+    {
+      reviews.clear();
+      reviews.add(null);
+      reviews.addAll(project.getComponent(ReviewManager.class).getReviews(RevuUtils.getCurrentUserLogin(), true));
+      Collections.sort(reviews, REVIEW_COMPARATOR);
+    }
+
     public void reviewAdded(Review review)
     {
-      super.addElement(review);
+      if (!RevuUtils.isActive(review))
+      {
+        return;
+      }
+
+      reviews.add(review);
+      Collections.sort(reviews, REVIEW_COMPARATOR);
+
+      int index = reviews.indexOf(review);
+      fireIntervalAdded(this, index, index);
     }
 
     public void reviewChanged(Review review)
     {
+      int index = reviews.indexOf(review);
+      if (index == -1)
+      {
+        if (RevuUtils.isActive(review))
+        {
+          reviewAdded(review);
+        }
+      }
+      else
+      {
+        if (!RevuUtils.isActive(review))
+        {
+          reviewDeleted(review);
+        }
+        else
+        {
+          fireContentsChanged(this, index, index);
+        }
+      }
     }
 
     public void reviewDeleted(Review review)
     {
-      super.removeElement(review);
+      int index = reviews.indexOf(review);
+      if (index > -1)
+      {
+        reviews.remove(review);
+        fireIntervalRemoved(this, index, index);
+      }
     }
   }
 
@@ -361,7 +476,7 @@ public class IssueMainForm extends AbstractIssueForm
   {
     private JPanel contentPane;
     private ElementsChooserPopup<IssueTag> popup;
-    private final JPanel pnTags;
+    private JPanel pnTags;
     private final SortedList<IssueTag> selectedTags;
     private AnAction editAction;
     private JComponent toolbar;
@@ -369,16 +484,28 @@ public class IssueMainForm extends AbstractIssueForm
     public TagsPane()
     {
       super(new FlowLayout(FlowLayout.LEFT, 0, 0));
+      selectedTags = new SortedList<IssueTag>(new Comparator<IssueTag>()
+      {
+        public int compare(IssueTag o1, IssueTag o2)
+        {
+          return o1.getName().compareTo(o2.getName());
+        }
+      });
+    }
 
+    public void configureUI()
+    {
       pnTags = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-      editAction = new AnAction(null, RevuBundle.message("form.issue.editTags.tip"),
+      editAction = new AnAction(RevuBundle.message("issueForm.editTags.tip"), null,
         RevuIconProvider.getIcon(RevuIconProvider.IconRef.EDIT_TAGS))
       {
         @Override
         public void actionPerformed(AnActionEvent e)
         {
-          List<IssueTag> tags = ((Review) cbReview.getSelectedItem()).getDataReferential().getItemTags(true);
+          Review review = (createMode) ? (Review) cbReview.getSelectedItem() : currentIssue.getReview();
+
+          List<IssueTag> tags = review.getDataReferential().getIssueTags(true);
           showEditPopup(tags);
         }
 
@@ -388,23 +515,31 @@ public class IssueMainForm extends AbstractIssueForm
           e.getPresentation().setEnabled(getTemplatePresentation().isEnabled());
         }
       };
+      // Should use #registerCustomShortcutSet ?
+      getActionMap().put(editAction, new AbstractAction()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          if (editAction.getTemplatePresentation().isEnabled())
+          {
+            editAction.actionPerformed(null);
+          }
+        }
+      });
+      getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+        KeyStroke.getKeyStroke(lbTags.getDisplayedMnemonic(), KeyEvent.ALT_MASK), editAction);
+
 
       DefaultActionGroup actionGroup = new DefaultActionGroup();
       actionGroup.add(editAction);
       toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
+      lbTags.setLabelFor(toolbar.getComponent(0));
 
       add(pnTags);
       add(toolbar);
 
-      selectedTags = new SortedList<IssueTag>(new Comparator<IssueTag>()
-      {
-        public int compare(IssueTag o1, IssueTag o2)
-        {
-          return o1.getName().compareTo(o2.getName());
-        }
-      });
-
-      popup = new ElementsChooserPopup<IssueTag>(RevuBundle.message("form.issue.tagsPopup.title"),
+      popup = new ElementsChooserPopup<IssueTag>(project, RevuBundle.message("issueForm.tagsPopup.title"),
+        RevuPlugin.PLUGIN_NAME + ".TagsChooser",
         new ElementsChooserPopup.IPopupListener<IssueTag>()
         {
           public void apply(@NotNull List<IssueTag> markedElements)
@@ -446,6 +581,8 @@ public class IssueMainForm extends AbstractIssueForm
           pnTags.add(new ItemTagPanel(tag));
         }
       }
+
+      pnTags.revalidate();
     }
 
     public List<IssueTag> getSelectedTags()

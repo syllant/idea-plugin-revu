@@ -57,7 +57,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     fullySynchronized = tmp;
   }
 
-  public void addItem(@NotNull Issue issue, @NotNull RangeMarker marker)
+  public void addIssue(@NotNull Issue issue, @NotNull RangeMarker marker)
   {
     issues.put(issue, marker);
     fullySynchronized = ((fullySynchronized) && (revuEditorHandler.isSynchronized(issue, marker)));
@@ -68,7 +68,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     return issues.isEmpty();
   }
 
-  public void removeItem(Issue issue)
+  public void removeIssue(Issue issue)
   {
     issues.remove(issue);
 
@@ -103,14 +103,14 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     StringBuilder buffer = new StringBuilder("<html><body>");
     for (Iterator<Issue> it = issues.keySet().iterator(); it.hasNext();)
     {
-      Issue item = it.next();
+      Issue issue = it.next();
       buffer.append("<b>")
-        .append(item.getHistory().getCreatedBy().getDisplayName())
+        .append(issue.getHistory().getCreatedBy().getDisplayName())
         .append("</b> - <i>")
         .append(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
-          item.getHistory().getCreatedOn()))
+          issue.getHistory().getCreatedOn()))
         .append("</i><br/>")
-        .append(item.getSummary());
+        .append(issue.getSummary());
       if (it.hasNext())
       {
         buffer.append("<hr/>");

@@ -14,9 +14,9 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialForm<IssuePriority>
+public class IssuePriorityReferentialForm extends AbstractNameHolderReferentialForm<IssuePriority>
 {
-  public ItemPriorityReferentialForm(Project project)
+  public IssuePriorityReferentialForm(Project project)
   {
     super(project);
   }
@@ -28,15 +28,15 @@ public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialFo
 
   protected AbstractReferentialDetailForm<IssuePriority> buildNestedFormForDialog()
   {
-    return new ItemPriorityDetailForm(table);
+    return new IssuePriorityDetailForm(table);
   }
 
   @Nls
   protected String getTitleKeyForDialog(boolean addMode)
   {
     return addMode
-      ? "settings.project.review.referential.itemPriority.addDialog.title"
-      : "settings.project.review.referential.itemPriority.editDialog.title";
+      ? "projectSettings.review.referential.issuePriority.addDialog.title"
+      : "projectSettings.review.referential.issuePriority.editDialog.title";
   }
 
   @NotNull
@@ -63,7 +63,7 @@ public class ItemPriorityReferentialForm extends AbstractNameHolderReferentialFo
 //  {
 //    if (data != null)
 //    {
-//      Collections.sort(data.getItems());
+//      Collections.sort(data.getIssues());
 //    }
 //    super.internalUpdateUI(data);
 //  }

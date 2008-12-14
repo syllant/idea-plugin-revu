@@ -29,6 +29,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
 {
   private static final Logger LOGGER = Logger
     .getInstance(ReviewExternalizerXmlImpl.class.getName());
+
   static final String CONTEXT_KEY_PROJECT = "project";
   static final String CONTEXT_KEY_REVIEW = "review";
 
@@ -156,6 +157,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       xstream.registerConverter(new HistoryConverter());
       xstream.registerConverter(new ReviewConverter());
       xstream.registerConverter(new IssueConverter());
+      xstream.registerConverter(new IssueNoteConverter());
       xstream.registerConverter(new IssueTagConverter());
       xstream.registerConverter(new ReviewPriorityConverter());
       xstream.registerConverter(new DataReferentialConverter());

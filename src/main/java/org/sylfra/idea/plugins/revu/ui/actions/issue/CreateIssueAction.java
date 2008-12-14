@@ -9,12 +9,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
-import org.sylfra.idea.plugins.revu.model.*;
+import org.sylfra.idea.plugins.revu.model.Issue;
+import org.sylfra.idea.plugins.revu.model.IssueStatus;
+import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssueDialog;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -34,58 +37,78 @@ public class CreateIssueAction extends AbstractIssueAction
       return;
     }
 
-    Issue item = new Issue();
-    item.setFile(vFile);
+    Issue issue = new Issue();
+    issue.setFile(vFile);
     if (editor != null)
     {
       Document document = editor.getDocument();
       int lineStart = document.getLineNumber(editor.getSelectionModel().getSelectionStart());
       int lineEnd = document.getLineNumber(editor.getSelectionModel().getSelectionEnd());
 
-      item.setLineStart(lineStart);
-      item.setLineEnd(lineEnd);
+      issue.setLineStart(lineStart);
+      issue.setLineEnd(lineEnd);
       CharSequence fragment = document.getCharsSequence().subSequence(document.getLineStartOffset(lineStart),
         document.getLineEndOffset(lineEnd));
-      item.setHash(fragment.toString().hashCode());
+      issue.setHash(fragment.toString().hashCode());
     }
-    item.setStatus(IssueStatus.TO_RESOLVE);
+    issue.setStatus(IssueStatus.TO_RESOLVE);
 
     IssueDialog dialog = new IssueDialog(project);
-    dialog.show(item, true);
+    dialog.show(issue, true);
     if (dialog.isOK())
     {
-      dialog.updateData(item);
+      dialog.updateData(issue);
 
-      Review review = item.getReview();
+      Review review = issue.getReview();
 
       assert (RevuUtils.getCurrentUserLogin() != null) : "Login should be set";
 
-      User user = review.getDataReferential().getUser(RevuUtils.getCurrentUserLogin(), true);
-      assert (user != null) : "User should be declared in review";
-
-      History history = new History();
-      Date now = new Date();
-      history.setCreatedBy(user);
-      history.setCreatedOn(now);
-      history.setLastUpdatedBy(user);
-      history.setLastUpdatedOn(now);
-      item.setHistory(history);
+      issue.setHistory(RevuUtils.buildHistory(review));
 
       if (RevuVcsUtils.fileIsModifiedFromVcs(project, vFile))
       {
-        item.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
+        issue.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
       }
 
-      VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, item.getFile());
+      VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, issue.getFile());
       if (vcsRev != null)
       {
-        item.setVcsRev(vcsRev.toString());
+        issue.setVcsRev(vcsRev.toString());
       }
 
-      review.addItem(item);
+      review.addIssue(issue);
 
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       reviewManager.save(review);
     }
+  }
+
+  @Override
+  public void update(AnActionEvent e)
+  {
+    boolean enabled = false;
+    Project project = e.getData(DataKeys.PROJECT);
+
+    if (project != null)
+    {
+      List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+      for (Review review : reviews)
+      {
+        User user = RevuUtils.getCurrentUser(review);
+        if (user == null)
+        {
+          continue;
+        }
+
+        boolean mayReview = RevuUtils.isActive(review) && user.hasRole(User.Role.REVIEWER);
+        if ((mayReview || (user.hasRole(User.Role.ADMIN))))
+        {
+          enabled = true;
+          break;
+        }
+      }
+    }
+
+    e.getPresentation().setEnabled(enabled);
   }
 }

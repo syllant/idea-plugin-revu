@@ -11,12 +11,19 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 abstract class AbstractConverter implements Converter
 {
+  private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+
   protected final Logger logger;
 
   protected AbstractConverter()
@@ -24,20 +31,49 @@ abstract class AbstractConverter implements Converter
     logger = Logger.getLogger(getClass());
   }
 
+  @NotNull
   protected Review getReview(DataHolder dataHolder)
   {
     return (Review) dataHolder.get(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW);
   }
 
+  @NotNull
   protected Project getProject(DataHolder dataHolder)
   {
     return (Project) dataHolder.get(ReviewExternalizerXmlImpl.CONTEXT_KEY_PROJECT);
   }
 
+  @NotNull
   protected User retrieveUser(@NotNull UnmarshallingContext context, @Nullable String login)
   {
     Review review = getReview(context);
 
     return RevuUtils.getNonNullUser(review.getDataReferential(), login);
+  }
+
+  @NotNull
+  protected String formatDate(@Nullable Date value)
+  {
+    synchronized (DATE_FORMATTER)
+    {
+      return DATE_FORMATTER.format(value == null ? new Date() : value);
+    }
+  }
+
+  @NotNull
+  protected Date parseDate(@NotNull String value)
+  {
+    try
+    {
+      synchronized (DATE_FORMATTER)
+      {
+        return DATE_FORMATTER.parse(value);
+      }
+    }
+    catch (ParseException e)
+    {
+      logger.warn("Found bad date: " + value + ". Will use current date.");
+      return new Date();
+    }
   }
 }

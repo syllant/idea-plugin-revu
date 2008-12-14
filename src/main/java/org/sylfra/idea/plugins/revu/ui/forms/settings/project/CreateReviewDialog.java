@@ -1,6 +1,5 @@
 package org.sylfra.idea.plugins.revu.ui.forms.settings.project;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileTextField;
 import com.intellij.openapi.project.Project;
@@ -14,8 +13,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
-import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarMessage;
 import org.sylfra.idea.plugins.revu.utils.ReviewFileChooser;
@@ -137,8 +135,8 @@ public class CreateReviewDialog extends DialogWrapper
 
     setOKActionEnabled(!createMode);
     setTitle(RevuBundle.message(createMode
-      ? "settings.project.review.importDialog.create.title"
-      : "settings.project.review.importDialog.update.title"));
+      ? "projectSettings.review.importDialog.create.title"
+      : "projectSettings.review.importDialog.update.title"));
 
     init();
     pack();
@@ -216,11 +214,9 @@ public class CreateReviewDialog extends DialogWrapper
     currentReview = review;
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    RevuAppSettings appSettings =
-      ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState();
-
     java.util.List<Review> reviews = new ArrayList<Review>(
-      reviewManager.getReviews(currentReviews, true, null, appSettings.getLogin()));
+      reviewManager.getReviews(currentReviews, null, ReviewStatus.FIXING, ReviewStatus.REVIEWING,
+        ReviewStatus._TEMPLATE));
 
     CollectionComboBoxModel cbModel = new CollectionComboBoxModel(reviews, reviews.get(0));
 
@@ -239,18 +235,22 @@ public class CreateReviewDialog extends DialogWrapper
     if (currentReview != null)
     {
       // Cyclic link
-      try
+      Review importedReview = getImportedReview();
+      if (importedReview != null)
       {
-        reviewManager.checkCyclicLink(currentReview, getImportedReview());
-      }
-      catch (RevuException exception)
+        try
       {
-        String errorTitle = RevuBundle.message("friendlyError.externalizing.cyclicReview.title.text");
-        setErrorText(errorTitle);
+        reviewManager.checkCyclicLink(currentReview, importedReview);
+        }
+        catch (RevuException exception)
+        {
+          String errorTitle = RevuBundle.message("friendlyError.externalizing.cyclicReview.title.text");
+          setErrorText(errorTitle);
 
-        StatusBarComponent.showMessageInPopup(project, (new StatusBarMessage(StatusBarMessage.Type.ERROR, errorTitle,
-          exception.getMessage())), false);
-        return;
+          StatusBarComponent.showMessageInPopup(project, (new StatusBarMessage(StatusBarMessage.Type.ERROR, errorTitle,
+            exception.getMessage())), false);
+          return;
+        }
       }
     }
     // Creation
@@ -259,19 +259,21 @@ public class CreateReviewDialog extends DialogWrapper
       // Name already exists
       if (reviewManager.getReviewByName(tfName.getText()) != null)
       {
-        setErrorText(RevuBundle.message("settings.project.review.importDialog.nameAlreadyExists.text"));
+        setErrorText(RevuBundle.message("projectSettings.review.importDialog.nameAlreadyExists.text"));
         return;
       }
     }
 
     String fileName = RevuUtils.buildFileNameFromReviewName(getReviewName());
-    File file = new File(fileTextField.getSelectedFile().getPath(), fileName);
+    VirtualFile vFile = fileTextField.getSelectedFile();
+
+    // @TODO check vFile is null ?
+    File file = new File(vFile.getPath(), fileName);
     currentPath = RevuVfsUtils.buildAbsolutePath(file);
     if (file.exists())
     {
-      // Don't provide path as msg arg since error label height is fixed and is not appropriate for
-      // 2 lines
-      setErrorText(RevuBundle.message("settings.project.review.fileAlreadyExists.text"));
+      // Don't provide path as msg arg since error label height is fixed and is not appropriate for 2 lines
+      setErrorText(RevuBundle.message("projectSettings.review.fileAlreadyExists.text"));
       return;
     }
 

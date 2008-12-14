@@ -3,8 +3,10 @@ package org.sylfra.idea.plugins.revu;
 import com.intellij.CommonBundle;
 import com.intellij.reference.SoftReference;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
+import javax.swing.*;
 import java.lang.ref.Reference;
 import java.util.ResourceBundle;
 
@@ -60,5 +62,25 @@ public class RevuBundle
       pluginBundle = new SoftReference<ResourceBundle>(bundle);
     }
     return bundle;
+  }
+
+  public static void assignWithMnemonic(@NotNull String text, @NotNull JLabel label)
+  {
+    int mnemonicIndex = text.indexOf('\u001b');
+    if (mnemonicIndex > -1)
+    {
+      text = text.substring(0, mnemonicIndex) + text.substring(mnemonicIndex + 1);
+    }
+
+    label.setText(text);
+    if (mnemonicIndex != -1)
+    {
+      label.setDisplayedMnemonic(text.charAt(mnemonicIndex));
+    }
+    else
+    {
+      label.setDisplayedMnemonic(0);
+    }
+    label.setDisplayedMnemonicIndex(mnemonicIndex);
   }
 }

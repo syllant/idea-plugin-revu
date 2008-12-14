@@ -65,7 +65,6 @@ public class StatusBarPopup extends DialogWrapper
     setOKButtonText(RevuBundle.message("statusPopup.clearnclose.text"));
     setCancelButtonText(RevuBundle.message("statusPopup.close.text"));
     getContentPane().setMinimumSize(new Dimension(400, 300));
-    pack();
   }
 
   @Override
@@ -90,6 +89,7 @@ public class StatusBarPopup extends DialogWrapper
   {
     this.messages = messages;
     update(0);
+    pack();
     super.show();
   }
 

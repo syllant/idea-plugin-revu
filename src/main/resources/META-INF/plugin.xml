@@ -9,8 +9,7 @@
   Team Code Reviewer for Intellij IDEA
 </html>
     ]]></description>
-  <tag>xml</tag>
-  <version>1.1</version>
+  <version>1.0-beta</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="sylfradev@yahoo.fr"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
@@ -85,7 +84,7 @@
 
     <action id="revu.ShowProjectSettings"
             class="org.sylfra.idea.plugins.revu.ui.actions.ShowProjectSettingsAction"
-            text="Show project settings"
+            text="Show Project Settings"
             icon="/general/projectSettings.png"/>
 
     <!-- Review -->
@@ -95,47 +94,47 @@
             icon="/actions/editSource.png"/>
     <action id="revu.SaveReview"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.SaveReviewAction"
-            text="Save review"
+            text="Save Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/save.png"/>
     <action id="revu.CreateReview"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.PrepareCreateReviewAction"
-            text="Create review"
+            text="Create Review"
             icon="/general/add.png"/>
     <action id="revu.RemoveReview"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.RemoveReviewAction"
-            text="Delete review"
+            text="Delete Review"
             icon="/general/remove.png"/>
     <action id="revu.ImportReview"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.ImportReviewAction"
-            text="Import review"
+            text="Import Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/importReview.png"/>
     <action id="revu.ExportReview"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.ExportReviewAction"
-            text="Export review"
+            text="Export Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/exportReview.png"/>
     <action id="revu.SplitReviewBrowsingFormHorizontally"
             class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
-            text="Horizontal split"
+            text="Split Horizontally"
             icon="/actions/splitHorizontally.png"/>
     <action id="revu.SplitReviewBrowsingFormVertically"
             class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
-            text="Vertical split"
+            text="Split Vertically"
             icon="/actions/splitVertically.png"/>
 
     <!-- Issue -->
     <action id="revu.CreateIssue"
             class="org.sylfra.idea.plugins.revu.ui.actions.issue.CreateIssueAction"
-            text="Add issue"
+            text="Add Issue"
             icon="/general/add.png">
       <keyboard-shortcut first-keystroke="alt r" keymap="$default"/>
     </action>
     <action id="revu.ShowUpdateIssuePopup"
             class="org.sylfra.idea.plugins.revu.ui.actions.issue.ShowUpdateIssuePopupAction"
-            text="Update issue"
+            text="Update Issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/editIssue.png"/>
     <action id="revu.RemoveIssue"
             class="org.sylfra.idea.plugins.revu.ui.actions.issue.RemoveIssueAction"
-            text="Remove issue"
+            text="Remove Issue"
             icon="/general/remove.png"/>
 
     <!-- Source -->

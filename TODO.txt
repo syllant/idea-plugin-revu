@@ -1,38 +1,25 @@
+
 1.0
-- review status : created, reviewing, fixing, verifying, closed
 
-- issue assignedTo (multiple)
-
-- issue -> issue
-- history panel finition
-- icon
-  - template/share icon
-
-- changes on referential -> change on existing items
-
-- notes management
-
-- navigation popup in gutter
-
-- tool preferred size
-- IPR setting : review default dir => new tab in project settings !
-- IWS setting : see issues not assigned to me
-- permissions
-  - reviewers/authors / creation
-
+- multi-gutter
 - default review
   - finalize referential
 
-- history
-  - review modified
-  - issue modified/added/deleted
-
+- gutter tooltip
 - doc
 
 - tests
   - no VCS
-
+  - global issues
+  - user
+  
+cosmetics :
+  - combo selection using keyboard
+  - changes on referential -> change on existing issues
+  - add recipients tab in create issue dialog
+  
 2.0
+- navigation popup in gutter
 - assign files
   - from VCS changes
 - colored tags
@@ -44,6 +31,6 @@
 - review merge UI
 - export CSV
 - create item from intention
-- option do display items in tree instead of table
+- option do display issues in tree instead of table
   -> grouped by files/packages/modules
 - review XML inspections

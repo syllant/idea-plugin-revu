@@ -4,13 +4,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
+import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractNameHolderReferentialForm<T extends IRevuNamedHolderEntity<T>> 
+public abstract class AbstractNameHolderReferentialForm<T extends IRevuUniqueNameHolderEntity<T>>
   extends AbstractReferentialForm<T>
 {
   protected AbstractNameHolderReferentialForm(Project project)
@@ -53,7 +53,7 @@ public abstract class AbstractNameHolderReferentialForm<T extends IRevuNamedHold
     return new ReferentialColumnInfo[]
       {
         new ReferentialColumnInfo<T, String>(RevuBundle.message(
-          "settings.project.review.referential.namedHolder.table.name.title"))
+          "projectSettings.review.referential.namedHolder.table.name.title"))
         {
           public String valueOf(T data)
           {

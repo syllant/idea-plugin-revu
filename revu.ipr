@@ -905,6 +905,7 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/idea/8.0/idea-8.0-sources.jar!/" />
+        <root url="intellijad://intellijad" />
       </SOURCES>
     </library>
     <library name="Maven: com.intellij.idea:bootstrap:8.0">
@@ -989,6 +990,9 @@
     <outputDirectory />
     <properties />
     <groups />
+  </component>
+  <component name="uidesigner-configuration">
+    <option name="DEFAULT_LAYOUT_MANAGER" value="BorderLayout" />
   </component>
   <UsedPathMacros>
     <macro name="MAVEN_REPOSITORY" />

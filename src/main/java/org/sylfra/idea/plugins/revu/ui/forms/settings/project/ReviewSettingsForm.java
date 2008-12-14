@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
@@ -15,6 +16,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.Refere
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
@@ -28,17 +30,17 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
 {
   private final List<Review> editedReviews;
   private final Project project;
-  private HistoryForm historyForm;
+  private HistoryForm<Review> historyForm;
   private JTextField tfName;
   private JPanel contentPane;
-  private JCheckBox ckActive;
   private JCheckBox ckShare;
   private ReferentialTabbedPane referentialForm;
-  private JCheckBox ckTemplate;
   private JLabel lbExtends;
   private JButton bnImport;
   private JLabel lbFile;
-  private JTextPane tpGoal;
+  private JTextArea taGoal;
+  private JComboBox cbStatus;
+  private JTabbedPane tabbedPane;
   private Review extendedReview;
 
   public ReviewSettingsForm(@NotNull final Project project, @NotNull List<Review> editedReviews)
@@ -49,8 +51,16 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     configureUI(project);
   }
 
+  private void createUIComponents()
+  {
+    referentialForm = new ReferentialTabbedPane(project);
+    cbStatus = new JComboBox(ReviewStatus.values());
+  }
+
   private void configureUI(final Project project)
   {
+    RevuUtils.configureTextAreaAsStandardField(taGoal);
+
     ckShare.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -58,8 +68,8 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
         if ((ckShare.isSelected()) && (extendedReview != null) && (!extendedReview.isShared()))
         {
           int result = Messages.showOkCancelDialog(ckShare,
-            RevuBundle.message("settings.project.review.shareWithPrivateLink.text", extendedReview.getName()),
-            RevuBundle.message("settings.project.confirmRemoveReview.title"),
+            RevuBundle.message("projectSettings.review.shareWithPrivateLink.text", extendedReview.getName()),
+            RevuBundle.message("projectSettings.confirmRemoveReview.title"),
             Messages.getWarningIcon());
           if (result == DialogWrapper.OK_EXIT_CODE)
           {
@@ -111,6 +121,17 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
         }
       }
     });
+
+    cbStatus.setRenderer(new DefaultListCellRenderer()
+    {
+      @Override
+      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+        boolean cellHasFocus)
+      {
+        value = RevuUtils.buildReviewStatusLabel((ReviewStatus) value);
+        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      }
+    });
   }
 
   @Override
@@ -132,12 +153,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
       return true;
     }
 
-    if (!checkEquals(ckTemplate.isSelected(), data.isTemplate()))
-    {
-      return true;
-    }
-
-    if (!checkEquals(ckActive.isSelected(), data.isActive()))
+    if (!checkEquals(cbStatus.getSelectedItem(), data.getStatus()))
     {
       return true;
     }
@@ -162,7 +178,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
       && (!getEnclosingReview().isEmbedded())
       && (user != null)
       && (user.hasRole(User.Role.ADMIN));
-    RevuUtils.setWriteAccess(canWrite, tfName, ckTemplate, ckActive, ckShare, bnImport);
+    RevuUtils.setWriteAccess(canWrite, tfName, taGoal, cbStatus, ckShare, bnImport);
   }
 
   protected void internalValidateInput()
@@ -170,21 +186,24 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     updateRequiredError(tfName, "".equals(tfName.getText().trim()));
     updateError(referentialForm.getContentPane(), !referentialForm.validateInput(), null);
 
+    updateTabIcons(tabbedPane);
+
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     Review review = reviewManager.getReviewByName(tfName.getText());
     boolean nameAlreadyExists = ((review != null) && (getEnclosingReview() != null)
       && (!review.getPath().equals(getEnclosingReview().getPath())));
     updateError(tfName, nameAlreadyExists,
-      RevuBundle.message("settings.project.review.importDialog.nameAlreadyExists.text"));
+      RevuBundle.message("projectSettings.review.importDialog.nameAlreadyExists.text"));
   }
 
   protected void internalUpdateUI(Review data, boolean requestFocus)
   {
+    updateTabIcons(tabbedPane);
+
     tfName.setText((data == null) ? "" : data.getName());
-    tpGoal.setText((data == null) ? "" : data.getGoal());
+    taGoal.setText((data == null) ? "" : data.getGoal());
     lbFile.setText((data == null) ? "" : (data.getPath() == null) ? "" : data.getPath());
-    ckTemplate.setSelected((data != null) && data.isTemplate());
-    ckActive.setSelected((data != null) && data.isActive());
+    cbStatus.setSelectedItem((data == null) ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
 
     extendedReview = (data == null) ? null : data.getExtendedReview();
@@ -197,31 +216,31 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     else
     {
       lbExtends.setVisible(true);
-      lbExtends.setText(RevuBundle.message("settings.project.review.referential.extends.text",
+      lbExtends.setText(RevuBundle.message("projectSettings.review.referential.extends.text",
         data.getExtendedReview().getName()));
     }
     bnImport.setText(RevuBundle.message(noExtendedReview
-      ? "settings.project.review.referential.import.text"
-      : "settings.project.review.referential.deleteLink.text"));
+      ? "projectSettings.review.referential.import.text"
+      : "projectSettings.review.referential.deleteLink.text"));
 
     referentialForm.updateUI(getEnclosingReview(), (data == null) ? null : data.getDataReferential(), true);
+
+    historyForm.updateUI(getEnclosingReview(), data, false);
   }
 
   protected void internalUpdateData(@NotNull Review data)
   {
     data.setName(tfName.getText());
-    data.setGoal(tpGoal.getText());
+    data.setGoal(taGoal.getText());
     data.setPath(lbFile.getText());
-    data.setTemplate(ckTemplate.isSelected());
-    data.setActive(ckActive.isSelected());
+    data.setStatus((ReviewStatus) cbStatus.getSelectedItem());
     data.setShared(ckShare.isSelected());
 
     data.setExtendedReview(extendedReview);
 
     referentialForm.updateData(data.getDataReferential());
-    historyForm.updateData(data);
 
-    data.getHistory().setLastUpdatedBy(data.getDataReferential().getUser(RevuUtils.getCurrentUserLogin(), true));
+    data.getHistory().setLastUpdatedBy(RevuUtils.getCurrentUser(data));
     data.getHistory().setLastUpdatedOn(new Date());
   }
 
@@ -235,10 +254,4 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
   {
     return contentPane;
   }
-
-  private void createUIComponents()
-  {
-    referentialForm = new ReferentialTabbedPane(project);
-  }
-
 }

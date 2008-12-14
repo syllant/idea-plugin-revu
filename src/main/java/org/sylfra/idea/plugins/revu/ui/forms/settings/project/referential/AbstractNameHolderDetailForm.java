@@ -4,7 +4,7 @@ import com.intellij.ui.table.TableView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.IRevuNamedHolderEntity;
+import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -14,7 +14,7 @@ import javax.swing.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractNameHolderDetailForm<T extends IRevuNamedHolderEntity<T>>
+public abstract class AbstractNameHolderDetailForm<T extends IRevuUniqueNameHolderEntity<T>>
   extends AbstractReferentialDetailForm<T>
 {
   private JPanel contentPane;

@@ -48,8 +48,25 @@ public class UserDetailForm extends AbstractReferentialDetailForm<User>
     {
       public void actionPerformed(ActionEvent e)
       {
+        if (ckAdmin.isSelected())
+        {
+          ckReviewer.setSelected(true);
+          ckAuthor.setSelected(true);
+        }
         ckReviewer.setEnabled(!ckAdmin.isSelected());
-        ckAuthor.setEnabled(!ckAdmin.isSelected());
+        ckAuthor.setEnabled(!ckReviewer.isSelected());
+      }
+    });
+
+    ckReviewer.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        if (ckReviewer.isSelected())
+        {
+          ckAuthor.setSelected(true);
+        }
+        ckAuthor.setEnabled(!ckReviewer.isSelected());
       }
     });
   }
@@ -101,10 +118,12 @@ public class UserDetailForm extends AbstractReferentialDetailForm<User>
     tfDisplayName.setText((data == null) ? "" : data.getDisplayName());
     password = (data == null) ? null : data.getPassword();
 
-    Set<User.Role> roles = (data == null) ? new HashSet<User.Role>() : data.getRoles();
-    ckAdmin.setSelected(roles.contains(User.Role.ADMIN));
-    ckReviewer.setSelected(roles.contains(User.Role.REVIEWER));
-    ckAuthor.setSelected(roles.contains(User.Role.AUTHOR));
+    ckAdmin.setSelected((data != null) && (data.hasRole(User.Role.ADMIN)));
+    ckReviewer.setSelected((data != null) && (data.hasRole(User.Role.REVIEWER)));
+    ckAuthor.setSelected(true);
+
+    ckReviewer.setEnabled(!ckAdmin.isSelected());
+    ckAuthor.setEnabled(!ckReviewer.isSelected());
   }
 
   protected void internalUpdateData(@NotNull User data)

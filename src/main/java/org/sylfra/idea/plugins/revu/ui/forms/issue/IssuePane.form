@@ -14,7 +14,7 @@
         <children>
           <grid id="151f6" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.issue.main.title"/>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="issueForm.main.title"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -24,26 +24,50 @@
               </nested-form>
             </children>
           </grid>
-          <grid id="ce791" layout-manager="BorderLayout" hgap="0" vgap="0">
+          <grid id="ed011" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.issue.history.title"/>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="issueForm.recipients.title"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <nested-form id="2a58" form-file="org/sylfra/idea/plugins/revu/ui/forms/HistoryForm.form" binding="historyForm">
+              <nested-form id="cf4fe" form-file="org/sylfra/idea/plugins/revu/ui/forms/issue/IssueRecipientsForm.form" binding="recipientsForm" custom-create="true">
+                <constraints border-constraint="Center"/>
+              </nested-form>
+            </children>
+          </grid>
+          <grid id="9dc18" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="issueForm.notes.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <nested-form id="191bf" form-file="org/sylfra/idea/plugins/revu/ui/forms/issue/IssueNotesForm.form" binding="notesForm" custom-create="true">
                 <constraints border-constraint="Center"/>
               </nested-form>
             </children>
           </grid>
           <grid id="4baea" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="form.issue.preview.title"/>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="issueForm.preview.title"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
               <nested-form id="c4d5d" form-file="org/sylfra/idea/plugins/revu/ui/forms/issue/IssuePreviewForm.form" binding="previewForm" custom-create="true">
+                <constraints border-constraint="Center"/>
+              </nested-form>
+            </children>
+          </grid>
+          <grid id="ce791" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints>
+              <tabbedpane title-resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" title-key="issueForm.history.title"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <nested-form id="2a58" form-file="org/sylfra/idea/plugins/revu/ui/forms/HistoryForm.form" binding="historyForm">
                 <constraints border-constraint="Center"/>
               </nested-form>
             </children>
@@ -71,7 +95,7 @@
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.doResolve.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.doResolve.text"/>
             </properties>
           </component>
           <component id="eda31" class="javax.swing.JButton" binding="bnReopen">
@@ -79,7 +103,7 @@
               <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.doReopen.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.doReopen.text"/>
             </properties>
           </component>
           <component id="62a09" class="javax.swing.JButton" binding="bnClose">
@@ -87,7 +111,7 @@
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.doClose.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.doClose.text"/>
             </properties>
           </component>
           <component id="e8321" class="javax.swing.JLabel" binding="lbStatus">
@@ -95,7 +119,7 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="form.issue.status.label"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.status.label"/>
             </properties>
           </component>
         </children>

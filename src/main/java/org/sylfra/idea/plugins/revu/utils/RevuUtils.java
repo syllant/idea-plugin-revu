@@ -1,7 +1,6 @@
 package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -27,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,8 +35,6 @@ import java.util.List;
  */
 public class RevuUtils
 {
-  private static final Logger LOGGER = Logger.getInstance(RevuUtils.class.getName());
-
   @Nullable
   public static PsiFile getPsiFile(@NotNull Project project, @NotNull Issue issue)
   {
@@ -103,7 +101,7 @@ public class RevuUtils
   }
 
   @Nullable
-  public static User getUser(@Nullable Review review)
+  public static User getCurrentUser(@Nullable Review review)
   {
     User user;
     if (review == null)
@@ -192,8 +190,36 @@ public class RevuUtils
   }
 
   @NotNull
-  public static String buildStatusLabel(@NotNull IssueStatus status)
+  public static String buildIssueStatusLabel(@NotNull IssueStatus status)
   {
-    return RevuBundle.message("general.status." + status.toString().toLowerCase() + ".text");
+    return RevuBundle.message("general.issueStatus." + status.toString().toLowerCase() + ".text");
+  }
+
+  @NotNull
+  public static String buildReviewStatusLabel(@NotNull ReviewStatus status)
+  {
+    return RevuBundle.message("general.reviewStatus." + status.toString().toLowerCase() + ".text");
+  }
+
+  @NotNull
+  public static History buildHistory(@NotNull Review review)
+  {
+    String login = getCurrentUserLogin();
+    User user = (login == null) ? User.UNKNOWN : review.getDataReferential().getUser(login, true);
+
+    Date now = new Date();
+
+    History history = new History();
+    history.setCreatedBy(user);
+    history.setCreatedOn(now);
+    history.setLastUpdatedBy(user);
+    history.setLastUpdatedOn(now);
+
+    return history;
+  }
+
+  public static boolean isActive(@NotNull Review review)
+  {
+    return ((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING));
   }
 }

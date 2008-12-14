@@ -18,6 +18,7 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   private ToolWindow toolwindow;
   private final Project project;
   private final Map<Review, Content> contentsByReviews;
-  private ReviewBrowsingPane allBrowsingPane;
+  private IssueBrowsingPane allBrowsingPane;
 
   public RevuToolWindowManager(Project project)
   {
@@ -39,17 +40,17 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     contentsByReviews = new IdentityHashMap<Review, Content>();
   }
 
-  private ReviewBrowsingPane addReviewTab(@Nullable Review review)
+  private IssueBrowsingPane addReviewTab(@Nullable Review review)
   {
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
-    ReviewBrowsingPane reviewBrowsingPane = new ReviewBrowsingPane(project, review);
-    Content content = contentFactory.createContent(reviewBrowsingPane.getContentPane(), getTabTitle(review), true);
-    content.putUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY, reviewBrowsingPane);
+    IssueBrowsingPane issueBrowsingPane = new IssueBrowsingPane(project, review);
+    Content content = contentFactory.createContent(issueBrowsingPane.getContentPane(), getTabTitle(review), true);
+    content.putUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY, issueBrowsingPane);
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
 
-    return reviewBrowsingPane;
+    return issueBrowsingPane;
   }
 
   private void removeReviewTab(@Nullable Review review)
@@ -64,16 +65,16 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   private String getTabTitle(Review review)
   {
     return (review == null)
-      ? RevuBundle.message("toolwindow.allReviews.title")
-      : RevuBundle.message("toolwindow.review.title", review.getName());
+      ? RevuBundle.message("browsing.issues.allReviews.title")
+      : RevuBundle.message("browsing.issues.review.title", review.getName());
   }
 
   @Nullable
-  public ReviewBrowsingPane getSelectedReviewBrowsingForm()
+  public IssueBrowsingPane getSelectedReviewBrowsingForm()
   {
     Content selectedContent = toolwindow.getContentManager().getSelectedContent();
 
-    return (selectedContent != null) ? selectedContent.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY) : null;
+    return (selectedContent != null) ? selectedContent.getUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY) : null;
   }
 
   public void projectOpened()
@@ -86,7 +87,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       @Override
       public void selectionChanged(ContentManagerEvent event)
       {
-        ReviewBrowsingPane browsingPane = getSelectedReviewBrowsingForm();
+        IssueBrowsingPane browsingPane = getSelectedReviewBrowsingForm();
         if (browsingPane != null)
         {
           browsingPane.updateUI(false);
@@ -104,7 +105,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     // If dispose is done in #initComponent(), userData is empty ?! 
     for (Content content : contentsByReviews.values())
     {
-      ReviewBrowsingPane pane = content.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY);
+      IssueBrowsingPane pane = content.getUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY);
       if (pane != null)
       {
         pane.dispose();
@@ -135,7 +136,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void reviewChanged(Review review)
   {
-    if ((review.isTemplate()) || (!review.isActive()))
+    if (!RevuUtils.isActive(review))
     {
       removeReviewTab(review);
     }
@@ -150,7 +151,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       {
         content.setDisplayName(getTabTitle(review));
         // @TODO how to refresh tab title ?
-        ReviewBrowsingPane pane = content.getUserData(RevuKeys.REVIEW_BROWSING_FORM_KEY);
+        IssueBrowsingPane pane = content.getUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY);
         if (pane != null)
         {
           pane.updateReview();
@@ -161,21 +162,14 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void reviewAdded(Review review)
   {
-    if ((review.isTemplate()) || (!review.isActive()))
+    if (RevuUtils.isActive(review))
     {
-      return;
+      addReviewTab(review);
     }
-
-    addReviewTab(review);
   }
 
   public void reviewDeleted(Review review)
   {
-    if (review.isTemplate())
-    {
-      return;
-    }
-
     removeReviewTab(review);
   }
 }

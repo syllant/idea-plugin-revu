@@ -3,6 +3,7 @@ package org.sylfra.idea.plugins.revu.ui.actions.review;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
+import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
@@ -30,23 +31,23 @@ abstract class AbstractReviewSettingsAction extends AnAction
   @Override
   public void update(AnActionEvent e)
   {
-    if (isEnabledOnlyForNonEmbedded())
+    boolean enabled = false;
+
+    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
+    if (liReviews != null)
     {
-      boolean enabled = false;
-
-      JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
-      if (liReviews != null)
+      Review selectedReview = (Review) liReviews.getSelectedValue();
+      if (selectedReview != null)
       {
-        Review selectedReview = (Review) liReviews.getSelectedValue();
-        if ((selectedReview != null) && (!selectedReview.isEmbedded()))
-        {
-          enabled = true;
-        }
+        enabled = isEnabledForReview(selectedReview);
       }
-
-      e.getPresentation().setEnabled(enabled);
     }
+
+    e.getPresentation().setEnabled(enabled);
   }
 
-  protected abstract boolean isEnabledOnlyForNonEmbedded();
+  protected boolean isEnabledForReview(@NotNull Review review)
+  {
+    return true;
+  }
 }

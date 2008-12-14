@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.priority.ItemPriorityReferentialForm;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.ItemTagReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.priority.IssuePriorityReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.tag.IssueTagReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.user.UserReferentialForm;
 
 import javax.swing.*;
@@ -26,8 +26,8 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private UserReferentialForm userReferentialForm;
-  private ItemTagReferentialForm itemTagReferentialForm;
-  private ItemPriorityReferentialForm itemPriorityReferentialForm;
+  private IssueTagReferentialForm issueTagReferentialForm;
+  private IssuePriorityReferentialForm issuePriorityReferentialForm;
   private JLabel lbNoUserForEmbeddedReviews;
 
   public ReferentialTabbedPane(final Project project)
@@ -35,31 +35,32 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     this.project = project;
 
     userReferentialForm = new UserReferentialForm(project);
-    itemTagReferentialForm = new ItemTagReferentialForm(project);
-    itemPriorityReferentialForm = new ItemPriorityReferentialForm(project);
+    issueTagReferentialForm = new IssueTagReferentialForm(project);
+    issuePriorityReferentialForm = new IssuePriorityReferentialForm(project);
 
     lbNoUserForEmbeddedReviews = new JLabel(
-      RevuBundle.message("settings.project.review.referential.noUserForEmbeddedReviews.text"));
+      RevuBundle.message("projectSettings.review.referential.noUserForEmbeddedReviews.text"));
     lbNoUserForEmbeddedReviews.setHorizontalAlignment(SwingConstants.CENTER);
     CardLayout cardLayout = new CardLayout();
     JPanel pnUsers = new JPanel(cardLayout);
     pnUsers.add("table", userReferentialForm.getContentPane());
     pnUsers.add("label", lbNoUserForEmbeddedReviews);
 
-    tabbedPane.add(RevuBundle.message("settings.project.review.referential.user.title"), pnUsers);
-    tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemTag.title"),
-      itemTagReferentialForm.getContentPane());
-    tabbedPane.add(RevuBundle.message("settings.project.review.referential.itemPriority.title"),
-      itemPriorityReferentialForm.getContentPane());
+    tabbedPane.add(RevuBundle.message("projectSettings.review.referential.user.title"), pnUsers);
+    tabbedPane.add(RevuBundle.message("projectSettings.review.referential.issueTag.title"),
+      issueTagReferentialForm.getContentPane());
+    tabbedPane.add(RevuBundle.message("projectSettings.review.referential.issuePriority.title"),
+      issuePriorityReferentialForm.getContentPane());
   }
 
 
   public boolean isModified(@NotNull DataReferential data)
   {
-    return ((userReferentialForm.isModified(new ReferentialListHolder<User>(data.getUsers(true), null)))
-      || (itemTagReferentialForm.isModified(new ReferentialListHolder<IssueTag>(data.getItemTags(true), null)))
-      || (itemPriorityReferentialForm.isModified(
-            new ReferentialListHolder<IssuePriority>(data.getItemPriorities(true), null))));
+    return ((!data.getReview().isEmbedded())
+      && ((userReferentialForm.isModified(new ReferentialListHolder<User>(data.getUsers(true), null)))
+        || (issueTagReferentialForm.isModified(new ReferentialListHolder<IssueTag>(data.getIssueTags(true), null)))
+        || (issuePriorityReferentialForm.isModified(new ReferentialListHolder<IssuePriority>(
+      data.getIssuePriorities(true), null)))));
   }
 
   @Override
@@ -70,12 +71,16 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   protected void internalValidateInput()
   {
     updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
-    updateError(itemTagReferentialForm.getContentPane(), !itemTagReferentialForm.validateInput(), null);
-    updateError(itemPriorityReferentialForm.getContentPane(), !itemPriorityReferentialForm.validateInput(), null);
+    updateError(issueTagReferentialForm.getContentPane(), !issueTagReferentialForm.validateInput(), null);
+    updateError(issuePriorityReferentialForm.getContentPane(), !issuePriorityReferentialForm.validateInput(), null);
+
+    updateTabIcons(tabbedPane);
   }
 
   protected void internalUpdateUI(DataReferential data, boolean requestFocus)
   {
+    updateTabIcons(tabbedPane);
+
     Review review = getEnclosingReview();
 
     JPanel pnUsers = (JPanel) tabbedPane.getComponentAt(0);
@@ -92,10 +97,10 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     }
 
     ReferentialListHolder<IssueTag> tagHolder = buildItemTagsListHolder(data);
-    itemTagReferentialForm.updateUI(review, tagHolder, requestFocus);
+    issueTagReferentialForm.updateUI(review, tagHolder, requestFocus);
 
     ReferentialListHolder<IssuePriority> priorityHolder = buildItemPrioritiesListHolder(data);
-    itemPriorityReferentialForm.updateUI(review, priorityHolder, requestFocus);
+    issuePriorityReferentialForm.updateUI(review, priorityHolder, requestFocus);
   }
 
   protected void internalUpdateData(@NotNull DataReferential data)
@@ -107,18 +112,18 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     data.setUsers(userHolder.getItems());
 
     ReferentialListHolder<IssueTag> tagHolder
-      = new ReferentialListHolder<IssueTag>(data.getItemTags(false),
+      = new ReferentialListHolder<IssueTag>(data.getIssueTags(false),
       (data.getReview().getExtendedReview() == null)
-        ? null : data.getReview().getExtendedReview().getDataReferential().getItemTags(true));
-    itemTagReferentialForm.updateData(tagHolder);
-    data.setItemTags(tagHolder.getItems());
+        ? null : data.getReview().getExtendedReview().getDataReferential().getIssueTags(true));
+    issueTagReferentialForm.updateData(tagHolder);
+    data.setIssueTags(tagHolder.getItems());
 
     ReferentialListHolder<IssuePriority> priorityHolder
-      = new ReferentialListHolder<IssuePriority>(data.getItemPriorities(false),
+      = new ReferentialListHolder<IssuePriority>(data.getIssuePriorities(false),
       (data.getReview().getExtendedReview() == null)
-        ? null : data.getReview().getExtendedReview().getDataReferential().getItemPriorities(true));
-    itemPriorityReferentialForm.updateData(priorityHolder);
-    data.setItemPriorities(priorityHolder.getItems());
+        ? null : data.getReview().getExtendedReview().getDataReferential().getIssuePriorities(true));
+    issuePriorityReferentialForm.updateData(priorityHolder);
+    data.setIssuePriorities(priorityHolder.getItems());
   }
 
   private ReferentialListHolder<User> buildUsersListHolder(DataReferential data)
@@ -154,14 +159,14 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
       return new ReferentialListHolder<IssueTag>(new ArrayList<IssueTag>(), null);
     }
 
-    List<IssueTag> thisTags = data.getItemTags(false);
+    List<IssueTag> thisTags = data.getIssueTags(false);
     if (data.getReview().getExtendedReview() == null)
     {
       return new ReferentialListHolder<IssueTag>(thisTags, null);
     }
 
     List<IssueTag> extendedTags = new ArrayList<IssueTag>(
-      data.getReview().getExtendedReview().getDataReferential().getItemTags(true));
+      data.getReview().getExtendedReview().getDataReferential().getIssueTags(true));
     extendedTags.removeAll(thisTags);
 
     return new ReferentialListHolder<IssueTag>(thisTags, extendedTags);
@@ -174,7 +179,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
       return new ReferentialListHolder<IssuePriority>(new ArrayList<IssuePriority>(), null);
     }
 
-    List<IssuePriority> thisPriorities = data.getItemPriorities(false);
+    List<IssuePriority> thisPriorities = data.getIssuePriorities(false);
     if (data.getReview().getExtendedReview() == null)
     {
       return new ReferentialListHolder<IssuePriority>(thisPriorities,
@@ -182,7 +187,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     }
 
     List<IssuePriority> extendedPriorities = new ArrayList<IssuePriority>(
-      data.getReview().getExtendedReview().getDataReferential().getItemPriorities(true));
+      data.getReview().getExtendedReview().getDataReferential().getIssuePriorities(true));
     extendedPriorities.removeAll(thisPriorities);
 
     return new ReferentialListHolder<IssuePriority>(thisPriorities, extendedPriorities);
@@ -192,8 +197,8 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   public void dispose()
   {
     userReferentialForm.dispose();
-    itemTagReferentialForm.dispose();
-    itemPriorityReferentialForm.dispose();
+    issueTagReferentialForm.dispose();
+    issuePriorityReferentialForm.dispose();
   }
 
   public JComponent getPreferredFocusedComponent()

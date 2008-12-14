@@ -20,6 +20,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -31,8 +32,10 @@ public class IssuePane extends AbstractIssueForm
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private IssueMainForm mainForm;
+  private IssueRecipientsForm recipientsForm;
+  private IssueNotesForm notesForm;
   private IssuePreviewForm previewForm;
-  private HistoryForm historyForm;
+  private HistoryForm<Issue> historyForm;
   private JComponent toolbar;
   private JButton bnResolve;
   private JButton bnReopen;
@@ -51,6 +54,8 @@ public class IssuePane extends AbstractIssueForm
   private void createUIComponents()
   {
     mainForm = new IssueMainForm(project, false);
+    recipientsForm = new IssueRecipientsForm(project);
+    notesForm = new IssueNotesForm(project);
     previewForm = new IssuePreviewForm(project);
 
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueForm.toolbar");
@@ -99,7 +104,11 @@ public class IssuePane extends AbstractIssueForm
 
   public void internalValidateInput()
   {
-    mainForm.internalValidateInput();
+    updateError(mainForm.getContentPane(), !mainForm.validateInput(), null);
+    updateError(recipientsForm.getContentPane(), !recipientsForm.validateInput(), null);
+    updateError(notesForm.getContentPane(), !notesForm.validateInput(), null);
+
+    updateTabIcons(tabbedPane);
   }
 
   @NotNull
@@ -110,12 +119,16 @@ public class IssuePane extends AbstractIssueForm
 
   public void internalUpdateUI(@Nullable Issue data, boolean requestFocus)
   {
+    updateTabIcons(tabbedPane);
+
     currentIssue = data;
 
-    lbStatus.setText((data == null) ? "" : RevuBundle.message("form.issue.status.label",
-      RevuUtils.buildStatusLabel(data.getStatus())));
+    lbStatus.setText((data == null) ? "" : RevuBundle.message("issueForm.status.label",
+      RevuUtils.buildIssueStatusLabel(data.getStatus())));
 
     mainForm.updateUI(getEnclosingReview(), data, requestFocus);
+    recipientsForm.updateUI(getEnclosingReview(), data, requestFocus);
+    notesForm.updateUI(getEnclosingReview(), data, requestFocus);
     historyForm.updateUI(getEnclosingReview(), data, requestFocus);
 
     if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
@@ -127,11 +140,18 @@ public class IssuePane extends AbstractIssueForm
   public void internalUpdateData(@NotNull Issue data)
   {
     mainForm.internalUpdateData(data);
+    recipientsForm.internalUpdateData(data);
+    notesForm.internalUpdateData(data);
+
+    data.getHistory().setLastUpdatedBy(RevuUtils.getCurrentUser(data.getReview()));
+    data.getHistory().setLastUpdatedOn(new Date());
+
+    data.getReview().fireIssueUpdated(data);
   }
 
   public boolean isModified(Issue data)
   {
-    return mainForm.isModified(data);
+    return ((mainForm.isModified(data)) || (recipientsForm.isModified(data)) || (notesForm.isModified(data)));
   }
 
   @Override
@@ -152,6 +172,8 @@ public class IssuePane extends AbstractIssueForm
   public void dispose()
   {
     mainForm.dispose();
+    recipientsForm.dispose();
+    notesForm.dispose();
     historyForm.dispose();
     previewForm.dispose();
   }

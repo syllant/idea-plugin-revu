@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.ui.forms.IUpdatableForm;
 
@@ -26,7 +27,6 @@ public class IssueDialog extends DialogWrapper
   {
     super(project, true);
 
-    // @TODO inject navigator in IssuePane
     updateTabbedPane = new IssuePane(project, null);
     createMainForm = new IssueMainForm(project, true);
 
@@ -36,6 +36,12 @@ public class IssueDialog extends DialogWrapper
     setTitle(RevuBundle.message("dialog.createIssue.title"));
 
     init();
+  }
+
+  @Override
+  protected String getDimensionServiceKey()
+  {
+    return RevuPlugin.PLUGIN_NAME + ".IssueDialog";
   }
 
   protected JComponent createCenterPanel()

@@ -31,12 +31,12 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
   @Override
   protected void internalValidateInput()
   {
-    super.internalValidateInput();
-
     if ((getEnclosingReview() == null) || (getEnclosingReview().isEmbedded()))
     {
       return;
     }
+
+    super.internalValidateInput();
 
     // Check if current user is contained in list
     boolean adminFound = false;
@@ -63,11 +63,11 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
     }
 
     updateError(table, !currentUserFound,
-      RevuBundle.message("settings.project.review.referential.user.form.currentUserNotFound.message",
+      RevuBundle.message("projectSettings.review.referential.user.form.currentUserNotFound.message",
         RevuUtils.getCurrentUserLogin()));
 
     updateError(table, !adminFound,
-      RevuBundle.message("settings.project.review.referential.user.form.adminNotFound.message"));
+      RevuBundle.message("projectSettings.review.referential.user.form.adminNotFound.message"));
   }
 
   protected IDetailDialogFactory<User> buildDetailDialogFactory()
@@ -88,8 +88,8 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
           protected String getTitleKey(boolean addMode)
           {
             return addMode
-              ? "settings.project.review.referential.user.addDialog.title"
-              : "settings.project.review.referential.user.editDialog.title";
+              ? "projectSettings.review.referential.user.addDialog.title"
+              : "projectSettings.review.referential.user.editDialog.title";
           }
 
           @NotNull
@@ -107,14 +107,14 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
     //noinspection unchecked
     return new ReferentialColumnInfo[]
       {
-        new ReferentialColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.login.title"))
+        new ReferentialColumnInfo<User, String>(RevuBundle.message("projectSettings.review.referential.user.table.login.title"))
         {
           public String valueOf(User user)
           {
             return user.getLogin();
           }
         },
-        new ReferentialColumnInfo<User, String>(RevuBundle.message("settings.project.review.referential.user.table.displayName.title"))
+        new ReferentialColumnInfo<User, String>(RevuBundle.message("projectSettings.review.referential.user.table.displayName.title"))
         {
           public String valueOf(User user)
           {

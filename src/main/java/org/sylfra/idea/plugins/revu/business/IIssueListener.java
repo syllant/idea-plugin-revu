@@ -8,9 +8,9 @@ import org.sylfra.idea.plugins.revu.model.Issue;
  */
 public interface IIssueListener
 {
-  void itemAdded(Issue item);
+  void issueAdded(Issue issue);
 
-  void itemDeleted(Issue item);
+  void issueDeleted(Issue issue);
 
-  void itemUpdated(Issue item);
+  void issueUpdated(Issue issue);
 }

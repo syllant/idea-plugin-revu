@@ -15,7 +15,7 @@
         <properties>
           <font style="1"/>
           <labelFor value="75bf0"/>
-          <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="settings.project.review.referential.namedHolder.form.name.label"/>
+          <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="projectSettings.review.referential.namedHolder.form.name.label"/>
         </properties>
       </component>
       <vspacer id="8428c">

@@ -35,7 +35,7 @@ import java.util.Set;
 public class RevuEditorHandler implements ProjectComponent
 {
   private final Project project;
-  private Map<VirtualFile, DocumentChangeTracker> changeTrackers;
+  private final Map<VirtualFile, DocumentChangeTracker> changeTrackers;
   private final Map<Editor, Map<Integer, CustomGutterIconRenderer>> renderers;
   private final Map<Editor, Map<Issue, RangeHighlighter>> highlighters;
   private final IIssueListener issueListener;
@@ -133,7 +133,12 @@ public class RevuEditorHandler implements ProjectComponent
 
   private RangeMarker addMarker(@Nullable Editor editor, @NotNull Issue issue, boolean orphanMarker)
   {
-    if (!issue.getReview().isActive())
+    if (issue.getLineStart() == -1)
+    {
+      return null;
+    }
+
+    if (!RevuUtils.isActive(issue.getReview()))
     {
       return null;
     }
@@ -192,7 +197,7 @@ public class RevuEditorHandler implements ProjectComponent
         null,
         HighlighterTargetArea.LINES_IN_RANGE);
     editorHighlighters.put(issue, highlighter);
-    renderer.addItem(issue, highlighter);
+    renderer.addIssue(issue, highlighter);
 
     highlighter.setGutterIconRenderer(renderer);
   }
@@ -219,7 +224,7 @@ public class RevuEditorHandler implements ProjectComponent
           CustomGutterIconRenderer renderer = (CustomGutterIconRenderer) highlighter.getGutterIconRenderer();
           if (renderer != null)
           {
-            renderer.removeItem(issue);
+            renderer.removeIssue(issue);
             if (renderer.isEmpty())
             {
               Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
@@ -234,6 +239,11 @@ public class RevuEditorHandler implements ProjectComponent
 
   public boolean isSynchronized(@NotNull Issue issue, boolean checkEvenIfEditorNotAvailable)
   {
+    if (issue.getLineStart() == -1)
+    {
+      return true;
+    }
+
     RangeMarker marker = findMarker(issue);
     if ((marker == null) && (checkEvenIfEditorNotAvailable))
     {
@@ -250,6 +260,11 @@ public class RevuEditorHandler implements ProjectComponent
 
   public boolean isSynchronized(@NotNull Issue issue, @Nullable RangeMarker marker)
   {
+    if (issue.getLineStart() == -1)
+    {
+      return true;
+    }
+
     if (marker == null)
     {
       return true;
@@ -301,14 +316,12 @@ public class RevuEditorHandler implements ProjectComponent
       documentChangeTracker.getEditors().add(editor);
 
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewManager.getActiveReviews(vFile))
+      for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), true))
       {
-        if (review.isActive())
+        // @TODO recipients
+        for (Issue issue : review.getIssues(vFile))
         {
-          for (Issue item : review.getItems(vFile))
-          {
-            addMarker(editor, item, false);
-          }
+          addMarker(editor, issue, false);
         }
       }
     }
@@ -342,25 +355,25 @@ public class RevuEditorHandler implements ProjectComponent
 
   private class CustomIssueListener implements IIssueListener
   {
-    public void itemAdded(Issue item)
+    public void issueAdded(Issue issue)
     {
-      addMarker(null, item, false);
+      addMarker(null, issue, false);
     }
 
-    public void itemDeleted(Issue item)
+    public void issueDeleted(Issue issue)
     {
-      removeMarker(item);
+      removeMarker(issue);
     }
 
-    public void itemUpdated(Issue item)
+    public void issueUpdated(Issue issue)
     {
-      DocumentChangeTracker documentChangeTracker = changeTrackers.get(item.getFile());
+      DocumentChangeTracker documentChangeTracker = changeTrackers.get(issue.getFile());
       if (documentChangeTracker == null)
       {
         return;
       }
 
-      RangeMarker marker = documentChangeTracker.getMarker(item);
+      RangeMarker marker = documentChangeTracker.getMarker(issue);
       if (marker == null)
       {
         return;
@@ -369,8 +382,8 @@ public class RevuEditorHandler implements ProjectComponent
       boolean invalidMarker = !marker.isValid();
       if (invalidMarker || (documentChangeTracker.isOrphanMarker(marker)))
       {
-        removeMarker(item);
-        addMarker(null, item, invalidMarker);
+        removeMarker(issue);
+        addMarker(null, issue, invalidMarker);
       }
       else
       {
@@ -396,17 +409,17 @@ public class RevuEditorHandler implements ProjectComponent
     {
       review.addIssueListener(issueListener);
 
-      for (Issue item : review.getItems())
+      for (Issue issue : review.getIssues())
       {
-        addMarker(null, item, false);
+        addMarker(null, issue, false);
       }
     }
 
     public void reviewDeleted(Review review)
     {
-      for (Issue item : review.getItems())
+      for (Issue issue : review.getIssues())
       {
-        removeMarker(item);
+        removeMarker(issue);
       }
       review.removeIssueListener(issueListener);
     }

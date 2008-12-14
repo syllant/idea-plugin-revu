@@ -64,7 +64,7 @@ public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
     public boolean contains(PsiFile file, NamedScopesHolder holder)
     {
       VirtualFile vFile = file.getVirtualFile();
-      return (vFile != null) && review.getItemsByFiles().containsKey(vFile);
+      return (vFile != null) && review.getIssuesByFiles().containsKey(vFile);
     }
 
     public PackageSet createCopy()

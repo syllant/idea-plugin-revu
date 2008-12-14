@@ -44,7 +44,6 @@ public class IssuePreviewForm extends AbstractIssueForm
   private JRadioButton rbInitial;
   private Editor currentEditor;
   private VirtualFile currentFile;
-  private Issue currentIssue;
 
   public IssuePreviewForm(@NotNull Project project)
   {
@@ -81,7 +80,7 @@ public class IssuePreviewForm extends AbstractIssueForm
 
   public void internalUpdateUI(@Nullable Issue data, boolean requestFocus)
   {
-    currentIssue = data;
+    super.internalUpdateUI(data, requestFocus);
 
     boolean currentIdModified = (data != null) && RevuVcsUtils.fileIsModifiedFromVcs(project, data.getFile());
     String currentRev = RevuVcsUtils.formatRevision((data == null)
@@ -89,8 +88,8 @@ public class IssuePreviewForm extends AbstractIssueForm
     String initialRev = RevuVcsUtils.formatRevision((data == null) ? null : data.getVcsRev(),
       (data != null) && (data.getLocalRev() != null));
 
-    rbCurrent.setText(RevuBundle.message("form.issue.preview.currentRev.text", currentRev));
-    rbInitial.setText(RevuBundle.message("form.issue.preview.initialRev.text", initialRev));
+    rbCurrent.setText(RevuBundle.message("issueForm.preview.currentRev.text", currentRev));
+    rbInitial.setText(RevuBundle.message("issueForm.preview.initialRev.text", initialRev));
 
     boolean underVcs = (data != null) && (RevuVcsUtils.isUnderVcs(project, data));
     if (underVcs)
@@ -117,7 +116,7 @@ public class IssuePreviewForm extends AbstractIssueForm
 
   private void fetchAndLoad()
   {
-    showMessage(RevuBundle.message("form.issue.preview.loading.text"), MessageType.INFO);
+    showMessage(RevuBundle.message("issueForm.preview.loading.text"), MessageType.INFO);
 
     if (currentIssue != null)
     {
@@ -190,7 +189,7 @@ public class IssuePreviewForm extends AbstractIssueForm
 
         currentEditor = null;
 
-        showMessage(RevuBundle.message("form.issue.preview.unavailableError.text", e.getMessage()),
+        showMessage(RevuBundle.message("issueForm.preview.unavailableError.text", e.getMessage()),
           MessageType.WARNING);
       }
     }
@@ -198,7 +197,7 @@ public class IssuePreviewForm extends AbstractIssueForm
     // Check if editor is really built
     if (currentEditor == null)
     {
-      showMessage(RevuBundle.message("form.issue.preview.unavailable.text"), MessageType.INFO);
+      showMessage(RevuBundle.message("issueForm.preview.unavailable.text"), MessageType.INFO);
     }
     else
     {
@@ -220,7 +219,7 @@ public class IssuePreviewForm extends AbstractIssueForm
     PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
     if (psiFile == null)
     {
-      throw new RevuException(RevuBundle.message("form.issue.preview.error.fileNotFound.text", vFile.getPath()));
+      throw new RevuException(RevuBundle.message("issueForm.preview.error.fileNotFound.text", vFile.getPath()));
     }
 
     Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
@@ -239,6 +238,11 @@ public class IssuePreviewForm extends AbstractIssueForm
 
   private void highlight(@NotNull Issue issue, @NotNull final Editor editor)
   {
+    if (issue.getLineStart() == -1)
+    {
+      return;
+    }
+    
     MarkupModel markupModel = editor.getMarkupModel();
     for (RangeHighlighter highlighter : markupModel.getAllHighlighters())
     {

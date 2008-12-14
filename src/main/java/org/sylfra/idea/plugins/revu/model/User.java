@@ -12,7 +12,7 @@ import java.util.Set;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class User extends AbstractRevuEntity<User> implements Comparable<User>
+public class User extends AbstractRevuEntity<User> implements Comparable<User>, IRevuUniqueNameHolderEntity<User>
 {
   public static enum Role
   {
@@ -102,6 +102,16 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>
   public void addRole(Role role)
   {
     roles.add(role);
+  }
+
+  public String getName()
+  {
+    return login;
+  }
+
+  public void setName(String name)
+  {
+    login = name;
   }
 
   public boolean hasRole(@NotNull Role role)

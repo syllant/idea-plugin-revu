@@ -8,9 +8,9 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.Abstra
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ItemTagDetailForm extends AbstractNameHolderDetailForm<IssueTag>
+public class IssueTagDetailForm extends AbstractNameHolderDetailForm<IssueTag>
 {
-  protected ItemTagDetailForm(TableView<IssueTag> table)
+  protected IssueTagDetailForm(TableView<IssueTag> table)
   {
     super(table);
   }
