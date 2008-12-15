@@ -54,28 +54,6 @@ public class ReviewManager implements ProjectComponent
     reviewsByNames = new HashMap<String, Review>();
     reviewListeners = new ArrayList<IReviewListener>();
     reviewExternalizationListeners = new ArrayList<IReviewExternalizationListener>();
-
-    installSettingsListeners();
-  }
-
-  private void installSettingsListeners()
-  {
-    projectSettingsListener = new IRevuSettingsListener<RevuProjectSettings>()
-    {
-      public void settingsChanged(RevuProjectSettings settings)
-      {
-        loadAndAdd(settings.getReviewFiles(), true);
-      }
-    };
-    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
-    {
-      public void settingsChanged(RevuWorkspaceSettings settings)
-      {
-        loadAndAdd(settings.getReviewFiles(), false);
-      }
-    };
-    project.getComponent(RevuProjectSettingsComponent.class).addListener(projectSettingsListener);
-    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(workspaceSettingsListener);
   }
 
   @Nullable
@@ -117,8 +95,7 @@ public class ReviewManager implements ProjectComponent
       customReviews = reviews;
     }
 
-    List<ReviewStatus> statusList = (statuses == null)
-      ? Collections.<ReviewStatus>emptyList() : Arrays.asList(ReviewStatus.values());
+    List<ReviewStatus> statusList = Arrays.asList((statuses == null) ? ReviewStatus.values() : statuses);
 
     List<Review> result = new ArrayList<Review>();
     for (Review review : customReviews)
@@ -133,6 +110,26 @@ public class ReviewManager implements ProjectComponent
     return Collections.unmodifiableList(result);
   }
 
+  private void installSettingsListeners()
+  {
+    projectSettingsListener = new IRevuSettingsListener<RevuProjectSettings>()
+    {
+      public void settingsChanged(RevuProjectSettings settings)
+      {
+        loadAndAdd(settings.getReviewFiles(), true);
+      }
+    };
+    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
+    {
+      public void settingsChanged(RevuWorkspaceSettings settings)
+      {
+        loadAndAdd(settings.getReviewFiles(), false);
+      }
+    };
+    project.getComponent(RevuProjectSettingsComponent.class).addListener(projectSettingsListener);
+    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(workspaceSettingsListener);
+  }
+
   public void projectOpened()
   {
     StartupManager.getInstance(project).runWhenProjectIsInitialized(new Runnable()
@@ -140,14 +137,26 @@ public class ReviewManager implements ProjectComponent
       public void run()
       {
         initEmbeddedReviews();
-        loadAndAdd(project.getComponent(RevuProjectSettingsComponent.class).getState().getReviewFiles(), true);
-        loadAndAdd(project.getComponent(RevuWorkspaceSettingsComponent.class).getState().getReviewFiles(), false);
+
+        List<String> projectReviewPaths =
+          project.getComponent(RevuProjectSettingsComponent.class).getState().getReviewFiles();
+        List<String> workspaceReviewPaths =
+          project.getComponent(RevuWorkspaceSettingsComponent.class).getState().getReviewFiles();
+
+        List<String> allPaths = new ArrayList<String>(projectReviewPaths);
+        allPaths.addAll(workspaceReviewPaths);
+
+        loadAndAdd(allPaths, null);
       }
     });
+
+    installSettingsListeners();
   }
 
   public void projectClosed()
   {
+    project.getComponent(RevuProjectSettingsComponent.class).removeListener(projectSettingsListener);
+    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
   }
 
   @NotNull
@@ -162,8 +171,6 @@ public class ReviewManager implements ProjectComponent
 
   public void disposeComponent()
   {
-    project.getComponent(RevuProjectSettingsComponent.class).removeListener(projectSettingsListener);
-    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
   }
 
   public void addReviewListener(@NotNull IReviewListener listener)
@@ -199,7 +206,161 @@ public class ReviewManager implements ProjectComponent
     return (review.hashCode() != reviewsSavedHashs.get(review));
   }
 
-  public boolean load(@NotNull final Review review, boolean consolidate)
+  @Nullable
+  private InputStream getInputStreamFromPath(@NotNull String path) throws IOException
+  {
+    // Embedded review
+    String resourcePath = EMBEDDED_REVIEWS.get(path);
+    if (resourcePath != null)
+    {
+      return getClass().getClassLoader().getResourceAsStream(resourcePath);
+    }
+
+    return new FileInputStream(path);
+  }
+
+  private void initEmbeddedReviews()
+  {
+    reviews.clear();
+
+    for (Map.Entry<String, String> entry : EMBEDDED_REVIEWS.entrySet())
+    {
+      Review review = new Review();
+      review.setPath(entry.getKey());
+      review.setEmbedded(true);
+      load(review, false);
+      addReview(review);
+    }
+  }
+
+  private void loadAndAdd(@NotNull List<String> filePaths, @Nullable Boolean sharedFilter)
+  {
+    List<Review> reviewsToLoad = prepareReviewsToLoad(filePaths);
+
+    Map<String, Review> changedReviews = new HashMap<String, Review>();
+
+    if (sharedFilter != null)
+    {
+      // Delete obsolete reviews
+      for (Iterator<Review> it = reviews.iterator(); it.hasNext();)
+      {
+        Review review = it.next();
+        if ((review.isEmbedded()) || (review.isShared() != sharedFilter))
+        {
+          continue;
+        }
+
+        String filePath = RevuVfsUtils.buildRelativePath(project, review.getPath());
+        if (filePaths.contains(filePath))
+        {
+          changedReviews.put(filePath, review);
+        }
+        else
+        {
+          fireReviewDeleted(review);
+        }
+        review.clearIssuesListeners();
+        reviewsByPaths.remove(review.getPath());
+        reviewsByNames.remove(review.getName());
+        reviewsSavedHashs.remove(review);
+        it.remove();
+      }
+    }
+
+    // Load remaining reviews and added review
+    for (Review review : reviewsToLoad)
+    {
+      if (!load(review, false))
+      {
+        continue;
+      }
+
+      if ((sharedFilter == null) || (review.isShared() == sharedFilter))
+      {
+        addReview(review);
+      }
+    }
+
+    for (Review review : reviews)
+    {
+      if ((!review.isEmbedded()) && (((sharedFilter == null) || review.isShared() == sharedFilter)))
+      {
+        reviewsSavedHashs.put(review, review.hashCode());
+
+        if (changedReviews.containsValue(review))
+        {
+          fireReviewChanged(review);
+        }
+        else
+        {
+          fireReviewAdded(review);
+        }
+      }
+    }
+  }
+
+  private List<Review> prepareReviewsToLoad(List<String> relativePaths)
+  {
+    Map<String, ReviewExtendedDepth> reviewByNames = new HashMap<String, ReviewExtendedDepth>(relativePaths.size());
+    for (String relativePath : relativePaths)
+    {
+      String absolutePath = RevuVfsUtils.buildAbsolutePath(project, relativePath);
+      Review review = reviewsByPaths.get(absolutePath);
+      if (review == null)
+      {
+        review = new Review();
+        review.setPath(absolutePath);
+      }
+
+      if (load(review, true))
+      {
+        ReviewExtendedDepth reviewExtendedDepth = new ReviewExtendedDepth(review, 0);
+        reviewByNames.put(review.getName(), reviewExtendedDepth);
+      }
+    }
+
+    List<ReviewExtendedDepth> reviewExtendedDepths = new ArrayList<ReviewExtendedDepth>(reviewByNames.values());
+    for (ReviewExtendedDepth reviewExtendedDepth : reviewExtendedDepths)
+    {
+      Review review = reviewExtendedDepth.review;
+      if (review.getExtendedReview() != null)
+      {
+        try
+        {
+          checkCyclicLink(review, review.getExtendedReview());
+        }
+        catch (RevuException e)
+        {
+          LOGGER.warn("Cyclic link: " + review.getPath(), e);
+          fireReviewLoadFailed(e, review.getPath());
+        }
+
+        while ((review != null) && (review.getExtendedReview() != null))
+        {
+          reviewExtendedDepth.depth++;
+          review = reviewsByNames.get(review.getExtendedReview().getName());
+        }
+      }
+    }
+
+    Collections.sort(reviewExtendedDepths, new Comparator<ReviewExtendedDepth>()
+    {
+      public int compare(ReviewExtendedDepth o1, ReviewExtendedDepth o2)
+      {
+        return o1.depth - o2.depth;
+      }
+    });
+
+    List<Review> result = new ArrayList<Review>(reviewExtendedDepths.size());
+    for (ReviewExtendedDepth reviewExtendedDepth : reviewExtendedDepths)
+    {
+      result.add(reviewExtendedDepth.review);
+    }
+
+    return result;
+  }
+
+  public boolean load(@NotNull final Review review, boolean prepare)
   {
     IReviewExternalizer reviewExternalizer = project.getComponent(IReviewExternalizer.class);
 
@@ -209,14 +370,20 @@ public class ReviewManager implements ProjectComponent
     try
     {
       inputStream = getInputStreamFromPath(path);
-      reviewExternalizer.load(review, inputStream);
-
-      if (consolidate)
+      if (inputStream == null)
       {
-        consolidateReview(review);
+        LOGGER.warn("Can't retrieve stream for path: " + path);
+        exception = new FileNotFoundException(path);
       }
+      else
+      {
+        reviewExternalizer.load(review, inputStream, prepare);
 
-      fireReviewLoadSucceeded(review);
+        if (!prepare)
+        {
+          fireReviewLoadSucceeded(review);
+        }
+      }
     }
     catch (IOException e)
     {
@@ -253,142 +420,6 @@ public class ReviewManager implements ProjectComponent
     return true;
   }
 
-  @Nullable
-  private InputStream getInputStreamFromPath(@NotNull String path) throws IOException
-  {
-    // Embedded review
-    String resourcePath = EMBEDDED_REVIEWS.get(path);
-    if (resourcePath != null)
-    {
-      return getClass().getClassLoader().getResourceAsStream(resourcePath);
-    }
-
-    return new FileInputStream(path);
-  }
-
-  private void initEmbeddedReviews()
-  {
-    reviews.clear();
-
-    for (Map.Entry<String, String> entry : EMBEDDED_REVIEWS.entrySet())
-    {
-      Review review = new Review();
-      review.setPath(entry.getKey());
-      review.setEmbedded(true);
-      load(review, false);
-      addReview(review);
-    }
-
-    for (Review review : reviews)
-    {
-      try
-      {
-        consolidateReview(review);
-      }
-      catch (RevuException e)
-      {
-        LOGGER.warn("Failed to load review file: " + review.getPath(), e);
-        fireReviewLoadFailed(e, review.getPath());
-      }
-    }
-  }
-
-  private void loadAndAdd(@NotNull List<String> filePaths, boolean sharedFilter)
-  {
-    // Delete obsolete reviews
-    Map<String, Review> changedReviews = new HashMap<String, Review>();
-    for (Iterator<Review> it = reviews.iterator(); it.hasNext();)
-    {
-      Review review = it.next();
-      if ((review.isEmbedded()) || (review.isShared() != sharedFilter))
-      {
-        continue;
-      }
-
-      String filePath = RevuVfsUtils.buildRelativePath(project, review.getPath());
-      if (filePaths.contains(filePath))
-      {
-        changedReviews.put(filePath, review);
-      }
-      else
-      {
-        fireReviewDeleted(review);
-      }
-      review.clearIssuesListeners();
-      reviewsByPaths.remove(review.getPath());
-      reviewsByNames.remove(review.getName());
-      reviewsSavedHashs.remove(review);
-      it.remove();
-    }
-
-    // Load remaining reviews and added review
-    for (String filePath : filePaths)
-    {
-      Review review = changedReviews.get(filePath);
-      if (review == null)
-      {
-        review = new Review();
-        review.setPath(RevuVfsUtils.buildAbsolutePath(project, filePath));
-      }
-
-      if (!load(review, false))
-      {
-        continue;
-      }
-
-      if (review.isShared() == sharedFilter)
-      {
-        addReview(review);
-      }
-    }
-
-    for (Iterator<Review> it = reviews.iterator(); it.hasNext();)
-    {
-      Review review = it.next();
-      if ((!review.isEmbedded()) && (review.isShared() == sharedFilter))
-      {
-        try
-        {
-          consolidateReview(review);
-          if (changedReviews.containsValue(review))
-          {
-            fireReviewChanged(review);
-          }
-          else
-          {
-            fireReviewAdded(review);
-          }
-        }
-        catch (RevuException e)
-        {
-          it.remove();
-          LOGGER.warn("Failed to consolidate review file: " + review.getPath(), e);
-          fireReviewLoadFailed(e, review.getPath());
-        }
-      }
-    }
-  }
-
-  private void consolidateReview(Review review) throws RevuException
-  {
-    Review extendedReview = review.getExtendedReview();
-    if (extendedReview != null)
-    {
-      String title = extendedReview.getName();
-      extendedReview = reviewsByNames.get(title);
-      if (extendedReview == null)
-      {
-        throw new RevuException(
-          RevuBundle.message("friendlyError.externalizing.load.extendedNotFound.error.text", title));
-      }
-
-      checkCyclicLink(review, extendedReview);
-      review.setExtendedReview(extendedReview);
-
-      reviewsSavedHashs.put(review, review.hashCode());
-    }
-  }
-
   public void save(@NotNull Review review)
   {
     assert (!review.isEmbedded()) : "Embedded review cannot be saved : " + review;
@@ -396,11 +427,9 @@ public class ReviewManager implements ProjectComponent
     IReviewExternalizer reviewExternalizer = project.getComponent(IReviewExternalizer.class);
 
     Exception exception = null;
-    OutputStream out = null;
     try
     {
-      out = new FileOutputStream(review.getPath());
-      reviewExternalizer.save(review, out);
+      reviewExternalizer.save(review, new File(review.getPath()));
 
       fireReviewSaveSucceeded(review);
       reviewsSavedHashs.put(review, review.hashCode());
@@ -414,20 +443,6 @@ public class ReviewManager implements ProjectComponent
     {
       LOGGER.warn("Failed to save review file : " + review.getPath(), e);
       exception = e;
-    }
-    finally
-    {
-      try
-      {
-        if (out != null)
-        {
-          out.close();
-        }
-      }
-      catch (IOException e)
-      {
-        LOGGER.warn("Failed to close release review file: " + review.getPath(), e);
-      }
     }
 
     if (exception != null)
@@ -535,6 +550,18 @@ public class ReviewManager implements ProjectComponent
     for (IReviewExternalizationListener listener : copy)
     {
       listener.saveFailed(review, exception);
+    }
+  }
+
+  private static final class ReviewExtendedDepth
+  {
+    Review review;
+    int depth;
+
+    private ReviewExtendedDepth(Review review, int depth)
+    {
+      this.review = review;
+      this.depth = depth;
     }
   }
 }

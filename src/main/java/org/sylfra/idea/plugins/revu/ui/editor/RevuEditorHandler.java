@@ -95,29 +95,6 @@ public class RevuEditorHandler implements ProjectComponent
 
     EditorFactory.getInstance().removeEditorFactoryListener(editorFactoryListener);
   }
-//
-//  @Nullable
-//  Map<Issue, RangeHighlighter> getAllMarkers(@NotNull VirtualFile vFile, boolean lazyInit)
-//  {
-//    DocumentChangeTracker documentChangeTracker = changeTrackers.get(vFile);
-//    if (documentChangeTracker == null)
-//    {
-//      return null;
-//    }
-//
-//    Map<Issue, RangeHighlighter> result = new IdentityHashMap<Issue, RangeHighlighter>();
-//    for (Editor editor : documentChangeTracker.getEditors())
-//    {
-//      result = markers.get(editor);
-//      if ((result == null) && (lazyInit))
-//      {
-//        result = new IdentityHashMap<Issue, RangeHighlighter>();
-//        markers.put(editor, result);
-//      }
-//    }
-//
-//    return result;
-//  }
 
   @Nullable
   private RangeMarker findMarker(@NotNull Issue issue)
@@ -174,14 +151,6 @@ public class RevuEditorHandler implements ProjectComponent
       renderers.put(editor, editorRenderers);
     }
 
-    // Gutter renderer, only one renderer for same line start
-    CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
-    if (renderer == null)
-    {
-      renderer = new CustomGutterIconRenderer(this, issue.getLineStart());
-      editorRenderers.put(issue.getLineStart(), renderer);
-    }
-
     Map<Issue, RangeHighlighter> editorHighlighters = highlighters.get(editor);
     if (editorHighlighters == null)
     {
@@ -197,9 +166,19 @@ public class RevuEditorHandler implements ProjectComponent
         null,
         HighlighterTargetArea.LINES_IN_RANGE);
     editorHighlighters.put(issue, highlighter);
-    renderer.addIssue(issue, highlighter);
 
-    highlighter.setGutterIconRenderer(renderer);
+    // Gutter renderer, only one renderer for same line start
+    CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
+    if (renderer == null)
+    {
+      renderer = new CustomGutterIconRenderer(this, issue.getLineStart());
+      editorRenderers.put(issue.getLineStart(), renderer);
+
+      // Only set gutter icon for first highligther with same line start
+      highlighter.setGutterIconRenderer(renderer);
+    }
+
+    renderer.addIssue(issue, highlighter);
   }
 
   private void removeMarker(Issue issue)
@@ -221,14 +200,21 @@ public class RevuEditorHandler implements ProjectComponent
         if (highlighter != null)
         {
           editor.getMarkupModel().removeHighlighter(highlighter);
-          CustomGutterIconRenderer renderer = (CustomGutterIconRenderer) highlighter.getGutterIconRenderer();
+
+          Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
+          CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
           if (renderer != null)
           {
             renderer.removeIssue(issue);
             if (renderer.isEmpty())
             {
-              Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
               editorRenderers.remove(renderer.getLineStart());
+            }
+            else if (highlighter.getGutterIconRenderer() != null)
+            {
+              // Reaffecct share gutter icon to first remaining highlighter
+              RangeHighlighter marker = (RangeHighlighter) renderer.getIssues().values().iterator().next();
+              marker.setGutterIconRenderer(renderer);
             }
           }
         }

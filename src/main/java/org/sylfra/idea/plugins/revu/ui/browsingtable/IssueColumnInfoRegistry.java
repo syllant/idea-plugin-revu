@@ -111,7 +111,11 @@ public class IssueColumnInfoRegistry
       @Override
       protected String getToolTipText(Issue issue)
       {
-        return (issue == null) ? null : issue.getDesc();
+        return (issue == null)
+          ? null
+          : (((issue.getDesc() != null) && (issue.getDesc().length() > 0))
+            ? issue.getDesc()
+            : super.getToolTipText(issue));
       }
     };
 

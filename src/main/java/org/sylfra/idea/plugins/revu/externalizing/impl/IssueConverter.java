@@ -30,9 +30,14 @@ class IssueConverter extends AbstractConverter
     Issue issue = (Issue) source;
 
     Project project = getProject(context);
-    String filePath = RevuVfsUtils.buildRelativePath(project, issue.getFile());
+
+    if (issue.getFile() != null)
+    {
+      String filePath = RevuVfsUtils.buildRelativePath(project, issue.getFile());
+      writer.addAttribute("filePath", filePath);
+    }
+
     writer.addAttribute("summary", issue.getSummary());
-    writer.addAttribute("filePath", filePath);
     if (issue.getVcsRev() != null)
     {
       writer.addAttribute("vcsRev", issue.getVcsRev());
@@ -114,8 +119,13 @@ class IssueConverter extends AbstractConverter
     issue.setReview(review);
 
     Project project = getProject(context);
-    VirtualFile file = RevuVfsUtils.findVFileFromRelativeFile(project, filePath);
-    issue.setFile(file);
+
+    if (filePath != null)
+    {
+      VirtualFile file = RevuVfsUtils.findVFileFromRelativeFile(project, filePath);
+      issue.setFile(file);
+    }
+    
     issue.setVcsRev(vcsRev);
     issue.setLocalRev(localRev);
     issue.setLineStart(Integer.parseInt(lineStart));

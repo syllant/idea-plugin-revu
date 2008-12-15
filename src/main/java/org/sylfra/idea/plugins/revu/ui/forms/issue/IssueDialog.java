@@ -22,10 +22,12 @@ public class IssueDialog extends DialogWrapper
   private CardLayout cardLayout;
   private JPanel centerPanel;
   private IUpdatableForm<Issue> currentForm;
+  private final boolean create;
 
-  public IssueDialog(@NotNull Project project)
+  public IssueDialog(@NotNull Project project, boolean create)
   {
     super(project, true);
+    this.create = create;
 
     updateTabbedPane = new IssuePane(project, null);
     createMainForm = new IssueMainForm(project, true);
@@ -33,15 +35,14 @@ public class IssueDialog extends DialogWrapper
     cardLayout = new CardLayout();
     centerPanel = new JPanel(cardLayout);
 
-    setTitle(RevuBundle.message("dialog.createIssue.title"));
-
+    setTitle(RevuBundle.message(create ? "dialog.issue.create.title": "dialog.issue.update.title"));
     init();
   }
 
   @Override
   protected String getDimensionServiceKey()
   {
-    return RevuPlugin.PLUGIN_NAME + ".IssueDialog";
+    return RevuPlugin.PLUGIN_NAME + ".IssueDialog" + (create ? "_create" : "_update");
   }
 
   protected JComponent createCenterPanel()
@@ -52,10 +53,10 @@ public class IssueDialog extends DialogWrapper
     return centerPanel;
   }
 
-  public void show(@NotNull Issue issue, boolean create)
+  public void show(@NotNull Issue issue)
   {
     currentForm = (create) ? createMainForm : updateTabbedPane;
-    currentForm.updateUI(currentForm.getEnclosingReview(), issue, true);
+    currentForm.updateUI(issue.getReview(), issue, true);
 
     cardLayout.show(centerPanel, currentForm.getClass().getName());
 

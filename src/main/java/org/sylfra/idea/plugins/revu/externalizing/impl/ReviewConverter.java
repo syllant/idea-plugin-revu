@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 
 import java.util.*;
@@ -77,21 +78,43 @@ class ReviewConverter extends AbstractConverter
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
   {
+    Review review = getReview(context);
+
     String name = reader.getAttribute("name");
-    String status = reader.getAttribute("status");
-    String shared = reader.getAttribute("shared");
     String extendedReviewName = reader.getAttribute("extends");
 
-    Review review = getReview(context);
-    
     review.setName(name);
+
+    if (Boolean.TRUE.equals(context.get(ReviewExternalizerXmlImpl.CONTEXT_KEY_PREPARE_MODE)))
+    {
+      if (extendedReviewName == null)
+      {
+        review.setExtendedReview(null);
+      }
+      else
+      {
+        review.setExtendedReview(new Review(extendedReviewName));
+      }
+      return review;
+    }
+    else
+    {
+      if (extendedReviewName == null)
+      {
+        review.setExtendedReview(null);
+      }
+      else
+      {
+        ReviewManager reviewManager = getProject(context).getComponent(ReviewManager.class);
+        review.setExtendedReview(reviewManager.getReviewByName(extendedReviewName));
+      }
+    }
+
+    String status = reader.getAttribute("status");
+    String shared = reader.getAttribute("shared");
+
     review.setStatus(ReviewStatus.valueOf(status.toUpperCase()));
     review.setShared("true".equals(shared));
-
-    if (extendedReviewName != null)
-    {
-      review.setExtendedReview(new Review(extendedReviewName));
-    }
 
     while (reader.hasMoreChildren())
     {
@@ -130,7 +153,7 @@ class ReviewConverter extends AbstractConverter
   {
     public int compare(VirtualFile o1, VirtualFile o2)
     {
-      return o1.getPath().compareTo(o2.getPath());
+      return (o1 == null) ? -1 : ((o2 == null) ? -1 : o1.getPath().compareTo(o2.getPath()));
     }
   }
 }

@@ -125,8 +125,8 @@
     <action id="revu.CreateIssue"
             class="org.sylfra.idea.plugins.revu.ui.actions.issue.CreateIssueAction"
             text="Add Issue"
-            icon="/general/add.png">
-      <keyboard-shortcut first-keystroke="alt r" keymap="$default"/>
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/addIssue.png">
+      <keyboard-shortcut first-keystroke="alt i" keymap="$default"/>
     </action>
     <action id="revu.ShowUpdateIssuePopup"
             class="org.sylfra.idea.plugins.revu.ui.actions.issue.ShowUpdateIssuePopupAction"
@@ -141,7 +141,7 @@
     <action id="revu.JumpToSource"
             class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.JumpToSourceAction"
             text="Jump to Source"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/jumpToSource.png">
+            icon="/actions/editSource.png">
       <keyboard-shortcut first-keystroke="F4" keymap="$default"/>
     </action>
     <action id="revu.AutoscrollToSource"
@@ -153,7 +153,7 @@
     <group id="revu.editor.popup">
       <separator/>
       <reference ref="revu.CreateIssue"/>
-      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
     </group>
 
     <!-- Gutter -->

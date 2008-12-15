@@ -16,10 +16,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -32,6 +29,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
 
   static final String CONTEXT_KEY_PROJECT = "project";
   static final String CONTEXT_KEY_REVIEW = "review";
+  static final String CONTEXT_KEY_PREPARE_MODE = "onlyExtendInfo";
 
   private final Project project;
   // Base on XStream library
@@ -75,11 +73,12 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
   {
   }
 
-  public void load(@NotNull Review review, @NotNull InputStream stream) throws RevuException
+  public void load(@NotNull Review review, @NotNull InputStream stream, boolean prepareMode) throws RevuException
   {
     checkXStream();
 
     xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, review);
+    xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_PREPARE_MODE, prepareMode);
 
     try
     {
@@ -117,6 +116,31 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       catch (IOException e)
       {
         LOGGER.warn("Failed to serialize review: " + review, e);
+      }
+    }
+  }
+
+  public void save(@NotNull Review review, @NotNull File file) throws RevuException, IOException
+  {
+    // Review will be fully serialized into a temporary memory stream before. It prevents
+    // cases where serialization fails while writing to file and make an corrupted file
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+    save(review, baos);
+
+    FileOutputStream fos = null;
+    try
+    {
+      fos = new FileOutputStream(file);
+      byte[] content = baos.toByteArray();
+      fos.write(content);
+    }
+    finally
+    {
+      if (fos != null)
+      {
+        fos.close();
       }
     }
   }

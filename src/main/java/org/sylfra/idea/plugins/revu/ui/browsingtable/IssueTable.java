@@ -70,12 +70,6 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
 
   public void filter(@NotNull String filterValue)
   {
-    // Filter must contain at least 3 chars
-    if ((filterValue.length() < 3) && (filterValue.length() > 0))
-    {
-      return;
-    }
-
     this.filterValue = filterValue;
     getTableViewModel().fireTableDataChanged();
     ((IssueTableModel) getModel()).filter(filterValue);
@@ -119,7 +113,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
     if (PlatformDataKeys.NAVIGATABLE_ARRAY.getName().equals(dataId))
     {
       Issue currentIssue = getSelectedObject();
-      if (currentIssue != null)
+      if ((currentIssue != null) && (currentIssue.getFile() != null))
       {
         OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentIssue.getFile(),
           currentIssue.getLineStart(), 0);

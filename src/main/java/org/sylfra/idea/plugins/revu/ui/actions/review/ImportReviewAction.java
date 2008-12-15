@@ -40,8 +40,9 @@ public class ImportReviewAction extends AbstractReviewSettingsAction
       Review review = reviewManager.getReviewByPath(vFile.getPath());
       if (review != null)
       {
-        Messages.showWarningDialog(project, RevuBundle.message("projectSettings.review.import.error.title"),
-         RevuBundle.message("projectSettings.review.import.fileAlreadyExists.text", review.getName()));
+        Messages.showWarningDialog(project,
+          RevuBundle.message("projectSettings.review.import.fileAlreadyExists.text", review.getName()),
+          RevuBundle.message("projectSettings.review.import.error.title"));
         return;
       }
 
@@ -54,8 +55,9 @@ public class ImportReviewAction extends AbstractReviewSettingsAction
 
       if (reviewManager.getReviewByName(review.getName()) != null)
       {
-        Messages.showWarningDialog(project, RevuBundle.message("projectSettings.review.import.error.title"),
-         RevuBundle.message("projectSettings.review.import.nameAlreadyExists.text", review.getName()));
+        Messages.showWarningDialog(project,
+          RevuBundle.message("projectSettings.review.import.nameAlreadyExists.text", review.getName()),
+          RevuBundle.message("projectSettings.review.import.error.title"));
         return;
       }
 

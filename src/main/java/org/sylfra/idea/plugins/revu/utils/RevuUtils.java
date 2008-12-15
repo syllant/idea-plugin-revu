@@ -38,7 +38,7 @@ public class RevuUtils
   @Nullable
   public static PsiFile getPsiFile(@NotNull Project project, @NotNull Issue issue)
   {
-    return PsiManager.getInstance(project).findFile(issue.getFile());
+    return (issue.getFile() == null) ? null : PsiManager.getInstance(project).findFile(issue.getFile());
   }
 
   @Nullable
@@ -53,13 +53,16 @@ public class RevuUtils
   {
     List<Editor> result = new ArrayList<Editor>();
 
-    Editor[] editors = EditorFactory.getInstance().getAllEditors();
-    for (Editor editor : editors)
+    if (issue.getFile() != null)
     {
-      VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-      if (issue.getFile().equals(vFile))
+      Editor[] editors = EditorFactory.getInstance().getAllEditors();
+      for (Editor editor : editors)
       {
-        result.add(editor);
+        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        if (issue.getFile().equals(vFile))
+        {
+          result.add(editor);
+        }
       }
     }
 

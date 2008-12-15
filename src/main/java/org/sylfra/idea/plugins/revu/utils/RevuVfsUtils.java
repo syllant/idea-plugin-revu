@@ -2,8 +2,8 @@ package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +27,16 @@ public class RevuVfsUtils
       return vFile.getPath();
     }
 
-    String path = VfsUtil.getRelativePath(vFile, project.getBaseDir(), '/');
-    return (path == null) ? vFile.getPath() : path;
+    // Hum, VfsUtil#getPath() doesn't work as I expect (or is bugged ?)
+//    String path = VfsUtil.getPath(project.getBaseDir(), vFile, '/');
+    String path = FileUtil.getRelativePath(new File(project.getBaseDir().getPath()), new File(vFile.getPath()));
+    if (path == null)
+    {
+      return vFile.getPath();
+    }
+
+    path = path.replace('\\', '/');
+    return path;
   }
 
   @NotNull
@@ -74,9 +82,20 @@ public class RevuVfsUtils
   @Nullable
   public static VirtualFile findVFileFromRelativeFile(@NotNull Project project, @NotNull String filePath)
   {
+    File f = new File(filePath);
+    if (f.isAbsolute())
+    {
+      return LocalFileSystem.getInstance().findFileByIoFile(f);
+    }
+
     VirtualFile baseDir = project.getBaseDir();
-    return (baseDir == null) ? null : LocalFileSystem.getInstance().findFileByPath(
-      baseDir.getPath() + "/" + filePath);
+    if (baseDir == null)
+    {
+      LOGGER.warn("Can't get project base dir to compute relative path: " + f + ", project:" + project.getName());
+      return null;
+    }
+
+    return LocalFileSystem.getInstance().findFileByPath(baseDir.getPath() + "/" + filePath);
   }
 
   @NotNull

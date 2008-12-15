@@ -1,23 +1,23 @@
-
 1.0
 
-- multi-gutter
-- default review
-  - finalize referential
+- check save
+- active in diff
+- change location -> remove marker
+- template should not be saved
 
-- gutter tooltip
 - doc
+  - priorities order
 
 - tests
   - no VCS
-  - global issues
   - user
   
 cosmetics :
   - combo selection using keyboard
   - changes on referential -> change on existing issues
   - add recipients tab in create issue dialog
-  
+  - keep last dir used for creating reviews
+
 2.0
 - navigation popup in gutter
 - assign files

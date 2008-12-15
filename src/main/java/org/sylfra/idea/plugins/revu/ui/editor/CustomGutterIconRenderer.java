@@ -42,6 +42,11 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     return lineStart;
   }
 
+  public Map<Issue, RangeMarker> getIssues()
+  {
+    return issues;
+  }
+
   public void checkFullySynchronized()
   {
     boolean tmp = true;

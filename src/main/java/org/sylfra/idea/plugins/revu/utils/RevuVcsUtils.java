@@ -14,7 +14,6 @@ import com.intellij.vcsUtil.VcsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.Issue;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -57,12 +56,9 @@ public class RevuVcsUtils
   }
 
   @Nullable
-  public static boolean isUnderVcs(@NotNull Project project, @NotNull Issue issue)
+  public static boolean isUnderVcs(@NotNull Project project, @Nullable VirtualFile vFile)
   {
-    VirtualFile vFile = issue.getFile();
-    AbstractVcs vcs = VcsUtil.getVcsFor(project, vFile);
-
-    return (vcs != null);
+    return ((vFile != null) && (VcsUtil.getVcsFor(project, vFile) != null));
   }
 
   public static boolean fileIsModifiedFromVcs(@NotNull Project project, @NotNull VirtualFile vFile)

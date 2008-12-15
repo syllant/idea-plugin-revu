@@ -1,13 +1,16 @@
 package org.sylfra.idea.plugins.revu.ui.actions.review;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.Review;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,15 +19,23 @@ import java.util.List;
  */
 public class PrepareCreateReviewAction extends AbstractReviewSettingsAction
 {
-  private List<Review> editedReviews;
-
-  public void setEditedReviews(List<Review> editedReviews)
-  {
-    this.editedReviews = editedReviews;
-  }
-
   public void actionPerformed(AnActionEvent e)
   {
+    // TODO better retrieve data context
+    Component component = e.getData(DataKeys.CONTEXT_COMPONENT);
+    if (!(component instanceof JList))
+    {
+      return;
+    }
+
+    JList liReviews = (JList) component;
+    int reviewCount = liReviews.getModel().getSize();
+    List<Review> editedReviews = new ArrayList<Review>(reviewCount);
+    for (int i = 0; i < reviewCount; i++)
+    {
+      editedReviews.add((Review) liReviews.getModel().getElementAt(i));
+    }
+
     DefaultActionGroup actionGroup = new DefaultActionGroup();
     actionGroup.add(new CreateReviewAction(false, editedReviews));
     actionGroup.add(new CreateReviewAction(true, editedReviews));
@@ -33,7 +44,7 @@ public class PrepareCreateReviewAction extends AbstractReviewSettingsAction
       RevuBundle.message("projectSettings.review.addReview.title"), actionGroup, e.getDataContext(),
       JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false);
 
-    Component component = (Component) e.getInputEvent().getSource();
+    component = (Component) e.getInputEvent().getSource();
     Point locationOnScreen = component.getLocationOnScreen();
     Point location = new Point(
       (int) (locationOnScreen.getX()),
