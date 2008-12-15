@@ -475,7 +475,7 @@ public class IssueMainForm extends AbstractIssueForm
         null, 0, false));
     taDesc = new JTextArea();
     taDesc.setLineWrap(true);
-    taDesc.setRows(10);
+    taDesc.setRows(6);
     taDesc.setText("");
     taDesc.setWrapStyleWord(true);
     scrollPane1.setViewportView(taDesc);

@@ -15,6 +15,7 @@
       </includes>
       <excludes>
         <exclude>**/*.iws</exclude>
+        <exclude>**/*.iws</exclude>
       </excludes>
       <outputDirectory>/</outputDirectory>
     </fileSet>

@@ -311,16 +311,6 @@
     <option name="LOCK_ON_CHECKOUT" value="false" />
     <option name="UNLOCK_ON_CHECKIN" value="false" />
   </component>
-  <component name="SvnConfiguration">
-    <option name="USER" value="" />
-    <option name="PASSWORD" value="" />
-    <option name="LAST_MERGED_REVISION" />
-    <option name="UPDATE_RUN_STATUS" value="false" />
-    <option name="MERGE_DRY_RUN" value="false" />
-    <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
-    <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
-    <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
-  </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="" />
   </component>
@@ -362,13 +352,6 @@
   <component name="XPathView.XPathProjectComponent">
     <history />
     <find-history />
-  </component>
-  <component name="revuProjectSettings">
-    <option name="reviewFiles">
-      <list>
-        <option value="reviews/review1.xml" />
-      </list>
-    </option>
   </component>
 </project>
 

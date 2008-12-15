@@ -11,11 +11,10 @@ You may use this template when you don't want customize tags or priorities defin
 Otherwise, you should create another template suiting your needs]]></goal>
   <referential>
     <priorities>
-      <priority order="0" name="cosmetic"/>
-      <priority order="1" name="minor"/>
-      <priority order="2" name="normal"/>
-      <priority order="3" name="major"/>
-      <priority order="4" name="critical"/>
+      <priority order="0" name="minor"/>
+      <priority order="1" name="normal"/>
+      <priority order="2" name="major"/>
+      <priority order="3" name="critical"/>
     </priorities>
     <tags>
       <tag name="correctness"/>

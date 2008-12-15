@@ -37,6 +37,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
   private void checkTestFilesExists(String... fileNames)
     throws IOException
   {
+    // Hum, strange behaviour...
     for (String fileName : fileNames)
     {
       File f = new File(myProject.getBaseDir().getPath(), fileName);

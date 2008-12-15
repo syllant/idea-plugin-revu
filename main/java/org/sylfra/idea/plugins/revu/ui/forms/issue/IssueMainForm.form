@@ -142,7 +142,7 @@
             <constraints/>
             <properties>
               <lineWrap value="true"/>
-              <rows value="10"/>
+              <rows value="6"/>
               <text value=""/>
               <wrapStyleWord value="true"/>
             </properties>
