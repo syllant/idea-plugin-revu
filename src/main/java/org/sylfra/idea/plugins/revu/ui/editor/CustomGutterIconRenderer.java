@@ -207,7 +207,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         Editor editor = e.getData(DataKeys.EDITOR);
         if (editor != null)
         {
-          editor.getCaretModel().moveToOffset(editor.getDocument().getLineStartOffset(lineStart - 1));
+          editor.getCaretModel().moveToOffset(editor.getDocument().getLineStartOffset(lineStart));
         }
       }
     };

@@ -13,6 +13,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -59,6 +60,8 @@ public class RemoveReviewAction extends AbstractReviewSettingsAction
   protected boolean isEnabledForReview(@NotNull Review review)
   {
     User user = RevuUtils.getCurrentUser(review);
-    return (user != null) && (user.hasRole(User.Role.ADMIN));
+    Set<User> adminUsers = review.getDataReferential().getUsersByRole(true).get(User.Role.ADMIN);
+    return ((!review.isEmbedded())
+      && (((adminUsers == null) || (adminUsers.isEmpty())) || ((user != null) && (user.hasRole(User.Role.ADMIN)))));
   }
 }

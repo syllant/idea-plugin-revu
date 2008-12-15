@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA
 </html>
     ]]></description>
-  <version>1.0-beta</version>
+  <version>1.0</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="sylfradev@yahoo.fr"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
@@ -154,6 +154,7 @@
       <separator/>
       <reference ref="revu.CreateIssue"/>
       <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
+      <add-to-group group-id="AnalyzeMenu" anchor="last"/>
     </group>
 
     <!-- Gutter -->
