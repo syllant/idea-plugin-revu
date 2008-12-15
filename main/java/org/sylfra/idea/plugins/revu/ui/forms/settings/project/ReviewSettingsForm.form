@@ -120,7 +120,9 @@
                   </component>
                   <component id="f6aef" class="javax.swing.JLabel" binding="lbFile">
                     <constraints>
-                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="6" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="5" fill="0" indent="0" use-parent-layout="false">
+                        <minimum-size width="50" height="-1"/>
+                      </grid>
                     </constraints>
                     <properties>
                       <text value="file" noi18n="true"/>

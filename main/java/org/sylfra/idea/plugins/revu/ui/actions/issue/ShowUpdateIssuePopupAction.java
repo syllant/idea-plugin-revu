@@ -19,13 +19,13 @@ public class ShowUpdateIssuePopupAction extends AnAction
     Project project = e.getData(DataKeys.PROJECT);
     Issue issue = e.getData(RevuDataKeys.ISSUE);
 
-    if (issue == null)
+    if ((issue == null) || (project == null))
     {
       return;
     }
 
-    IssueDialog dialog = new IssueDialog(project);
-    dialog.show(issue, false);
+    IssueDialog dialog = new IssueDialog(project, false);
+    dialog.show(issue);
     if (dialog.isOK())
     {
       dialog.updateData(issue);

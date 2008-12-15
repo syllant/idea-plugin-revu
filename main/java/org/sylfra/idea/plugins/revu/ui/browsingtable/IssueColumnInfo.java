@@ -98,7 +98,8 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
 
   protected String getToolTipText(Issue issue)
   {
-    return formatValue(valueOf(issue));
+    String result = formatValue(valueOf(issue));
+    return ("".equals(result)) ? null : result;
   }
 
   @Override

@@ -10,6 +10,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,18 @@ public class RemoveIssueAction extends AbstractIssueAction
   {
     Project project = e.getData(DataKeys.PROJECT);
     List<Issue> issues = e.getData(RevuDataKeys.ISSUE_ARRAY);
+
+    if (issues == null)
+    {
+      Issue issue = e.getData(RevuDataKeys.ISSUE);
+      if (issue == null)
+      {
+        return;
+      }
+
+      issues = new ArrayList<Issue>();
+      issues.add(issue);
+    }
 
     Set<Review> reviewsToSave = new HashSet<Review>();
     if (issues != null)

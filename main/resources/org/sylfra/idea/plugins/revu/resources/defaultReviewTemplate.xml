@@ -11,13 +11,22 @@ You may use this template when you don't want customize tags or priorities defin
 Otherwise, you should create another template suiting your needs]]></goal>
   <referential>
     <priorities>
-      <priority order="0" name="low"/>
-      <priority order="1" name="normal"/>
-      <priority order="2" name="high"/>
+      <priority order="0" name="cosmetic"/>
+      <priority order="1" name="minor"/>
+      <priority order="2" name="normal"/>
+      <priority order="3" name="major"/>
+      <priority order="4" name="critical"/>
     </priorities>
     <tags>
-      <tag name="tag1"/>
-      <tag name="tag2"/>
+      <tag name="correctness"/>
+      <tag name="cosmetic"/>
+      <tag name="documentation"/>
+      <tag name="duplication"/>
+      <tag name="maintenability"/>
+      <tag name="optimization"/>
+      <tag name="portability"/>
+      <tag name="question"/>
+      <tag name="standard"/>
     </tags>
   </referential>
 </review>

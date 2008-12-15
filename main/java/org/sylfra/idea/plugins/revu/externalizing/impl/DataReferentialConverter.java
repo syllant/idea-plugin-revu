@@ -9,8 +9,8 @@ import org.sylfra.idea.plugins.revu.model.IssuePriority;
 import org.sylfra.idea.plugins.revu.model.IssueTag;
 import org.sylfra.idea.plugins.revu.model.User;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -74,7 +74,7 @@ class DataReferentialConverter extends AbstractConverter
       reader.moveDown();
       if ("priorities".equals(reader.getNodeName()))
       {
-        Set<IssuePriority> priorities = new HashSet<IssuePriority>();
+        List<IssuePriority> priorities = new ArrayList<IssuePriority>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
@@ -85,7 +85,7 @@ class DataReferentialConverter extends AbstractConverter
       }
       else if ("tags".equals(reader.getNodeName()))
       {
-        Set<IssueTag> tags = new HashSet<IssueTag>();
+        List<IssueTag> tags = new ArrayList<IssueTag>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();
@@ -96,7 +96,7 @@ class DataReferentialConverter extends AbstractConverter
       }
       else if ("users".equals(reader.getNodeName()))
       {
-        Set<User> users = new HashSet<User>();
+        List<User> users = new ArrayList<User>();
         while (reader.hasMoreChildren())
         {
           reader.moveDown();

@@ -1,8 +1,11 @@
 package org.sylfra.idea.plugins.revu.externalizing;
 
+import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.model.Review;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -12,9 +15,11 @@ import java.io.OutputStream;
  */
 public interface IReviewExternalizer
 {
-  void load(Review review, InputStream stream) throws RevuException;
+  void load(@NotNull Review review, @NotNull InputStream stream, boolean prepare) throws RevuException;
 
-  void save(Review review) throws RevuException;
+  void save(@NotNull Review review) throws RevuException;
 
-  void save(Review review, OutputStream stream) throws RevuException;
+  void save(@NotNull Review review, @NotNull File file) throws RevuException, IOException;
+
+  void save(Review review, @NotNull OutputStream stream) throws RevuException;
 }

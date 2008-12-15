@@ -15,6 +15,7 @@ import javax.swing.border.CompoundBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -44,7 +45,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
   public boolean validateInput()
   {
-    errors.clear();
+    clearErrors();
     internalValidateInput();
     return errors.isEmpty();
   }
@@ -65,7 +66,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     updateError(component, hasError, RevuBundle.message("general.fieldRequired.text"));
   }
 
-  protected void updateError(JComponent component, boolean hasError, String message)
+  protected void updateError(@NotNull JComponent component, boolean hasError, @Nullable String message)
   {
     // One error max by component
     if (errors.contains(component))
@@ -120,6 +121,15 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     }
   }
 
+  protected void clearErrors()
+  {
+    for (Iterator<JComponent> it = errors.listIterator(); it.hasNext();)
+    {
+      updateError(it.next(), false, null);
+      it.remove();
+    }
+  }
+
   protected void updateTabIcons(JTabbedPane tabbedPane)
   {
     for (int i = 0; i < tabbedPane.getComponents().length; i++)
@@ -150,7 +160,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
   public final void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus)
   {
     this.enclosingReview = enclosingReview;
-    errors.clear();
+    clearErrors();
 
     internalUpdateUI(data, requestFocus);
 

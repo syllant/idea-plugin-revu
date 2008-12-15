@@ -21,7 +21,6 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewExternalizationListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
@@ -49,7 +48,6 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
   private ScheduledFuture<?> blinkerTask;
   private boolean mustBlink;
   private StatusBarComponent.PopupNotifier popupNotifier;
-  private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
   private IReviewExternalizationListener reviewExternalizationListener;
 
   public StatusBarComponent(final Project project)
@@ -249,7 +247,6 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
   public void disposeComponent()
   {
-    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).addListener(appSettingsListener);
   }
 
   private class Blinker implements Runnable

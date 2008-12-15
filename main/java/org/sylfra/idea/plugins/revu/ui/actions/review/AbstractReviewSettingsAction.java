@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -31,19 +32,20 @@ abstract class AbstractReviewSettingsAction extends AnAction
   @Override
   public void update(AnActionEvent e)
   {
-    boolean enabled = false;
-
-    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
-    if (liReviews != null)
+    Component component = e.getData(DataKeys.CONTEXT_COMPONENT);
+    if (!(component instanceof JList))
     {
-      Review selectedReview = (Review) liReviews.getSelectedValue();
-      if (selectedReview != null)
-      {
-        enabled = isEnabledForReview(selectedReview);
-      }
+      return;
     }
 
-    e.getPresentation().setEnabled(enabled);
+    JList liReviews = (JList) component;
+    Object selectedValue = liReviews.getSelectedValue();
+    if (!(selectedValue instanceof Review))
+    {
+      return;
+    }
+
+    e.getPresentation().setEnabled(isEnabledForReview((Review) selectedValue));
   }
 
   protected boolean isEnabledForReview(@NotNull Review review)

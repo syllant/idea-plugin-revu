@@ -36,12 +36,21 @@ public class IssueTag extends AbstractRevuEntity<IssueTag> implements Comparable
   @Override
   public boolean equals(Object o)
   {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+    {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass())
+    {
+      return false;
+    }
 
-    IssueTag tag = (IssueTag) o;
+    IssueTag issueTag = (IssueTag) o;
 
-    if (!name.equals(tag.name)) return false;
+    if (name != null ? !name.equals(issueTag.name) : issueTag.name != null)
+    {
+      return false;
+    }
 
     return true;
   }
@@ -49,6 +58,6 @@ public class IssueTag extends AbstractRevuEntity<IssueTag> implements Comparable
   @Override
   public int hashCode()
   {
-    return name.hashCode();
+    return name != null ? name.hashCode() : 0;
   }
 }

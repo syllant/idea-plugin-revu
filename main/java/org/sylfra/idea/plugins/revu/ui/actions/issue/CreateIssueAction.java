@@ -53,8 +53,8 @@ public class CreateIssueAction extends AbstractIssueAction
     }
     issue.setStatus(IssueStatus.TO_RESOLVE);
 
-    IssueDialog dialog = new IssueDialog(project);
-    dialog.show(issue, true);
+    IssueDialog dialog = new IssueDialog(project, true);
+    dialog.show(issue);
     if (dialog.isOK())
     {
       dialog.updateData(issue);
@@ -70,10 +70,13 @@ public class CreateIssueAction extends AbstractIssueAction
         issue.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
       }
 
-      VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, issue.getFile());
-      if (vcsRev != null)
+      if (issue.getFile() != null)
       {
-        issue.setVcsRev(vcsRev.toString());
+        VcsRevisionNumber vcsRev = RevuVcsUtils.getVcsRevisionNumber(project, issue.getFile());
+        if (vcsRev != null)
+        {
+          issue.setVcsRev(vcsRev.toString());
+        }
       }
 
       review.addIssue(issue);
@@ -88,8 +91,9 @@ public class CreateIssueAction extends AbstractIssueAction
   {
     boolean enabled = false;
     Project project = e.getData(DataKeys.PROJECT);
+    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
 
-    if (project != null)
+    if ((project != null) && (vFile != null))
     {
       List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
       for (Review review : reviews)

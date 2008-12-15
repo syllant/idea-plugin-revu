@@ -54,7 +54,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     try
     {
       Review review = new Review();
-      impl.load(review, getClass().getClassLoader().getResourceAsStream("review-test-unit.xml"));
+      impl.load(review, getClass().getClassLoader().getResourceAsStream("review-test-unit.xml"), false);
 
       Review sampleReview = buildSampleReview();
 

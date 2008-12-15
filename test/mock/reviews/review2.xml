@@ -20,16 +20,16 @@
     </users>
   </referential>
   <issues>
-    <issue summary="item1" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229170637843" lineStart="-1" lineEnd="-1" hash="-1972990618" status="to_resolve">
-      <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T01:17:17" lastUpdatedOn="2008-12-14T11:25:00"/>
+    <issue filePath="src/com/a/ClassA.java" summary="item1" vcsRev="8" localRev="1229170637843" lineStart="-1" lineEnd="-1" hash="-1972990618" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T01:17:17" lastUpdatedOn="2008-12-15T01:51:23"/>
     </issue>
-    <issue summary="aa zz" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" status="to_resolve">
+    <issue filePath="src/com/a/ClassA.java" summary="aa zz" vcsRev="8" localRev="1229174045734" lineStart="73" lineEnd="75" hash="-1301829843" status="to_resolve">
       <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T02:14:05" lastUpdatedOn="2008-12-14T11:25:00"/>
     </issue>
-    <issue summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176219156" lineStart="76" lineEnd="76" hash="363132110" status="to_resolve">
-      <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:50:19" lastUpdatedOn="2008-12-13T02:50:19"/>
+    <issue filePath="src/com/a/ClassA.java" summary="aa" vcsRev="8" localRev="1229176219156" lineStart="76" lineEnd="76" hash="363132110" status="to_resolve">
+      <history createdBy="aa" lastUpdatedBy="[unknown]" createdOn="2008-12-13T02:50:19" lastUpdatedOn="2008-12-15T01:51:24"/>
     </issue>
-    <issue summary="aa" filePath="src/com/a/ClassA.java" vcsRev="8" localRev="1229176349296" lineStart="75" lineEnd="75" hash="-1527490382" tags="tag2b" status="to_resolve">
+    <issue filePath="src/com/a/ClassA.java" summary="aa" vcsRev="8" localRev="1229176349296" lineStart="75" lineEnd="75" hash="-1527490382" tags="tag2b" status="to_resolve">
       <history createdBy="aa" lastUpdatedBy="aa" createdOn="2008-12-13T02:52:29" lastUpdatedOn="2008-12-13T02:52:29"/>
     </issue>
   </issues>
