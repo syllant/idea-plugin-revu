@@ -1,9 +1,16 @@
 package org.sylfra.idea.plugins.revu.business;
 
+import com.intellij.AppTopics;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileDocumentManagerAdapter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.*;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -12,7 +19,9 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
+import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
+import org.sylfra.idea.plugins.revu.settings.project.AbstractReviewFilesRevuSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
@@ -35,9 +44,10 @@ public class ReviewManager implements ProjectComponent
     EMBEDDED_REVIEWS.put("[default]", "/org/sylfra/idea/plugins/revu/resources/defaultReviewTemplate.xml");
   }
 
-  private Project project;
+  private final Project project;
+  private final RevuFileListener fileListener;
   private List<Review> reviews;
-  private Map<Review, Integer> reviewsSavedHashs;
+  private Map<Review, MetaReview> metaReviews;
   private Map<String, Review> reviewsByPaths;
   private Map<String, Review> reviewsByNames;
   private final List<IReviewListener> reviewListeners;
@@ -48,8 +58,9 @@ public class ReviewManager implements ProjectComponent
   public ReviewManager(Project project)
   {
     this.project = project;
+    this.fileListener = new RevuFileListener(project, this);
     reviews = new ArrayList<Review>();
-    reviewsSavedHashs = new IdentityHashMap<Review, Integer>();
+    metaReviews = new IdentityHashMap<Review, MetaReview>();
     reviewsByPaths = new HashMap<String, Review>();
     reviewsByNames = new HashMap<String, Review>();
     reviewListeners = new ArrayList<IReviewListener>();
@@ -171,6 +182,7 @@ public class ReviewManager implements ProjectComponent
 
   public void disposeComponent()
   {
+    fileListener.dispose();
   }
 
   public void addReviewListener(@NotNull IReviewListener listener)
@@ -198,12 +210,55 @@ public class ReviewManager implements ProjectComponent
     reviews.add(review);
     reviewsByPaths.put(review.getPath(), review);
     reviewsByNames.put(review.getName(), review);
-    reviewsSavedHashs.put(review, review.hashCode());
+    metaReviews.put(review, new MetaReview(review, 0));
   }
 
-  public boolean isModified(@NotNull Review review)
+  public void removeReview(@NotNull Review review)
   {
-    return (review.hashCode() != reviewsSavedHashs.get(review));
+    reviews.remove(review);
+    reviewsByPaths.remove(review.getPath());
+    reviewsByNames.remove(review.getName());
+    metaReviews.remove(review);
+
+    fireReviewDeleted(review);
+  }
+
+  public void reviewFileChanged(@NotNull Review review, @NotNull VirtualFile newFile)
+  {
+    String oldPath = review.getPath();
+    String newPath = newFile.getPath();
+
+    reviewsByPaths.remove(oldPath);
+
+    review.setPath(newPath);
+    reviewsByPaths.put(oldPath, review);
+
+    fireReviewChanged(review);
+
+    Class<? extends AbstractReviewFilesRevuSettingsComponent> settingsComponentClass =
+      review.isShared() ? RevuProjectSettingsComponent.class : RevuWorkspaceSettingsComponent.class;
+    AbstractReviewFilesRevuSettingsComponent settingsComponent = project.getComponent(settingsComponentClass);
+
+    AbstractReviewFilesRevuSettings state = (AbstractReviewFilesRevuSettings) settingsComponent.getState();
+    List<String> reviewFiles = state.getReviewFiles();
+    int index = reviewFiles.indexOf(RevuVfsUtils.buildRelativePath(project, oldPath));
+    if (index != -1)
+    {
+      reviewFiles.set(index, RevuVfsUtils.buildRelativePath(project, newPath));
+      settingsComponent.loadState(state);
+    }
+  }
+
+  public boolean isContentModified(@NotNull Review review)
+  {
+    MetaReview meta = metaReviews.get(review);
+    return ((meta == null) || (review.hashCode() != meta.contentHash));
+  }
+
+  public long getLastSavedTStamp(@NotNull Review review)
+  {
+    MetaReview meta = metaReviews.get(review);
+    return (meta == null) ? -1 : meta.lastSaved;
   }
 
   @Nullable
@@ -259,10 +314,9 @@ public class ReviewManager implements ProjectComponent
         {
           fireReviewDeleted(review);
         }
-        review.clearIssuesListeners();
         reviewsByPaths.remove(review.getPath());
         reviewsByNames.remove(review.getName());
-        reviewsSavedHashs.remove(review);
+        metaReviews.remove(review);
         it.remove();
       }
     }
@@ -285,7 +339,7 @@ public class ReviewManager implements ProjectComponent
     {
       if ((!review.isEmbedded()) && (((sharedFilter == null) || review.isShared() == sharedFilter)))
       {
-        reviewsSavedHashs.put(review, review.hashCode());
+        metaReviews.put(review, new MetaReview(review, System.currentTimeMillis()));
 
         if (changedReviews.containsValue(review))
         {
@@ -420,19 +474,23 @@ public class ReviewManager implements ProjectComponent
     return true;
   }
 
-  public void save(@NotNull Review review)
+  public void save(@NotNull Review review) throws RevuException, IOException
   {
     assert (!review.isEmbedded()) : "Embedded review cannot be saved : " + review;
-    
+
     IReviewExternalizer reviewExternalizer = project.getComponent(IReviewExternalizer.class);
 
+    reviewExternalizer.save(review, new File(review.getPath()));
+    fireReviewSaveSucceeded(review);
+    metaReviews.put(review, new MetaReview(review, System.currentTimeMillis()));
+  }
+
+  public void saveSilently(@NotNull Review review)
+  {
     Exception exception = null;
     try
     {
-      reviewExternalizer.save(review, new File(review.getPath()));
-
-      fireReviewSaveSucceeded(review);
-      reviewsSavedHashs.put(review, review.hashCode());
+      save(review);
     }
     catch (IOException e)
     {
@@ -455,10 +513,13 @@ public class ReviewManager implements ProjectComponent
   {
     for (Review review : reviews)
     {
-      if ((!review.isEmbedded())
-        && ((!reviewsSavedHashs.containsKey(review)) || (review.hashCode() != reviewsSavedHashs.get(review))))
+      if (!review.isEmbedded())
       {
-        save(review);
+        MetaReview metaReview = metaReviews.get(review);
+        if (review.hashCode() != metaReview.contentHash)
+        {
+          saveSilently(review);
+        }
       }
     }
   }
@@ -558,10 +619,120 @@ public class ReviewManager implements ProjectComponent
     Review review;
     int depth;
 
-    private ReviewExtendedDepth(Review review, int depth)
+    private ReviewExtendedDepth(@NotNull Review review, int depth)
     {
       this.review = review;
       this.depth = depth;
+    }
+  }
+
+  private static final class MetaReview
+  {
+    Review review;
+    int contentHash;
+    long lastSaved;
+
+    public MetaReview(Review review, long lastSaved)
+    {
+      this.review = review;
+      this.lastSaved = lastSaved;
+      contentHash = review.hashCode();
+    }
+  }
+
+  /**
+ * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+   * @version $Id$
+   */
+  public static class RevuFileListener implements Disposable
+  {
+    private final Project project;
+    private final ReviewManager reviewManager;
+    private final VirtualFileListener virtualFileListener;
+    private final FileDocumentManagerAdapter fileDocumentManagerListener;
+    private MessageBusConnection messageBusConnection;
+
+    public RevuFileListener(final Project project, final ReviewManager reviewManager)
+    {
+      this.reviewManager = reviewManager;
+      this.project = project;
+
+      virtualFileListener = new VirtualFileAdapter()
+      {
+        @Override
+        public void contentsChanged(VirtualFileEvent event)
+        {
+          VirtualFile vFile = event.getFile();
+
+          Review review = reviewManager.getReviewByPath(vFile.getPath());
+          if ((review != null) && (vFile.getTimeStamp() > reviewManager.getLastSavedTStamp(review)))
+          {
+            if (Messages.showOkCancelDialog(project,
+              RevuBundle.message("general.reviewFileChanged.text", review.getName()),
+              RevuBundle.message("general.reviewFileChanged.title"),
+              Messages.getWarningIcon()) == DialogWrapper.OK_EXIT_CODE)
+            {
+              reviewManager.load(review, false);
+            }
+          }
+        }
+
+        @Override
+        public void fileDeleted(VirtualFileEvent event)
+        {
+          VirtualFile vFile = event.getFile();
+          Review review = reviewManager.getReviewByPath(vFile.getPath());
+          if (review != null)
+          {
+            reviewManager.removeReview(review);
+          }
+        }
+
+        @Override
+        public void propertyChanged(VirtualFilePropertyEvent event)
+        {
+          if (VirtualFile.PROP_NAME.equals(event.getPropertyName()))
+          {
+            String oldPath = event.getFile().getParent().getPath() + "/" + event.getOldValue();
+            pathChanged(event.getFile(), oldPath);
+          }
+        }
+
+        @Override
+        public void fileMoved(VirtualFileMoveEvent event)
+        {
+          String oldPath = event.getOldParent().getPath() + "/" + event.getFileName();
+          pathChanged(event.getFile(), oldPath);
+        }
+      };
+
+      fileDocumentManagerListener = new FileDocumentManagerAdapter() {
+        @Override
+        public void beforeAllDocumentsSaving()
+        {
+          // File with issues
+          reviewManager.saveChangedReviews();
+        }
+      };
+      messageBusConnection = this.project.getMessageBus().connect();
+
+      LocalFileSystem.getInstance().addVirtualFileListener(virtualFileListener);
+      messageBusConnection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, fileDocumentManagerListener);
+    }
+
+    private void pathChanged(VirtualFile vFile, String oldPath)
+    {
+      Review review = reviewManager.getReviewByPath(oldPath);
+      if (review != null)
+      {
+        reviewManager.reviewFileChanged(review, vFile);
+      }
+    }
+
+    public void dispose()
+    {
+      LocalFileSystem.getInstance().removeVirtualFileListener(virtualFileListener);
+      messageBusConnection.disconnect();
     }
   }
 }

@@ -29,8 +29,8 @@ public class IssueDialog extends DialogWrapper
     super(project, true);
     this.create = create;
 
-    updateTabbedPane = new IssuePane(project, null);
-    createMainForm = new IssueMainForm(project, true);
+    updateTabbedPane = new IssuePane(project, null, true);
+    createMainForm = new IssueMainForm(project, create, true);
 
     cardLayout = new CardLayout();
     centerPanel = new JPanel(cardLayout);

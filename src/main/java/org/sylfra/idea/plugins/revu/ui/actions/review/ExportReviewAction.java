@@ -25,8 +25,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -57,11 +55,9 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
     File f = exportDialog.getFile();
     if (f != null)
     {
-      FileOutputStream out = null;
       try
       {
-        out = new FileOutputStream(f);
-        project.getComponent(IReviewExternalizer.class).save(review, out);
+        project.getComponent(IReviewExternalizer.class).save(review, f);
       }
       catch (Exception ex)
       {
@@ -71,20 +67,6 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
           f.getPath(), ex.getMessage());
         StatusBarComponent.showMessageInPopup(project, (new StatusBarMessage(StatusBarMessage.Type.ERROR, errorTitle,
           errorDetails)), false);
-      }
-      finally
-      {
-        if (out != null)
-        {
-          try
-          {
-            out.close();
-          }
-          catch (IOException ex)
-          {
-            LOGGER.warn("Failed to close exported review file", ex);
-          }
-        }
       }
     }
   }

@@ -3,7 +3,7 @@ package org.sylfra.idea.plugins.revu.settings.project;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComponent;
 
 /**
  * Manage plugin settings
@@ -22,7 +22,7 @@ import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
       file = "$PROJECT_FILE$"
     )}
 )
-public class RevuProjectSettingsComponent extends AbstractRevuSettingsComponent<RevuProjectSettings>
+public class RevuProjectSettingsComponent extends AbstractReviewFilesRevuSettingsComponent<RevuProjectSettings>
   implements PersistentStateComponent<RevuProjectSettings>
 {
   /**

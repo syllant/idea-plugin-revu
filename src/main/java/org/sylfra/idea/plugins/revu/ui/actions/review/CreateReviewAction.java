@@ -11,6 +11,7 @@ import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.CreateReviewDialog;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.util.Date;
@@ -52,7 +53,7 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
     DefaultListModel model = (DefaultListModel) liReviews.getModel();
     Review review = new Review();
     review.setStatus(ReviewStatus.DRAFT);
-    review.setPath(dialog.getReviewPath());
+    review.setPath(RevuVfsUtils.buildAbsolutePath(dialog.getReviewFile()));
     review.setName(dialog.getReviewName());
     review.setShared(shared);
     switch (dialog.getImportType())

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <review xmlns="http://plugins.intellij.net/revu"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd"
+        xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/revu/ns/revu_1_0.xsd"
         name="Test review" status="true" shared="true">
   <history createdBy="u1" lastUpdatedBy="u2" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
   <goal>A test review. A test review. A test review. A test review. A test review.</goal>

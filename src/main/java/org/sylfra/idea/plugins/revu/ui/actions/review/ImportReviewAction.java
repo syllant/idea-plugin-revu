@@ -9,6 +9,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.utils.ReviewFileChooser;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 
@@ -49,9 +50,12 @@ public class ImportReviewAction extends AbstractReviewSettingsAction
       //@TODO check path outside from project
       JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
       review = new Review();
-      review.setPath(vFile.getPath());
+      review.setPath(RevuVfsUtils.buildAbsolutePath(vFile.getPath()));
 
-      reviewManager.load(review, true);
+      if (!reviewManager.load(review, false))
+      {
+        return;
+      }
 
       if (reviewManager.getReviewByName(review.getName()) != null)
       {

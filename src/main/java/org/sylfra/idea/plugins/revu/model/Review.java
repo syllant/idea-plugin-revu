@@ -235,6 +235,11 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     issueListeners.remove(listener);
   }
 
+  public boolean hasIssueListener(IIssueListener listener)
+  {
+    return issueListeners.contains(listener);
+  }
+
   public void clearIssuesListeners()
   {
     issueListeners.clear();

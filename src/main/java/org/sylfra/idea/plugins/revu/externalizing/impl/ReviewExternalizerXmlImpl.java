@@ -91,35 +91,6 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
     }
   }
 
-  public void save(@NotNull Review review) throws RevuException
-  {
-    OutputStream out = null;
-    try
-    {
-      out = new FileOutputStream(review.getPath());
-      save(review, out);
-    }
-    catch (IOException e)
-    {
-      LOGGER.warn(e);
-      throw new RevuException(e);
-    }
-    finally
-    {
-      try
-      {
-        if (out != null)
-        {
-          out.close();
-        }
-      }
-      catch (IOException e)
-      {
-        LOGGER.warn("Failed to serialize review: " + review, e);
-      }
-    }
-  }
-
   public void save(@NotNull Review review, @NotNull File file) throws RevuException, IOException
   {
     // Review will be fully serialized into a temporary memory stream before. It prevents

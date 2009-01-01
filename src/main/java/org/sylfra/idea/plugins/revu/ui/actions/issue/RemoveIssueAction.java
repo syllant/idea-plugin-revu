@@ -53,7 +53,7 @@ public class RemoveIssueAction extends AbstractIssueAction
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       for (Review review : reviewsToSave)
       {
-        reviewManager.save(review);
+        reviewManager.saveSilently(review);
       }
     }
   }

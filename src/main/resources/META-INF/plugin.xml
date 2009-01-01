@@ -6,17 +6,19 @@
   <name>reVu</name>
   <description><![CDATA[
 <html>
-  Team Code Reviewer for Intellij IDEA
+  Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="sylfradev@yahoo.fr"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
-  First public release
+  <ul>
+    <li>Fix: review import was invalid in some cases
+  </ul>
 </html>
 ]]></change-notes>
   <idea-version since-build="8000"/>
@@ -70,9 +72,6 @@
     </component>
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.ui.editor.RevuEditorHandler</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.business.RevuFileListener</implementation-class>
     </component>
   </project-components>
 

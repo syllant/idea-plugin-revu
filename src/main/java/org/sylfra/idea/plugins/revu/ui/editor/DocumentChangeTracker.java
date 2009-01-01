@@ -7,15 +7,11 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.Issue;
 
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -25,16 +21,12 @@ class DocumentChangeTracker implements DocumentListener
 {
   private static final Key<Object> ORPHAN_MARKER_KEY = Key.create("revu.OrhpanMarker");
 
-  private final VirtualFile vFile;
   private final Document document;
   private final Set<Editor> editors;
   private final Map<Issue, RangeMarker> markers;
-  private RevuEditorHandler revuEditorHandler;
 
-  public DocumentChangeTracker(RevuEditorHandler revuEditorHandler, VirtualFile vFile, Document document)
+  public DocumentChangeTracker(Document document)
   {
-    this.revuEditorHandler = revuEditorHandler;
-    this.vFile = vFile;
     this.document = document;
 
     editors = new HashSet<Editor>();
@@ -111,7 +103,8 @@ class DocumentChangeTracker implements DocumentListener
 
   private void updateIssues(int lineStart)
   {
-    for (Map.Entry<Issue, RangeMarker> entry : markers.entrySet())
+    Map<Issue, RangeMarker> markersCopy = new HashMap<Issue, RangeMarker>(markers);
+    for (Map.Entry<Issue, RangeMarker> entry : markersCopy.entrySet())
     {
       Issue issue = entry.getKey();
       RangeMarker marker = entry.getValue();

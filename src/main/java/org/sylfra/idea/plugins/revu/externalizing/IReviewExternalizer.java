@@ -7,7 +7,6 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -17,9 +16,5 @@ public interface IReviewExternalizer
 {
   void load(@NotNull Review review, @NotNull InputStream stream, boolean prepare) throws RevuException;
 
-  void save(@NotNull Review review) throws RevuException;
-
   void save(@NotNull Review review, @NotNull File file) throws RevuException, IOException;
-
-  void save(Review review, @NotNull OutputStream stream) throws RevuException;
 }

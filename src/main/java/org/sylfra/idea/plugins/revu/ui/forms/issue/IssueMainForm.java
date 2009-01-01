@@ -34,6 +34,7 @@ import java.util.List;
 public class IssueMainForm extends AbstractIssueForm
 {
   private final boolean createMode;
+  private final boolean inDialog;
   private TagsPane tagsPane;
   private JPanel contentPane;
   private JTextArea taDesc;
@@ -50,10 +51,11 @@ public class IssueMainForm extends AbstractIssueForm
   private JPanel pnReview;
   private ButtonGroup bgLocation;
 
-  public IssueMainForm(@NotNull Project project, boolean createMode)
+  public IssueMainForm(@NotNull Project project, boolean createMode, boolean inDialog)
   {
     super(project);
     this.createMode = createMode;
+    this.inDialog = inDialog;
     $$$setupUI$$$();
     configureUI();
   }
@@ -774,7 +776,7 @@ public class IssueMainForm extends AbstractIssueForm
       add(toolbar);
 
       popup = new ElementsChooserPopup<IssueTag>(project, RevuBundle.message("issueForm.tagsPopup.title"),
-        RevuPlugin.PLUGIN_NAME + ".TagsChooser",
+        RevuPlugin.PLUGIN_NAME + ".TagsChooser" + (inDialog ? "Dialog" : ""),
         new ElementsChooserPopup.IPopupListener<IssueTag>()
         {
           public void apply(@NotNull List<IssueTag> markedElements)

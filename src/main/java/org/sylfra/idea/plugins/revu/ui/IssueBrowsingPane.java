@@ -31,6 +31,7 @@ import org.sylfra.idea.plugins.revu.ui.browsingtable.*;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssuePane;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -129,7 +130,7 @@ public class IssueBrowsingPane implements Disposable
       }
     });
 
-    issuePane = new IssuePane(project, issueTable);
+    issuePane = new IssuePane(project, issueTable, false);
 
     RevuWorkspaceSettingsComponent workspaceSettingsComponent = project.getComponent(
       RevuWorkspaceSettingsComponent.class);
@@ -184,15 +185,13 @@ public class IssueBrowsingPane implements Disposable
       public void issueAdded(Issue issue)
       {
         updateMessageCount();
-
-        // Let table add item so we may select it AFTER
+        issueTable.getIssueTableModel().issueAdded(issue);
       }
 
       public void issueDeleted(Issue issue)
       {
         updateMessageCount();
-
-        // Let table remove item so we may select first row if possible
+        issueTable.getIssueTableModel().issueDeleted(issue);
       }
 
       public void issueUpdated(final Issue issue)
@@ -208,6 +207,8 @@ public class IssueBrowsingPane implements Disposable
         {
           issuePane.updateUI(issue.getReview(), issue, false);
         }
+
+        issueTable.getIssueTableModel().issueUpdated(issue);
       }
     };
 
@@ -222,6 +223,18 @@ public class IssueBrowsingPane implements Disposable
       {
         public void reviewChanged(Review review)
         {
+          if (RevuUtils.isActive(review))
+          {
+            if (!review.hasIssueListener(issueListener))
+            {
+              review.addIssueListener(issueListener);
+            }
+          }
+          else
+          {
+            review.removeIssueListener(issueListener);
+          }
+
           issueTable.getListTableModel().setItems(retrieveIssues());
           checkRowSelected();
           checkMessageInsteadOfPane();
@@ -239,6 +252,7 @@ public class IssueBrowsingPane implements Disposable
 
         public void reviewDeleted(Review review)
         {
+          review.removeIssueListener(issueListener);
           issueTable.getListTableModel().setItems(retrieveIssues());
           checkRowSelected();
           checkMessageInsteadOfPane();
@@ -291,7 +305,7 @@ public class IssueBrowsingPane implements Disposable
 
     if (issuePane.updateData(current))
     {
-      project.getComponent(ReviewManager.class).save(current.getReview());
+      project.getComponent(ReviewManager.class).saveSilently(current.getReview());
       return true;
     }
 

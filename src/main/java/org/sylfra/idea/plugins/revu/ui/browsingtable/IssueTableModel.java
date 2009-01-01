@@ -6,8 +6,6 @@ import com.intellij.util.ui.ListTableModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
-import org.sylfra.idea.plugins.revu.business.IReviewListener;
-import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
@@ -16,7 +14,6 @@ import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSett
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,46 +35,11 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
 
     setSortable(true);
 
-    installListeners(project, review);
+    installListeners(project);
   }
 
-  private void installListeners(final Project project, Review review)
+  private void installListeners(final Project project)
   {
-    if (review != null)
-    {
-      review.addIssueListener(this);
-    }
-    else
-    {
-      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      reviewManager.addReviewListener(new IReviewListener()
-      {
-        public void reviewChanged(Review review)
-        {
-        }
-
-        public void reviewAdded(Review review)
-        {
-          allItems.addAll(review.getIssues());
-          visibleItems.addAll(review.getIssues());
-          resort(visibleItems);
-
-          fireTableDataChanged();
-          review.addIssueListener(IssueTableModel.this);
-        }
-
-        public void reviewDeleted(Review review)
-        {
-          review.removeIssueListener(IssueTableModel.this);
-        }
-      });
-      Collection<Review> reviews = reviewManager.getReviews();
-      for (Review aReview : reviews)
-      {
-        aReview.addIssueListener(this);
-      }
-    }
-
     project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(new IRevuSettingsListener<RevuWorkspaceSettings>()
     {
       public void settingsChanged(RevuWorkspaceSettings settings)
@@ -97,6 +59,11 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
     super.setItems(issues);
     visibleItems = issues;
     allItems = new ArrayList<Issue>(issues);
+  }
+
+  public Issue getIssue(int row)
+  {
+    return (Issue) getItem(row);  
   }
 
   public void issueAdded(Issue issue)

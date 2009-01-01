@@ -34,6 +34,7 @@ import java.util.ResourceBundle;
 public class IssuePane extends AbstractIssueForm
 {
   private final IssueTable issueTable;
+  private final boolean inDialog;
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private IssueMainForm mainForm;
@@ -48,10 +49,11 @@ public class IssuePane extends AbstractIssueForm
   private JLabel lbStatus;
   private Issue currentIssue;
 
-  public IssuePane(@NotNull Project project, IssueTable issueTable)
+  public IssuePane(@NotNull Project project, IssueTable issueTable, boolean inDialog)
   {
     super(project);
     this.issueTable = issueTable;
+    this.inDialog = inDialog;
 
     $$$setupUI$$$();
     configureUI();
@@ -59,7 +61,7 @@ public class IssuePane extends AbstractIssueForm
 
   private void createUIComponents()
   {
-    mainForm = new IssueMainForm(project, false);
+    mainForm = new IssueMainForm(project, false, inDialog);
     recipientsForm = new IssueRecipientsForm(project);
     notesForm = new IssueNotesForm(project);
     previewForm = new IssuePreviewForm(project);
@@ -129,6 +131,7 @@ public class IssuePane extends AbstractIssueForm
 
     currentIssue = data;
 
+    lbStatus.setBackground(data == null ? null : RevuUtils.getIssueStatusColor(data.getStatus()));
     lbStatus.setText((data == null) ? "" : RevuBundle.message("issueForm.status.label",
       RevuUtils.buildIssueStatusLabel(data.getStatus())));
 

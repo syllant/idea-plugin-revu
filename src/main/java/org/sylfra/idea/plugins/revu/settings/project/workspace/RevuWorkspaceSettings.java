@@ -1,6 +1,6 @@
 package org.sylfra.idea.plugins.revu.settings.project.workspace;
 
-import org.sylfra.idea.plugins.revu.settings.IRevuSettings;
+import org.sylfra.idea.plugins.revu.settings.project.AbstractReviewFilesRevuSettings;
 import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueColumnInfo;
 import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueColumnInfoRegistry;
 
@@ -13,12 +13,11 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuWorkspaceSettings implements IRevuSettings
+public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
 {
   private boolean autoScrollToSource;
   // Saved as String because IDEA don't store settings if attribute is a int with 0 value
   private String toolWindowSplitOrientation;
-  private List<String> reviewFiles;
   private List<String> browsingColNames;
 
   public RevuWorkspaceSettings()
@@ -51,16 +50,6 @@ public class RevuWorkspaceSettings implements IRevuSettings
   public void setToolWindowSplitOrientation(String toolWindowSplitOrientation)
   {
     this.toolWindowSplitOrientation = toolWindowSplitOrientation;
-  }
-
-  public List<String> getReviewFiles()
-  {
-    return reviewFiles;
-  }
-
-  public void setReviewFiles(List<String> reviewFiles)
-  {
-    this.reviewFiles = reviewFiles;
   }
 
   public List<String> getBrowsingColNames()

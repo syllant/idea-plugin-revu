@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu.settings;
 
+import com.intellij.openapi.components.PersistentStateComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings>
+public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> implements PersistentStateComponent<T>
 {
   private T settings;
   protected List<IRevuSettingsListener<T>> listeners;
@@ -18,6 +19,7 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings>
   public AbstractRevuSettingsComponent()
   {
     settings = buildDefaultSettings();
+
     listeners = new LinkedList<IRevuSettingsListener<T>>();
   }
 

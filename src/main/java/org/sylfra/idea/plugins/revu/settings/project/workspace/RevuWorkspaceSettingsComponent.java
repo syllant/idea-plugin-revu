@@ -3,9 +3,7 @@ package org.sylfra.idea.plugins.revu.settings.project.workspace;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import org.sylfra.idea.plugins.revu.settings.AbstractRevuSettingsComponent;
-
-import javax.swing.*;
+import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComponent;
 
 /**
  * Manage plugin settings
@@ -24,7 +22,7 @@ import javax.swing.*;
       file = "$WORKSPACE_FILE$"
     )}
 )
-public class RevuWorkspaceSettingsComponent extends AbstractRevuSettingsComponent<RevuWorkspaceSettings>
+public class RevuWorkspaceSettingsComponent extends AbstractReviewFilesRevuSettingsComponent<RevuWorkspaceSettings>
   implements PersistentStateComponent<RevuWorkspaceSettings>
 {
   /**
@@ -32,9 +30,7 @@ public class RevuWorkspaceSettingsComponent extends AbstractRevuSettingsComponen
    */
   public RevuWorkspaceSettings buildDefaultSettings()
   {
-    RevuWorkspaceSettings result = new RevuWorkspaceSettings();
-    result.setToolWindowSplitOrientation(String.valueOf(JSplitPane.HORIZONTAL_SPLIT));
-    return result;
+    return new RevuWorkspaceSettings();
   }
 
   public RevuWorkspaceSettings getState()

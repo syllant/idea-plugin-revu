@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu.utils;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -22,6 +23,7 @@ import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -224,5 +226,19 @@ public class RevuUtils
   public static boolean isActive(@NotNull Review review)
   {
     return ((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING));
+  }
+
+  @NotNull
+  public static String getHex(@NotNull Color color)
+  {
+    return "#" + Integer.toHexString((color.getRGB() & 0xffffff) | 0x1000000).substring(1);
+  }
+
+  public static Color getIssueStatusColor(@NotNull IssueStatus status)
+  {
+    // @TODO manage Colors in cache (already done in IssueTable)
+    RevuAppSettings appSettings = ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
+      .getState();
+    return Color.decode(appSettings.getIssueStatusColors().get(status));
   }
 }

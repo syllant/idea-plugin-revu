@@ -18,11 +18,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
-import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
@@ -121,9 +119,6 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         {
           super.setSelectionInterval(index0, index1);
           updateReviewUI();
-          // @TODO needed ?
-//          ActionManager.getInstance().getAction("revu.RemoveReview").getTemplatePresentation()
-//            .setEnabled(!liReviews.getSelectionModel().isSelectionEmpty());
         }
       }
     });
@@ -270,9 +265,6 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         RevuBundle.message("general.form.hasErrors.text"), RevuBundle.message("general.plugin.title"));
     }
 
-    IReviewExternalizer reviewExternalizer =
-      project.getComponent(IReviewExternalizer.class);
-
     int reviewCount = liReviews.getModel().getSize();
     List<String> projectReviewFiles = new ArrayList<String>();
     List<String> workspaceReviewFiles = new ArrayList<String>();
@@ -295,12 +287,11 @@ public class RevuProjectSettingsForm implements ProjectComponent, Configurable
         workspaceReviewFiles.add(reviewFilePath);
       }
 
-      // Don't use reviewManager to control exceptions
       try
       {
-        reviewExternalizer.save(currentReview);
+        project.getComponent(ReviewManager.class).save(currentReview);
       }
-      catch (RevuException e)
+      catch (Exception e)
       {
         throw new ConfigurationException(
           RevuBundle.message("projectSettings.error.save.title.text", currentReview.getName(), e.getMessage()),

@@ -5,6 +5,7 @@ import com.intellij.ide.ui.search.SearchUtil;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
@@ -19,6 +20,10 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -50,6 +55,11 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
     installListeners();
   }
 
+  public IssueTableModel getIssueTableModel()
+  {
+    return (IssueTableModel) super.getListTableModel();
+  }
+
   private void installListeners()
   {
     PopupHandler.installPopupHandler(this, "revu.issueTable.popup", "issueTable");
@@ -66,41 +76,62 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
         }
       }
     });
+
+    // Background colors
+    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
+      .addListener(new IRevuSettingsListener<RevuAppSettings>()
+    {
+      public void settingsChanged(RevuAppSettings settings)
+      {
+        repaint();
+      }
+    });
   }
 
   public void filter(@NotNull String filterValue)
   {
     this.filterValue = filterValue;
     getTableViewModel().fireTableDataChanged();
-    ((IssueTableModel) getModel()).filter(filterValue);
+    getIssueTableModel().filter(filterValue);
   }
 
   @Override
   public TableCellRenderer getCellRenderer(int row, int column)
   {
-    if (filterValue == null)
-    {
-      return super.getCellRenderer(row, column);
-    }
-
     return new TableCellRenderer()
     {
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
         int row, int column)
       {
-        Component result = IssueTable.super.getCellRenderer(row, column).getTableCellRendererComponent(table,
-          value, isSelected, hasFocus, row, column);
+        JComponent result = (JComponent) IssueTable.super.getCellRenderer(row, column).getTableCellRendererComponent(
+          table, value, isSelected, hasFocus, row, column);
 
-        if (result instanceof JLabel)
+        // Filter
+        if (filterValue != null)
         {
-          JLabel jLabel = (JLabel) result;
-          String newValue = SearchUtil.markup(jLabel.getText(), filterValue);
-          if (!newValue.startsWith("<html>"))
+          // Should always be true
+          if (result instanceof JLabel)
           {
-            newValue = "<html>" + newValue + "</html";
-          }
+            JLabel jLabel = (JLabel) result;
+            String newValue = SearchUtil.markup(jLabel.getText(), filterValue);
+            if (!newValue.startsWith("<html>"))
+            {
+              newValue = "<html>" + newValue + "</html";
+            }
 
-          jLabel.setText(newValue);
+            jLabel.setText(newValue);
+          }
+        }
+
+        // Background
+        Issue issue = getIssueTableModel().getIssue(convertRowIndexToModel(row));
+        result.setBackground(RevuUtils.getIssueStatusColor(issue.getStatus()));
+
+        // Border
+        if (isSelected)
+        {
+          result.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.WHITE),
+            BorderFactory.createEmptyBorder(0, 1, 0, 1)));
         }
 
         return result;
@@ -158,6 +189,11 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
   {
     getListTableModel().setColumnInfos(columnInfos);
     setSizes();
+  }
+
+  public Color getRowBackground(@NotNull Issue issue)
+  {
+    return null;
   }
 
   // IDEA bug: com.intellij.ui.table.TableView#setSizes() not called when updating cols

@@ -296,7 +296,7 @@ public class RevuEditorHandler implements ProjectComponent
       DocumentChangeTracker documentChangeTracker = changeTrackers.get(vFile);
       if (documentChangeTracker == null)
       {
-        documentChangeTracker = new DocumentChangeTracker(RevuEditorHandler.this, vFile, editor.getDocument());
+        documentChangeTracker = new DocumentChangeTracker(editor.getDocument());
         changeTrackers.put(vFile, documentChangeTracker);
       }
       documentChangeTracker.getEditors().add(editor);

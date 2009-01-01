@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd" name="Test review2" status="reviewing" shared="true">
+<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/revu/ns/revu_1_0.xsd" name="Test review2" status="reviewing" shared="true">
   <history createdBy="[unknown]" lastUpdatedBy="[unknown]" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-12-13T05:33:55"/>
   <goal>A test review. A test review. A test review. A test review. A test review.</goal>
   <referential>

@@ -102,7 +102,7 @@ public class ElementsChooserPopup<T>
 
     if (dimensionServiceKey != null)
     {
-      popupBuilder.setDimensionServiceKey(project, dimensionServiceKey, false);
+      popupBuilder.setDimensionServiceKey(project, dimensionServiceKey, true);
     }
 
     popup = popupBuilder.createPopup();

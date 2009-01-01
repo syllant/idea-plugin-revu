@@ -20,37 +20,35 @@ public class RevuVfsUtils
   private static final Logger LOGGER = Logger.getInstance(RevuVfsUtils.class.getName());
 
   @NotNull
-  public static String buildRelativePath(@NotNull Project project, @NotNull VirtualFile vFile)
+  public static String buildRelativePath(@NotNull Project project, @NotNull File file)
   {
     if (project.getBaseDir() == null)
     {
-      return vFile.getPath();
+      return file.getPath();
     }
 
     // Hum, VfsUtil#getPath() doesn't work as I expect (or is bugged ?)
 //    String path = VfsUtil.getPath(project.getBaseDir(), vFile, '/');
-    String path = FileUtil.getRelativePath(new File(project.getBaseDir().getPath()), new File(vFile.getPath()));
-    if (path == null)
+    String result = FileUtil.getRelativePath(new File(project.getBaseDir().getPath()), file);
+    if (result == null)
     {
-      return vFile.getPath();
+      return file.getPath();
     }
 
-    path = path.replace('\\', '/');
-    return path;
+    result = result.replace('\\', '/');
+    return result;
   }
 
   @NotNull
-  public static String buildRelativePath(@NotNull Project project, @NotNull File file)
+  public static String buildRelativePath(@NotNull Project project, @NotNull VirtualFile vFile)
   {
-    VirtualFile vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-    return (vFile == null) ? buildAbsolutePath(file) : buildRelativePath(project, vFile);
+    return buildRelativePath(project, new File(vFile.getPath()));
   }
 
   @NotNull
   public static String buildRelativePath(@NotNull Project project, @NotNull String path)
   {
-    VirtualFile vFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
-    return (vFile == null) ? path : buildRelativePath(project, vFile);
+    return buildRelativePath(project, new File(path));
   }
 
   @NotNull
@@ -60,13 +58,25 @@ public class RevuVfsUtils
   }
 
   @NotNull
-  public static String buildAbsolutePath(@NotNull String path)
+  public static String buildAbsolutePath(@NotNull File file)
   {
-    return buildAbsolutePath(new File(path));
+    return buildAbsolutePath(file.getAbsolutePath());
   }
 
   @NotNull
-  public static String buildAbsolutePath(@NotNull File file)
+  public static String buildAbsolutePath(@NotNull String path)
+  {
+    return path.replace('\\', '/');
+  }
+
+  @NotNull
+  public static String buildPresentablePath(@NotNull String path)
+  {
+    return buildPresentablePath(new File(path));
+  }
+
+  @NotNull
+  public static String buildPresentablePath(@NotNull File file)
   {
     try
     {

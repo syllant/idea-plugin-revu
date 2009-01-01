@@ -16,6 +16,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.project.referential.ReferentialTabbedPane;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -132,7 +133,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
       public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
         boolean cellHasFocus)
       {
-        value = RevuUtils.buildReviewStatusLabel((ReviewStatus) value);
+        value = (value == null) ? "?" : RevuUtils.buildReviewStatusLabel((ReviewStatus) value);
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
     });
@@ -206,7 +207,8 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
 
     tfName.setText((data == null) ? "" : data.getName());
     taGoal.setText((data == null) ? "" : data.getGoal());
-    lbFile.setText((data == null) ? "" : (data.getPath() == null) ? "" : data.getPath());
+    lbFile.setText((data == null) ? "" : (data.getPath() == null)
+      ? "" : RevuVfsUtils.buildPresentablePath(data.getPath()));
     cbStatus.setSelectedItem((data == null) ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
 
@@ -331,7 +333,7 @@ public class ReviewSettingsForm extends AbstractUpdatableForm<Review>
     lbFile.setVerticalAlignment(1);
     lbFile.setVerticalTextPosition(1);
     panel6.add(lbFile, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_NORTHEAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(50, -1), null, null, 0,
       false));
     final JLabel label3 = new JLabel();

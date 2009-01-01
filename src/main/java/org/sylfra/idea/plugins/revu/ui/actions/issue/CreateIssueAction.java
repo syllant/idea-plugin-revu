@@ -82,7 +82,7 @@ public class CreateIssueAction extends AbstractIssueAction
       review.addIssue(issue);
 
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      reviewManager.save(review);
+      reviewManager.saveSilently(review);
     }
   }
 

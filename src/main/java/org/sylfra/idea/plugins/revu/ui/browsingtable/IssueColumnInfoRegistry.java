@@ -8,7 +8,10 @@ import org.sylfra.idea.plugins.revu.externalizing.impl.ConverterUtils;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author <a href="mailto:sylfrade@yahoo.fr">Sylvain FRANCOIS</a>
@@ -106,6 +109,15 @@ public class IssueColumnInfoRegistry
       public String valueOf(Issue issue)
       {
         return issue.getSummary();
+      }
+
+      @Override
+      protected void customizeRenderer(JLabel result, String value, boolean selected, boolean hasFocus)
+      {
+        if (selected)
+        {
+          result.setFont(result.getFont().deriveFont(Font.BOLD));
+        }
       }
 
       @Override

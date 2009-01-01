@@ -17,7 +17,7 @@ import java.util.*;
 class ReviewConverter extends AbstractConverter
 {
   private static final String REVU_SCHEMA_ID = "http://plugins.intellij.net/revu";
-  private static final String REVU_SCHEMA_LOCATION = "http://plugins.intellij.net/xstructure/ns/revu_1_0.xsd";
+  private static final String REVU_SCHEMA_LOCATION = "http://plugins.intellij.net/revu/ns/revu_1_0.xsd";
 
   public boolean canConvert(Class type)
   {

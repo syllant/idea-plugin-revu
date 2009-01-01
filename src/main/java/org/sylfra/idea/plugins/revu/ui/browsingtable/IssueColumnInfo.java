@@ -31,7 +31,8 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
   private final int maxWidth;
   private int horizontalAlignment;
 
-  public IssueColumnInfo(String name, FilterType filterType, int preferredWidth, int minWidth, int maxWidth)
+  public IssueColumnInfo(@NotNull String name, @NotNull FilterType filterType,
+    int preferredWidth, int minWidth, int maxWidth)
   {
     super(name);
     this.filterType = filterType;
@@ -74,6 +75,8 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
         JLabel result = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         result.setHorizontalAlignment(IssueColumnInfo.this.getHorizontalAlignment());
 
+        customizeRenderer(result, (String) value, isSelected, hasFocus);
+
         return result;
       }
 
@@ -84,6 +87,10 @@ public abstract class IssueColumnInfo<Aspect extends Comparable> extends ColumnI
         return ("".equals(tip)) ? null : tip;
       }
     };
+  }
+
+  protected void customizeRenderer(JLabel result, String value, boolean selected, boolean hasFocus)
+  {
   }
 
   protected String formatValue(Aspect value)

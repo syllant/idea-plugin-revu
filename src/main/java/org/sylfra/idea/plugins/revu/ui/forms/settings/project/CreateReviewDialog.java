@@ -223,7 +223,7 @@ public class CreateReviewDialog extends DialogWrapper
   private JLabel lbFile;
   private FileTextField fileTextField;
   private Review currentReview;
-  private String currentPath;
+  private File currentFile;
 
   public CreateReviewDialog(final Project project, boolean createMode)
   {
@@ -343,9 +343,9 @@ public class CreateReviewDialog extends DialogWrapper
   }
 
   @NotNull
-  public String getReviewPath()
+  public File getReviewFile()
   {
-    return currentPath;
+    return currentFile;
   }
 
   @Nullable
@@ -439,13 +439,14 @@ public class CreateReviewDialog extends DialogWrapper
 
     // @TODO check vFile is null ?
     File file = new File(vFile.getPath(), fileName);
-    currentPath = RevuVfsUtils.buildAbsolutePath(file);
     if (file.exists())
     {
       // Don't provide path as msg arg since error label height is fixed and is not appropriate for 2 lines
       setErrorText(RevuBundle.message("projectSettings.review.fileAlreadyExists.text"));
       return;
     }
+
+    currentFile = file;
 
     super.doOKAction();
   }
