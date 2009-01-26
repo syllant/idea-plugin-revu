@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu.ui.editor;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -16,17 +17,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
+import org.sylfra.idea.plugins.revu.business.FilterManager;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -41,6 +43,7 @@ public class RevuEditorHandler implements ProjectComponent
   private final IIssueListener issueListener;
   private final IReviewListener reviewListener;
   private final EditorFactoryListener editorFactoryListener;
+  private IRevuSettingsListener<RevuWorkspaceSettings> workspaceSettingsListener;
 
   public RevuEditorHandler(Project project)
   {
@@ -54,6 +57,7 @@ public class RevuEditorHandler implements ProjectComponent
     issueListener = new CustomIssueListener();
     reviewListener = new CustomReviewListener();
     editorFactoryListener = new CustomEditorFactoryListener();
+    workspaceSettingsListener = new CustomWorkspaceSettingsListener();
   }
 
   public void projectOpened()
@@ -81,6 +85,8 @@ public class RevuEditorHandler implements ProjectComponent
     reviewManager.addReviewListener(reviewListener);
 
     EditorFactory.getInstance().addEditorFactoryListener(editorFactoryListener);
+
+    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(workspaceSettingsListener);
   }
 
   public void disposeComponent()
@@ -94,6 +100,8 @@ public class RevuEditorHandler implements ProjectComponent
     reviewManager.removeReviewListener(reviewListener);
 
     EditorFactory.getInstance().removeEditorFactoryListener(editorFactoryListener);
+
+    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
   }
 
   @Nullable
@@ -304,8 +312,12 @@ public class RevuEditorHandler implements ProjectComponent
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), true))
       {
-        // @TODO recipients
-        for (Issue issue : review.getIssues(vFile))
+        List<Issue> issues = review.getIssues(vFile);
+
+        // Apply filter
+        ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
+
+        for (Issue issue : issues)
         {
           addMarker(editor, issue, false);
         }
@@ -395,7 +407,11 @@ public class RevuEditorHandler implements ProjectComponent
     {
       review.addIssueListener(issueListener);
 
-      for (Issue issue : review.getIssues())
+      // Apply filter
+      List<Issue> issues = review.getIssues();
+      ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
+
+      for (Issue issue : issues)
       {
         addMarker(null, issue, false);
       }
@@ -408,6 +424,13 @@ public class RevuEditorHandler implements ProjectComponent
         removeMarker(issue);
       }
       review.removeIssueListener(issueListener);
+    }
+  }
+
+  private static class CustomWorkspaceSettingsListener implements IRevuSettingsListener<RevuWorkspaceSettings>
+  {
+    public void settingsChanged(RevuWorkspaceSettings settings)
+    {
     }
   }
 }

@@ -20,6 +20,10 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
+import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
@@ -240,5 +244,20 @@ public class RevuUtils
     RevuAppSettings appSettings = ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
       .getState();
     return Color.decode(appSettings.getIssueStatusColors().get(status));
+  }
+
+  public static RevuAppSettings getAppSettings()
+  {
+    return ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState();
+  }
+
+  public static RevuWorkspaceSettings getWorkspaceSettings(@NotNull Project project)
+  {
+    return project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
+  }
+
+  public static RevuProjectSettings getProjectSettings(@NotNull Project project)
+  {
+    return project.getComponent(RevuProjectSettingsComponent.class).getState();
   }
 }

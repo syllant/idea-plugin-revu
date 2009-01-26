@@ -147,7 +147,7 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
 
   private static ColumnInfo[] retrieveColumnsFromSettings(@NotNull Project project)
   {
-    RevuWorkspaceSettings workspaceSettings = project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
+    RevuWorkspaceSettings workspaceSettings = RevuUtils.getWorkspaceSettings(project);
 
     List<String> colNames = workspaceSettings.getBrowsingColNames();
     List<ColumnInfo> result = new ArrayList<ColumnInfo>(colNames.size());

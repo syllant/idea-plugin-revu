@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
-import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -34,9 +34,6 @@ public class ToggleAutoscrollToSourceAction extends ToggleAction
       return null;
     }
 
-    RevuWorkspaceSettingsComponent projectSettingsComponent = project.getComponent(
-      RevuWorkspaceSettingsComponent.class);
-
-    return projectSettingsComponent.getState();
+    return RevuUtils.getWorkspaceSettings(project);
   }
 }

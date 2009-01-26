@@ -26,6 +26,7 @@ import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import java.io.*;
@@ -149,10 +150,8 @@ public class ReviewManager implements ProjectComponent
       {
         initEmbeddedReviews();
 
-        List<String> projectReviewPaths =
-          project.getComponent(RevuProjectSettingsComponent.class).getState().getReviewFiles();
-        List<String> workspaceReviewPaths =
-          project.getComponent(RevuWorkspaceSettingsComponent.class).getState().getReviewFiles();
+        List<String> projectReviewPaths = RevuUtils.getProjectSettings(project).getReviewFiles();
+        List<String> workspaceReviewPaths = RevuUtils.getWorkspaceSettings(project).getReviewFiles();
 
         List<String> allPaths = new ArrayList<String>(projectReviewPaths);
         allPaths.addAll(workspaceReviewPaths);

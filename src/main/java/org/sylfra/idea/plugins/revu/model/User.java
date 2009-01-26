@@ -19,6 +19,7 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
     ADMIN(2),
     REVIEWER(1),
     AUTHOR(0);
+
     private final int power;
 
     Role(int power)

@@ -104,7 +104,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
         int row, int column)
       {
         JComponent result = (JComponent) IssueTable.super.getCellRenderer(row, column).getTableCellRendererComponent(
-          table, value, isSelected, hasFocus, row, column);
+          table, value, isSelected, false, row, column);
 
         // Filter
         if (filterValue != null)
@@ -124,14 +124,16 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
         }
 
         // Background
-        Issue issue = getIssueTableModel().getIssue(convertRowIndexToModel(row));
-        result.setBackground(RevuUtils.getIssueStatusColor(issue.getStatus()));
-
-        // Border
         if (isSelected)
         {
-          result.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.WHITE),
-            BorderFactory.createEmptyBorder(0, 1, 0, 1)));
+          RevuAppSettings appSettings = RevuUtils.getAppSettings();
+          result.setBackground(Color.decode(appSettings.getTableSelectionBackgroundColor()));
+          result.setForeground(Color.decode(appSettings.getTableSelectionForegroundColor()));
+        }
+        else
+        {
+          Issue issue = getIssueTableModel().getIssue(convertRowIndexToModel(row));
+          result.setBackground(RevuUtils.getIssueStatusColor(issue.getStatus()));
         }
 
         return result;

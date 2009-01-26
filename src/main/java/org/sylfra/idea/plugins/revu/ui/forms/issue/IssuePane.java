@@ -10,7 +10,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.model.User;
@@ -47,6 +46,7 @@ public class IssuePane extends AbstractIssueForm
   private JButton bnReopen;
   private JButton bnClose;
   private JLabel lbStatus;
+  private JPanel pnStatus;
   private Issue currentIssue;
 
   public IssuePane(@NotNull Project project, IssueTable issueTable, boolean inDialog)
@@ -131,9 +131,8 @@ public class IssuePane extends AbstractIssueForm
 
     currentIssue = data;
 
-    lbStatus.setBackground(data == null ? null : RevuUtils.getIssueStatusColor(data.getStatus()));
-    lbStatus.setText((data == null) ? "" : RevuBundle.message("issueForm.status.label",
-      RevuUtils.buildIssueStatusLabel(data.getStatus())));
+    pnStatus.setBackground(data == null ? null : RevuUtils.getIssueStatusColor(data.getStatus()));
+    lbStatus.setText((data == null) ? "" : RevuUtils.buildIssueStatusLabel(data.getStatus()));
 
     mainForm.updateUI(getEnclosingReview(), data, requestFocus);
     recipientsForm.updateUI(getEnclosingReview(), data, requestFocus);
@@ -260,46 +259,22 @@ public class IssuePane extends AbstractIssueForm
     panel6.add(bnClose, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED,
       null, null, null, 0, false));
-    lbStatus = new JLabel();
-    this.$$$loadLabelText$$$(lbStatus,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("issueForm.status.label"));
-    panel6.add(lbStatus, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+    final JPanel panel7 = new JPanel();
+    panel7.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+    panel6.add(panel7, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel7.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2), null));
+    pnStatus = new JPanel();
+    pnStatus.setLayout(new BorderLayout(0, 0));
+    panel7.add(pnStatus, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-  }
-
-  /**
-   * @noinspection ALL
-   */
-  private void $$$loadLabelText$$$(JLabel component, String text)
-  {
-    StringBuffer result = new StringBuffer();
-    boolean haveMnemonic = false;
-    char mnemonic = '\0';
-    int mnemonicIndex = -1;
-    for (int i = 0; i < text.length(); i++)
-    {
-      if (text.charAt(i) == '&')
-      {
-        i++;
-        if (i == text.length())
-        {
-          break;
-        }
-        if (!haveMnemonic && text.charAt(i) != '&')
-        {
-          haveMnemonic = true;
-          mnemonic = text.charAt(i);
-          mnemonicIndex = result.length();
-        }
-      }
-      result.append(text.charAt(i));
-    }
-    component.setText(result.toString());
-    if (haveMnemonic)
-    {
-      component.setDisplayedMnemonic(mnemonic);
-      component.setDisplayedMnemonicIndex(mnemonicIndex);
-    }
+    pnStatus.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2), null));
+    lbStatus = new JLabel();
+    lbStatus.setFont(new Font(lbStatus.getFont().getName(), Font.BOLD, 9));
+    lbStatus.setOpaque(false);
+    lbStatus.setText("[Status]");
+    pnStatus.add(lbStatus, BorderLayout.CENTER);
   }
 
   /**

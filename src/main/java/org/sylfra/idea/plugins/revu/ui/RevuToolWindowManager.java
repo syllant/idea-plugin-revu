@@ -32,7 +32,6 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   private ToolWindow toolwindow;
   private final Project project;
   private final Map<Review, Content> contentsByReviews;
-  private IssueBrowsingPane allBrowsingPane;
 
   public RevuToolWindowManager(Project project)
   {
@@ -95,7 +94,8 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       }
     });
 
-    allBrowsingPane = addReviewTab(null);
+    // Add 'All reviews' tab
+    addReviewTab(null);
 
     project.getComponent(ReviewManager.class).addReviewListener(this);
   }

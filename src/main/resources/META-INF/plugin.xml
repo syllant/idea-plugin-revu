@@ -30,11 +30,14 @@
       </implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.forms.settings.RevuAppSettingsForm
       </implementation-class>
     </component>
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.utils.VcsFetcher</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.business.FilterManager</implementation-class>
     </component>
   </application-components>
 
@@ -47,7 +50,7 @@
       </implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm
       </implementation-class>
     </component>
     <component>
@@ -86,6 +89,20 @@
             text="Show Project Settings"
             icon="/general/projectSettings.png"/>
 
+    <!-- Filters -->
+    <action id="revu.Filters.Create"
+            class="org.sylfra.idea.plugins.revu.ui.actions.filter.CreateFilterAction"
+            text="Create Filter"
+            icon="/general/add.png"/>
+    <action id="revu.Filters.Remove"
+            class="org.sylfra.idea.plugins.revu.ui.actions.filter.RemoveFilterAction"
+            text="Create Filter"
+            icon="/general/remove.png"/>
+    <action id="revu.Filters.Edit"
+            class="org.sylfra.idea.plugins.revu.ui.actions.filter.EditFiltersAction"
+            text="Edit Filters"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/filter.png"/>
+
     <!-- Review -->
     <action id="revu.ShowReviewEditForm"
             class="org.sylfra.idea.plugins.revu.ui.actions.review.ShowUpdateReviewPopupAction"
@@ -119,6 +136,11 @@
             class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
             text="Split Vertically"
             icon="/actions/splitVertically.png"/>
+
+    <action id="revu.SelectColumns"
+            class="org.sylfra.idea.plugins.revu.ui.browsingtable.SelectColumnsAction"
+            text="Select Visible Columns"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/selectColumns.png"/>
 
     <!-- Issue -->
     <action id="revu.CreateIssue"
@@ -171,10 +193,11 @@
     <group id="revu.toolWindow.allReviews" popup="true">
       <reference ref="revu.ShowProjectSettings"/>
       <separator/>
-      <reference ref="revu.RemoveIssue"/>
-      <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>
+      <separator/>
+      <reference ref="revu.SelectColumns"/>
+      <reference ref="revu.Filters.Edit"/>
       <separator/>
       <reference ref="revu.JumpToSource"/>
       <reference ref="revu.AutoscrollToSource"/>
@@ -215,12 +238,18 @@
     </group>
 
     <!-- Settings -->
-    <group id="revu.settings.project.reviews" popup="true">
+    <group id="revu.settings.project.reviews">
       <reference ref="revu.CreateReview"/>
       <reference ref="revu.RemoveReview"/>
       <separator/>
       <reference ref="revu.ImportReview"/>
       <reference ref="revu.ExportReview"/>
+    </group>
+
+    <group id="revu.settings.project.filters">
+      <reference ref="revu.Filters.Create"/>
+      <reference ref="revu.Filters.Remove"/>
+      <separator/>
     </group>
 
   </actions>

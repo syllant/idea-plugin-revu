@@ -23,7 +23,7 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuAppSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;

@@ -12,7 +12,8 @@ import java.util.*;
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHolderEntity<Review>
+public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHolderEntity<Review>,
+  IRevuUniqueNameHolderEntity<Review>
 {
   private Review extendedReview;
   private String path;

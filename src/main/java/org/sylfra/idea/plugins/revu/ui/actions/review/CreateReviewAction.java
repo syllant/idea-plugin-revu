@@ -9,7 +9,7 @@ import org.sylfra.idea.plugins.revu.model.History;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.model.User;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.CreateReviewDialog;
+import org.sylfra.idea.plugins.revu.ui.forms.review.CreateReviewDialog;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 

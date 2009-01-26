@@ -2,4 +2,4 @@
     <li>Fix: review import was invalid in some cases
     <li>Fix: ConcurrentModificationException in DocumentChangeTracker#updateIssues()
     <li>New: Detect external changes on review files
-    <li>New: table rows colored according to issue status
+    <li>New: color management for issue statuses

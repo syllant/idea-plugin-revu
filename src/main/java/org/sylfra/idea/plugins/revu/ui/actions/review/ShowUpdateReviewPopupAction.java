@@ -7,7 +7,7 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
@@ -27,7 +27,7 @@ public class ShowUpdateReviewPopupAction extends AnAction
       {
         if (review != null)
         {
-          form.selectReview(review);
+          form.selectItem(review);
         }
       }
     });

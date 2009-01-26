@@ -1,7 +1,10 @@
 package org.sylfra.idea.plugins.revu.ui;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -10,15 +13,14 @@ import com.intellij.ui.TableUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.ColumnInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.RevuIconProvider;
-import org.sylfra.idea.plugins.revu.RevuPlugin;
+import org.sylfra.idea.plugins.revu.business.FilterManager;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
+import org.sylfra.idea.plugins.revu.model.Filter;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
@@ -27,20 +29,23 @@ import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.*;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTableModel;
+import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTableSearchBar;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssuePane;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.app.RevuAppSettingsForm;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuAppSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -58,10 +63,11 @@ public class IssueBrowsingPane implements Disposable
   private IssuePane issuePane;
   private JSplitPane splitPane;
   private JLabel lbMessage;
-  private JComponent tbTable;
-  private JComponent filter;
+  private JComponent fullTextFilterComponent;
   private JLabel lbCount;
+  private JComboBox cbFilter;
   private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
+  private IRevuSettingsListener<RevuWorkspaceSettings> workspaceSettingsListener;
   private MessageClickHandler messageClickHandler;
   private IIssueListener issueListener;
 
@@ -140,10 +146,29 @@ public class IssueBrowsingPane implements Disposable
     autoScrollToSourceHandler.install(issueTable);
 
     tbMain = createToolbar((review == null) ? "revu.toolWindow.allReviews" : "revu.toolWindow.review").getComponent();
-    tbTable = createToolbar(new SelectColumnsAction(issueTable)).getComponent();
 
     new IssueTableSearchBar(issueTable);
-    filter = issueTable.buildFilterComponent();
+    fullTextFilterComponent = issueTable.buildFilterComponent();
+
+    RevuWorkspaceSettings workspaceSettings = RevuUtils.getWorkspaceSettings(project);
+    cbFilter = new JComboBox(new FilterComboBoxModel(workspaceSettings));
+    cbFilter.setRenderer(new DefaultListCellRenderer()
+    {
+      @Override
+      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+        boolean cellHasFocus)
+      {
+        value = (value == null) ? RevuBundle.message("browsing.filter.none.text") : ((Filter) value).getName();
+        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      }
+    });
+    cbFilter.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        updateIssues();
+      }
+    });
   }
 
   private void configureUI()
@@ -154,8 +179,17 @@ public class IssueBrowsingPane implements Disposable
     messageClickHandler = new MessageClickHandler(project);
     lbMessage.addMouseListener(messageClickHandler);
 
-    RevuWorkspaceSettings workspaceSettings = project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
-    splitPane.setOrientation(Integer.parseInt(workspaceSettings.getToolWindowSplitOrientation()));
+    RevuWorkspaceSettings workspaceSettings = RevuUtils.getWorkspaceSettings(project);
+    String orientation = workspaceSettings.getToolWindowSplitOrientation();
+    if (orientation != null)
+    {
+      splitPane.setOrientation(Integer.parseInt(orientation));
+    }
+  }
+
+  public IssueTable getIssueTable()
+  {
+    return issueTable;
   }
 
   @Nullable
@@ -235,28 +269,19 @@ public class IssueBrowsingPane implements Disposable
             review.removeIssueListener(issueListener);
           }
 
-          issueTable.getListTableModel().setItems(retrieveIssues());
-          checkRowSelected();
-          checkMessageInsteadOfPane();
-          updateMessageCount();
+          updateIssues();
         }
 
         public void reviewAdded(Review review)
         {
           review.addIssueListener(issueListener);
-          issueTable.getListTableModel().setItems(retrieveIssues());
-          checkRowSelected();
-          checkMessageInsteadOfPane();
-          updateMessageCount();
+          updateIssues();
         }
 
         public void reviewDeleted(Review review)
         {
           review.removeIssueListener(issueListener);
-          issueTable.getListTableModel().setItems(retrieveIssues());
-          checkRowSelected();
-          checkMessageInsteadOfPane();
-          updateMessageCount();
+          updateIssues();
         }
       });
     }
@@ -276,6 +301,26 @@ public class IssueBrowsingPane implements Disposable
     RevuAppSettingsComponent appSettingsComponent =
       ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
     appSettingsComponent.addListener(appSettingsListener);
+
+    // Workspace Settings
+    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
+    {
+      public void settingsChanged(RevuWorkspaceSettings settings)
+      {
+        ((FilterComboBoxModel) cbFilter.getModel()).filtersChanged(settings.getFilters());
+      }
+    };
+    RevuWorkspaceSettingsComponent workspaceSettingsComponent =
+      project.getComponent(RevuWorkspaceSettingsComponent.class);
+    workspaceSettingsComponent.addListener(workspaceSettingsListener);
+  }
+
+  private void updateIssues()
+  {
+    issueTable.getListTableModel().setItems(retrieveIssues());
+    checkRowSelected();
+    checkMessageInsteadOfPane();
+    updateMessageCount();
   }
 
   public JPanel getContentPane()
@@ -338,8 +383,7 @@ public class IssueBrowsingPane implements Disposable
     String message = null;
 
     // Login set
-    RevuAppSettings appSettings = ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
-      .getState();
+    RevuAppSettings appSettings = RevuUtils.getAppSettings();
 
     if ((appSettings.getLogin() == null) || (appSettings.getLogin().trim().length() == 0))
     {
@@ -397,17 +441,8 @@ public class IssueBrowsingPane implements Disposable
       issues = review.getIssues();
     }
 
-    // @TODO Filter according to recipients
-//    // Filter issues according to recipients when set
-//    for (Iterator<Issue> it = issues.listIterator(); it.hasNext();)
-//    {
-//      Issue issue = it.next();
-//      User user = RevuUtils.getCurrentUser(issue.getReview());
-//      if ((user == null) || ((!user.hasRole(User.Role.REVIEWER)) && (!issue.getRecipients().contains(user))))
-//      {
-//        it.remove();
-//      }
-//    }
+    // Apply filter
+    ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
 
     return issues;
   }
@@ -416,16 +451,6 @@ public class IssueBrowsingPane implements Disposable
   {
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction(toolbarId);
 
-    return createToolbar(actionGroup);
-  }
-
-  private ActionToolbar createToolbar(@NotNull AnAction... actions)
-  {
-    DefaultActionGroup actionGroup = new DefaultActionGroup();
-    for (AnAction action : actions)
-    {
-      actionGroup.add(action);
-    }
     return createToolbar(actionGroup);
   }
 
@@ -442,6 +467,7 @@ public class IssueBrowsingPane implements Disposable
     issuePane.dispose();
     ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
       .removeListener(appSettingsListener);
+    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
 
     List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
     for (Review review : reviews)
@@ -478,23 +504,28 @@ public class IssueBrowsingPane implements Disposable
     panel2.setPreferredSize(new Dimension(600, 428));
     splitPane.setLeftComponent(panel2);
     final JPanel panel3 = new JPanel();
-    panel3.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), 0, 0));
+    panel3.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), 0, 0));
     panel3.setPreferredSize(new Dimension(64, 24));
     panel2.add(panel3, BorderLayout.NORTH);
-    panel3.add(tbTable,
-      new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, 1, 1, null, null, null,
-        0, false));
     final Spacer spacer1 = new Spacer();
-    panel3.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+    panel3.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
       GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    panel3.add(filter, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, new Dimension(-1, 24), null,
-      0, false));
+    panel3.add(fullTextFilterComponent,
+      new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
+        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, new Dimension(-1, 24),
+        null, 0, false));
     lbCount = new JLabel();
     this.$$$loadLabelText$$$(lbCount,
       ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("browsing.count.text"));
     panel3.add(lbCount, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+    final JLabel label1 = new JLabel();
+    this.$$$loadLabelText$$$(label1,
+      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("browsing.filter.label"));
+    panel3.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+    panel3.add(cbFilter, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+      GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JScrollPane scrollPane1 = new JScrollPane();
     panel2.add(scrollPane1, BorderLayout.CENTER);
     scrollPane1.setViewportView(issueTable);
@@ -588,71 +619,45 @@ public class IssueBrowsingPane implements Disposable
     }
   }
 
-  private class SelectColumnsAction extends AnAction
+  private final static class FilterComboBoxModel extends AbstractListModel implements ComboBoxModel
   {
-    private ElementsChooserPopup<IssueColumnInfo> popup;
-    private final IssueTable table;
+    private final RevuWorkspaceSettings workspaceSettings;
 
-    private SelectColumnsAction(final @NotNull IssueTable table)
+    public FilterComboBoxModel(RevuWorkspaceSettings workspaceSettings)
     {
-      super(null, RevuBundle.message("browsing.table.selectColumns.text"),
-        RevuIconProvider.getIcon(RevuIconProvider.IconRef.SELECT_COLUMNS));
-      this.table = table;
-
-      popup = new ElementsChooserPopup<IssueColumnInfo>(project,
-        RevuBundle.message("browsing.table.selectColumns.text"),
-        RevuPlugin.PLUGIN_NAME + ".ColumnsChooser",
-        new ElementsChooserPopup.IPopupListener<IssueColumnInfo>()
-        {
-          public void apply(@NotNull List<IssueColumnInfo> markedElements)
-          {
-            table.setColumnInfos(toArray(markedElements));
-
-            RevuWorkspaceSettingsComponent workspaceSettingsComponent =
-              project.getComponent(RevuWorkspaceSettingsComponent.class);
-            RevuWorkspaceSettings workspaceSettings = workspaceSettingsComponent.getState();
-
-            workspaceSettings.setBrowsingColNames(IssueColumnInfoRegistry.getColumnNames(markedElements));
-            workspaceSettingsComponent.loadState(workspaceSettings);
-          }
-        },
-        new ElementsChooserPopup.IItemRenderer<IssueColumnInfo>()
-        {
-          public String getText(IssueColumnInfo item)
-          {
-            return item.getName();
-          }
-        });
+      this.workspaceSettings = workspaceSettings;
+      // model is not defined as listener to make listener removal easier
     }
 
-    public void actionPerformed(AnActionEvent e)
+    public int getSize()
     {
-      Component owner = (Component) e.getInputEvent().getSource();
-      popup.show(owner, false,
-        Arrays.asList(IssueColumnInfoRegistry.ALL_COLUMN_INFOS),
-        asList(table.getListTableModel().getColumnInfos()));
+      // [None] filter
+      return workspaceSettings.getFilters().size() + 1;
     }
 
-    private List<IssueColumnInfo> asList(@NotNull ColumnInfo[] columnInfos)
+    public Object getElementAt(int index)
     {
-      List<IssueColumnInfo> result = new ArrayList<IssueColumnInfo>(columnInfos.length);
-      for (ColumnInfo columnInfo : columnInfos)
+      // [None] filter
+      if (index == 0)
       {
-        result.add((IssueColumnInfo) columnInfo);
+        return null;
       }
-
-      return result;
+      return workspaceSettings.getFilters().get(index - 1);
     }
 
-    private ColumnInfo[] toArray(@NotNull List<IssueColumnInfo> columnInfos)
+    public void setSelectedItem(Object anItem)
     {
-      ColumnInfo[] result = new IssueColumnInfo[columnInfos.size()];
-      for (int i = 0; i < columnInfos.size(); i++)
-      {
-        result[i] = columnInfos.get(i);
-      }
+      workspaceSettings.setSelectedFilter((Filter) anItem);
+    }
 
-      return result;
+    public Object getSelectedItem()
+    {
+      return workspaceSettings.getSelectedFilter();
+    }
+
+    public void filtersChanged(List<Filter> filters)
+    {
+      fireContentsChanged(this, 0, filters.size());
     }
   }
 }

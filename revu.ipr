@@ -994,6 +994,7 @@
     <option name="INSTRUMENT_CLASSES" value="false" />
   </component>
   <UsedPathMacros>
+    <macro name="KALISTICK_TECHBOX_DIR" description="Racine du répertoire techbox, e.g. : C:\techbox" />
     <macro name="MAVEN_REPOSITORY" />
   </UsedPathMacros>
 </project>

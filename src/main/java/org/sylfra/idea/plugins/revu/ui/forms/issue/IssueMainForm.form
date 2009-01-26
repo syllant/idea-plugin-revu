@@ -29,7 +29,7 @@
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.main.title.label"/>
         </properties>
       </component>
-      <component id="54b45" class="javax.swing.JLabel" binding="lbTags">
+      <component id="54b45" class="javax.swing.JLabel" binding="lbTags" custom-create="true">
         <constraints>
           <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -165,7 +165,7 @@
           </component>
         </children>
       </scrollpane>
-      <component id="51368" class="org.sylfra.idea.plugins.revu.ui.forms.issue.IssueMainForm$TagsPane" binding="tagsPane" custom-create="true">
+      <component id="51368" class="org.sylfra.idea.plugins.revu.ui.multichooser.MultiChooserPanel" binding="tagsMultiChooserPanel" custom-create="true">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

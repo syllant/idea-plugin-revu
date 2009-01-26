@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.project.RevuProjectSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 
 /**
  * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>

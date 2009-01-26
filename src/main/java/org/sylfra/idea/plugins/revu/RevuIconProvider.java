@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu;
 
 import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -28,13 +29,12 @@ public abstract class RevuIconProvider
     GUTTER_ISSUES("gutterIssues"),
     GUTTER_ISSUES_DESYNCHRONIZED("gutterIssuesDesynchronized"),
     EDIT_CONFIG("editConfig"),
-    EDIT_TAGS("editTags"),
+    EDIT_MULTI_CHOOSER("editMultiChooser"),
     FIELD_ERROR("fieldError"),
     REVIEW_LOCAL("reviewLocal"),
     REVIEW_SHARED("reviewShared"),
     REVU("revu"),
     REVU_LARGE("revuLarge"),
-    SELECT_COLUMNS("selectColumns"),
     STATUS_BAR_DEFAULT("statusBarDefault"),
     STATUS_BAR_INFO("statusBarInfo"),
     STATUS_BAR_WARNING("statusBarWarning"),
@@ -56,7 +56,7 @@ public abstract class RevuIconProvider
    *
    * @return the loaded icon
    */
-  public static Icon getIcon(IconRef iconRef)
+  public static Icon getIcon(@NotNull IconRef iconRef)
   {
     return IconLoader.getIcon(PACKAGE_ROOT + "/" + iconRef.imgName + ".png");
   }

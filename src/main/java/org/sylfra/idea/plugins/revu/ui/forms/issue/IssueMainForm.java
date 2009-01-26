@@ -1,29 +1,30 @@
 package org.sylfra.idea.plugins.revu.ui.forms.issue;
 
-import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.util.containers.SortedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
-import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.ElementsChooserPopup;
 import org.sylfra.idea.plugins.revu.ui.editor.RevuEditorHandler;
+import org.sylfra.idea.plugins.revu.ui.multichooser.MultiChooserPanel;
+import org.sylfra.idea.plugins.revu.ui.multichooser.UniqueNameMultiChooserItem;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class IssueMainForm extends AbstractIssueForm
 {
   private final boolean createMode;
   private final boolean inDialog;
-  private TagsPane tagsPane;
+  private MultiChooserPanel<IssueTag, UniqueNameMultiChooserItem<IssueTag>> tagsMultiChooserPanel;
   private JPanel contentPane;
   private JTextArea taDesc;
   private JComboBox cbPriority;
@@ -62,7 +63,24 @@ public class IssueMainForm extends AbstractIssueForm
 
   private void createUIComponents()
   {
-    tagsPane = new TagsPane();
+    lbTags = new JLabel();
+    tagsMultiChooserPanel = new MultiChooserPanel<IssueTag, UniqueNameMultiChooserItem<IssueTag>>(project, lbTags,
+      RevuBundle.message("issueForm.tagsPopup.title"),
+      "TagsChooser" + (inDialog ? "Dialog" : ""), RevuIconProvider.IconRef.TAG)
+    {
+      protected UniqueNameMultiChooserItem<IssueTag> createMultiChooserItem(@NotNull IssueTag issueTag)
+      {
+        return new UniqueNameMultiChooserItem<IssueTag>(issueTag);
+      }
+
+      @Override
+      protected List<IssueTag> retrieveAllAvailableElements()
+      {
+        Review review = (createMode) ? (Review) cbReview.getSelectedItem() : currentIssue.getReview();
+
+        return review.getDataReferential().getIssueTags(true);
+      }
+    };
   }
 
   private void configureUI()
@@ -116,14 +134,14 @@ public class IssueMainForm extends AbstractIssueForm
             cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(
               new TreeSet<IssuePriority>(referential.getIssuePrioritiesByName(true).values()), true)));
 
-            tagsPane.setEnabled(true);
+            tagsMultiChooserPanel.setEnabled(true);
           }
           else
           {
             // "[Select a value]" String is selected
             cbPriority.setModel(new DefaultComboBoxModel(buildComboItemsArray(new ArrayList(0), true)));
 
-            tagsPane.setEnabled(false);
+            tagsMultiChooserPanel.setEnabled(false);
           }
         }
       });
@@ -173,8 +191,6 @@ public class IssueMainForm extends AbstractIssueForm
         currentIssue.getReview().fireIssueUpdated(currentIssue);
       }
     });
-
-    tagsPane.configureUI();
   }
 
   public JComponent getPreferredFocusedComponent()
@@ -220,8 +236,8 @@ public class IssueMainForm extends AbstractIssueForm
     taSummary.setText((data == null) ? "" : data.getSummary());
     cbPriority.setSelectedItem((data == null) ? null : data.getPriority());
     lbSync.setVisible((data != null) && (!isIssueSynchronized(data)));
-    tagsPane.updateUI((data == null) ? null : data.getTags());
-    tagsPane.setEnabled((!createMode) || (cbReview.getSelectedItem() != null));
+    tagsMultiChooserPanel.setSelectedNestedData((data == null) ? null : data.getTags());
+    tagsMultiChooserPanel.setEnabled((!createMode) || (cbReview.getSelectedItem() != null));
 
     Issue.LocationType locationType = (data == null) ? null : data.getLocationType();
     updateLocation(locationType);
@@ -237,7 +253,7 @@ public class IssueMainForm extends AbstractIssueForm
     data.setDesc(taDesc.getText());
     data.setSummary(taSummary.getText());
     data.setPriority((IssuePriority) cbPriority.getSelectedItem());
-    data.setTags(tagsPane.getSelectedTags());
+    data.setTags(tagsMultiChooserPanel.getSelectedNestedData());
 
     // Location
     if (rbLocationGlobal.isSelected())
@@ -275,7 +291,7 @@ public class IssueMainForm extends AbstractIssueForm
       return true;
     }
 
-    if (!checkEquals(tagsPane.getSelectedTags(), data.getTags()))
+    if (!checkEquals(tagsMultiChooserPanel.getSelectedNestedData(), data.getTags()))
     {
       return true;
     }
@@ -302,7 +318,7 @@ public class IssueMainForm extends AbstractIssueForm
     rbLocationLineRange.setEnabled(mayReview && !Issue.LocationType.GLOBAL.equals(locationType)
       && !Issue.LocationType.FILE.equals(locationType));
 
-    tagsPane.setEnabled(mayReview && ((!createMode) || (cbReview.getSelectedIndex() > 0)));
+    tagsMultiChooserPanel.setEnabled(mayReview && ((!createMode) || (cbReview.getSelectedIndex() > 0)));
   }
 
   public void internalValidateInput()
@@ -397,7 +413,6 @@ public class IssueMainForm extends AbstractIssueForm
         "issueForm.main.title.label"));
     contentPane.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_NORTHEAST, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    lbTags = new JLabel();
     this.$$$loadLabelText$$$(lbTags,
       ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("issueForm.main.tag.label"));
     contentPane.add(lbTags, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
@@ -490,7 +505,7 @@ public class IssueMainForm extends AbstractIssueForm
     taSummary.setLineWrap(true);
     taSummary.setRows(2);
     scrollPane2.setViewportView(taSummary);
-    contentPane.add(tagsPane,
+    contentPane.add(tagsMultiChooserPanel,
       new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -705,151 +720,6 @@ public class IssueMainForm extends AbstractIssueForm
       {
         reviews.remove(review);
         fireIntervalRemoved(this, index, index);
-      }
-    }
-  }
-
-  private final class TagsPane extends JPanel
-  {
-    private JPanel contentPane;
-    private ElementsChooserPopup<IssueTag> popup;
-    private JPanel pnTags;
-    private final SortedList<IssueTag> selectedTags;
-    private AnAction editAction;
-    private JComponent toolbar;
-
-    public TagsPane()
-    {
-      super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-      selectedTags = new SortedList<IssueTag>(new Comparator<IssueTag>()
-      {
-        public int compare(IssueTag o1, IssueTag o2)
-        {
-          return o1.getName().compareTo(o2.getName());
-        }
-      });
-    }
-
-    public void configureUI()
-    {
-      pnTags = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-
-      editAction = new AnAction(RevuBundle.message("issueForm.editTags.tip"), null,
-        RevuIconProvider.getIcon(RevuIconProvider.IconRef.EDIT_TAGS))
-      {
-        @Override
-        public void actionPerformed(AnActionEvent e)
-        {
-          Review review = (createMode) ? (Review) cbReview.getSelectedItem() : currentIssue.getReview();
-
-          List<IssueTag> tags = review.getDataReferential().getIssueTags(true);
-          showEditPopup(tags);
-        }
-
-        @Override
-        public void update(AnActionEvent e)
-        {
-          e.getPresentation().setEnabled(getTemplatePresentation().isEnabled());
-        }
-      };
-      // Should use #registerCustomShortcutSet ?
-      getActionMap().put(editAction, new AbstractAction()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          if (editAction.getTemplatePresentation().isEnabled())
-          {
-            editAction.actionPerformed(null);
-          }
-        }
-      });
-      getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-        KeyStroke.getKeyStroke(lbTags.getDisplayedMnemonic(), KeyEvent.ALT_MASK), editAction);
-
-
-      DefaultActionGroup actionGroup = new DefaultActionGroup();
-      actionGroup.add(editAction);
-      toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
-      lbTags.setLabelFor(toolbar.getComponent(0));
-
-      add(pnTags);
-      add(toolbar);
-
-      popup = new ElementsChooserPopup<IssueTag>(project, RevuBundle.message("issueForm.tagsPopup.title"),
-        RevuPlugin.PLUGIN_NAME + ".TagsChooser" + (inDialog ? "Dialog" : ""),
-        new ElementsChooserPopup.IPopupListener<IssueTag>()
-        {
-          public void apply(@NotNull List<IssueTag> markedElements)
-          {
-            updateUI(markedElements);
-          }
-        },
-        new ElementsChooserPopup.IItemRenderer<IssueTag>()
-        {
-          public String getText(IssueTag issue)
-          {
-            return issue.getName();
-          }
-        });
-    }
-
-    @Override
-    public void setEnabled(boolean enabled)
-    {
-      editAction.getTemplatePresentation().setEnabled(enabled);
-    }
-
-    public void showEditPopup(@NotNull List<IssueTag> allTags)
-    {
-      List<IssueTag> allSortedTags = new ArrayList<IssueTag>(allTags);
-      Collections.sort(allSortedTags);
-      popup.show(toolbar, false, allSortedTags, selectedTags);
-    }
-
-    public void updateUI(@Nullable List<IssueTag> issueTags)
-    {
-      pnTags.removeAll();
-
-      selectedTags.clear();
-      selectedTags.addAll(issueTags);
-
-      if (issueTags != null)
-      {
-        for (IssueTag tag : issueTags)
-        {
-          pnTags.add(new ItemTagPanel(tag));
-        }
-      }
-
-      pnTags.revalidate();
-    }
-
-    public List<IssueTag> getSelectedTags()
-    {
-      int count = pnTags.getComponentCount();
-
-      List<IssueTag> result = new ArrayList<IssueTag>(count);
-      for (int i = 0; i < count; i++)
-      {
-        result.add(((ItemTagPanel) pnTags.getComponent(i)).issueTag);
-      }
-
-      return result;
-    }
-
-    private class ItemTagPanel extends JLabel
-    {
-      private final IssueTag issueTag;
-
-      public ItemTagPanel(IssueTag issueTag)
-      {
-        super(issueTag.getName());
-        this.issueTag = issueTag;
-
-        setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.TAG));
-        setHorizontalAlignment(SwingConstants.CENTER);
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8),
-          BorderFactory.createEtchedBorder()));
       }
     }
   }
