@@ -11,6 +11,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

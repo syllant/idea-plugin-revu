@@ -63,6 +63,20 @@ public class FilterManager implements ApplicationComponent
 
   public boolean match(@NotNull Issue issue, @NotNull Filter filter)
   {
+    // Creation date
+    if (((filter.getCreatedAfter() != null) && (filter.getCreatedAfter().before(issue.getHistory().getCreatedOn())))
+      || ((filter.getCreatedBefore() != null) && (filter.getCreatedBefore().after(issue.getHistory().getCreatedOn()))))
+    {
+      return false;
+    }
+
+    // Last update date
+    if (((filter.getLastUpdatedAfter() != null) && (filter.getLastUpdatedAfter().before(issue.getHistory().getLastUpdatedOn())))
+      || ((filter.getLastUpdatedBefore() != null) && (filter.getLastUpdatedBefore().after(issue.getHistory().getLastUpdatedOn()))))
+    {
+      return false;
+    }
+
     // Summary
     if (!match(issue.getSummary(), filter.getSummary()))
     {

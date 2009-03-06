@@ -134,7 +134,7 @@ public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserIt
 
   @SuppressWarnings({"unchecked"})
   @NotNull
-  public List<NestedData> getSelectedNestedData()
+  public List<NestedData> getSelectedItemDatas()
   {
     // First component is the edit button
     int count = getComponentCount();
@@ -148,12 +148,12 @@ public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserIt
     return result;
   }
 
-  public void setSelectedNestedData(@Nullable List<NestedData> nestedDataList)
+  public void setSelectedItemDatas(@Nullable List<NestedData> nestedDataList)
   {
     setSelectedItems(toItemsList(nestedDataList));
   }
 
-  public void setSelectedItems(@Nullable List<Item> items)
+  protected void setSelectedItems(@Nullable List<Item> items)
   {
     int componentCount = getComponentCount();
     for (int i = componentCount - 1; i > 0; i--)
@@ -173,6 +173,7 @@ public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserIt
     }
 
     revalidate();
+    repaint();
   }
 
   public void setEnabled(boolean enabled)

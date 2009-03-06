@@ -26,6 +26,7 @@ import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSett
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractListUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.ReviewForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;

@@ -41,7 +41,7 @@
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
-        <ADDITIONAL_INDENT_OPTIONS fileType="java">
+        <ADDITIONAL_INDENT_OPTIONS fileType="">
           <option name="INDENT_SIZE" value="4" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="4" />
@@ -50,7 +50,7 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="jsp">
+        <ADDITIONAL_INDENT_OPTIONS fileType="java">
           <option name="INDENT_SIZE" value="4" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="4" />
@@ -586,6 +586,14 @@
     <option name="LOCATION" value="" />
     <option name="USE_PROJECT_SETTINGS" value="true" />
     <option name="USE_ALTERNATE_LOCATION" value="false" />
+  </component>
+  <component name="UMLDiagramComponent">
+    <diagram name="impl">
+      <command command-class="de.frag.umlplugin.uml.command.AddClassCommand" psi-class="org.sylfra.idea.plugins.revu.externalizing.impl.DataReferentialConverter" />
+      <command command-class="de.frag.umlplugin.uml.command.AddClassCommand" psi-class="org.sylfra.idea.plugins.revu.externalizing.impl.AbstractConverter" />
+      <command command-class="de.frag.umlplugin.uml.command.AddClassCommand" psi-class="org.sylfra.idea.plugins.revu.model.User" />
+      <compartment-visibility />
+    </diagram>
   </component>
   <component name="VCS.FileViewConfiguration">
     <option name="SELECTED_STATUSES" value="DEFAULT" />

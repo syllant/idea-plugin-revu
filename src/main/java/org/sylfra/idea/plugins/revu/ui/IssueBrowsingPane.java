@@ -441,7 +441,7 @@ public class IssueBrowsingPane implements Disposable
       issues = review.getIssues();
     }
 
-    // Apply filter
+    // Apply filters
     ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
 
     return issues;

@@ -28,6 +28,46 @@ public abstract class UniqueNameMultiChooserPanel<T extends IRevuUniqueNameHolde
     super(project, label, popupTitle, dimensionKeySuffix, iconRef);
   }
 
+  @NotNull
+  public List<String> getSelectedItemNames()
+  {
+    List<T> items = getSelectedItemDatas();
+    List<String> result = new ArrayList<String>(items.size());
+
+    for (IRevuUniqueNameHolderEntity item : items)
+    {
+      result.add(item.getName());
+    }
+
+    return result;
+  }
+
+  public void setSelectedItemNames(@Nullable List<String> itemNames)
+  {
+    List<T> selectedItems;
+    if (itemNames == null)
+    {
+      selectedItems = null;
+    }
+    else
+    {
+      selectedItems = new ArrayList<T>(itemNames.size());
+      List<T> allItems = retrieveAllAvailableElements();
+      for (String itemName : itemNames)
+      {
+        for (T item : allItems)
+        {
+          if (item.getName().equals(itemName))
+          {
+            selectedItems.add(item);
+          }
+        }
+      }
+    }
+
+    setSelectedItemDatas(selectedItems);
+  }
+
   protected AbstractMultiChooserItem<T> createMultiChooserItem(@NotNull final T nestedData)
   {
     return new AbstractMultiChooserItem<T>(nestedData)
@@ -52,6 +92,7 @@ public abstract class UniqueNameMultiChooserPanel<T extends IRevuUniqueNameHolde
       {
         if (!names.contains(item.getName()))
         {
+          names.add(item.getName());
           result.add(item);
         }
       }

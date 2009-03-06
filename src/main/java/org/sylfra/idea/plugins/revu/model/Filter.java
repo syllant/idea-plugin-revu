@@ -1,5 +1,7 @@
 package org.sylfra.idea.plugins.revu.model;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,11 +13,24 @@ public class Filter extends AbstractRevuEntity<Filter> implements IRevuUniqueNam
   private String name;
   private String summary;
   private String fileRef;
+  private Date createdBefore;
+  private Date createdAfter;
+  private Date lastUpdatedBefore;
+  private Date lastUpdatedAfter;
   private List<String> prioritieNames;
-  private List<IssueStatus> statuses;
   private List<String> recipientLogins;
   private List<String> resolverLogins;
+  private List<IssueStatus> statuses;
   private List<String> tagNames;
+
+  public Filter()
+  {
+    prioritieNames = new ArrayList<String>();
+    recipientLogins = new ArrayList<String>();
+    resolverLogins = new ArrayList<String>();
+    statuses = new ArrayList<IssueStatus>();
+    tagNames = new ArrayList<String>();
+  }
 
   public String getName()
   {
@@ -97,6 +112,46 @@ public class Filter extends AbstractRevuEntity<Filter> implements IRevuUniqueNam
     this.tagNames = tagNames;
   }
 
+  public Date getCreatedBefore()
+  {
+    return createdBefore;
+  }
+
+  public void setCreatedBefore(Date createdBefore)
+  {
+    this.createdBefore = createdBefore;
+  }
+
+  public Date getCreatedAfter()
+  {
+    return createdAfter;
+  }
+
+  public void setCreatedAfter(Date createdAfter)
+  {
+    this.createdAfter = createdAfter;
+  }
+
+  public Date getLastUpdatedBefore()
+  {
+    return lastUpdatedBefore;
+  }
+
+  public void setLastUpdatedBefore(Date lastUpdatedBefore)
+  {
+    this.lastUpdatedBefore = lastUpdatedBefore;
+  }
+
+  public Date getLastUpdatedAfter()
+  {
+    return lastUpdatedAfter;
+  }
+
+  public void setLastUpdatedAfter(Date lastUpdatedAfter)
+  {
+    this.lastUpdatedAfter = lastUpdatedAfter;
+  }
+
   public int compareTo(Filter o)
   {
     return name.compareTo(o.getName());
@@ -116,7 +171,24 @@ public class Filter extends AbstractRevuEntity<Filter> implements IRevuUniqueNam
 
     Filter filter = (Filter) o;
 
+    if (createdAfter != null ? !createdAfter.equals(filter.createdAfter) : filter.createdAfter != null)
+    {
+      return false;
+    }
+    if (createdBefore != null ? !createdBefore.equals(filter.createdBefore) : filter.createdBefore != null)
+    {
+      return false;
+    }
     if (fileRef != null ? !fileRef.equals(filter.fileRef) : filter.fileRef != null)
+    {
+      return false;
+    }
+    if (lastUpdatedAfter != null ? !lastUpdatedAfter.equals(filter.lastUpdatedAfter) : filter.lastUpdatedAfter != null)
+    {
+      return false;
+    }
+    if (lastUpdatedBefore != null ? !lastUpdatedBefore.equals(filter.lastUpdatedBefore) :
+      filter.lastUpdatedBefore != null)
     {
       return false;
     }
@@ -150,19 +222,5 @@ public class Filter extends AbstractRevuEntity<Filter> implements IRevuUniqueNam
     }
 
     return true;
-  }
-
-  @Override
-  public int hashCode()
-  {
-    int result = name != null ? name.hashCode() : 0;
-    result = 31 * result + (summary != null ? summary.hashCode() : 0);
-    result = 31 * result + (fileRef != null ? fileRef.hashCode() : 0);
-    result = 31 * result + (prioritieNames != null ? prioritieNames.hashCode() : 0);
-    result = 31 * result + (statuses != null ? statuses.hashCode() : 0);
-    result = 31 * result + (recipientLogins != null ? recipientLogins.hashCode() : 0);
-    result = 31 * result + (resolverLogins != null ? resolverLogins.hashCode() : 0);
-    result = 31 * result + (tagNames != null ? tagNames.hashCode() : 0);
-    return result;
   }
 }

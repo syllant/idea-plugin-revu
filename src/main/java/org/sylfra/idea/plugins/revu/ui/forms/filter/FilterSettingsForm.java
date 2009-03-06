@@ -12,6 +12,7 @@ import org.sylfra.idea.plugins.revu.model.Filter;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractListUpdatableForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.util.List;

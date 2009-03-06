@@ -236,7 +236,7 @@ public class IssueMainForm extends AbstractIssueForm
     taSummary.setText((data == null) ? "" : data.getSummary());
     cbPriority.setSelectedItem((data == null) ? null : data.getPriority());
     lbSync.setVisible((data != null) && (!isIssueSynchronized(data)));
-    tagsMultiChooserPanel.setSelectedNestedData((data == null) ? null : data.getTags());
+    tagsMultiChooserPanel.setSelectedItemDatas((data == null) ? null : data.getTags());
     tagsMultiChooserPanel.setEnabled((!createMode) || (cbReview.getSelectedItem() != null));
 
     Issue.LocationType locationType = (data == null) ? null : data.getLocationType();
@@ -253,7 +253,7 @@ public class IssueMainForm extends AbstractIssueForm
     data.setDesc(taDesc.getText());
     data.setSummary(taSummary.getText());
     data.setPriority((IssuePriority) cbPriority.getSelectedItem());
-    data.setTags(tagsMultiChooserPanel.getSelectedNestedData());
+    data.setTags(tagsMultiChooserPanel.getSelectedItemDatas());
 
     // Location
     if (rbLocationGlobal.isSelected())
@@ -291,7 +291,7 @@ public class IssueMainForm extends AbstractIssueForm
       return true;
     }
 
-    if (!checkEquals(tagsMultiChooserPanel.getSelectedNestedData(), data.getTags()))
+    if (!checkEquals(tagsMultiChooserPanel.getSelectedItemDatas(), data.getTags()))
     {
       return true;
     }
