@@ -1,8 +1,8 @@
 package org.sylfra.idea.plugins.revu.settings;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
- * @version $Id$
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
+ * @version $Id: IRevuSettingsListener.java 7 2008-11-15 09:20:32Z syllant $
  */
 public interface IRevuSettingsListener<T extends IRevuSettings>
 {
