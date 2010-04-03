@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylvain.francois@kalistick.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class AbstractReviewFilesRevuSettings implements IRevuSettings

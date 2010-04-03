@@ -6,11 +6,11 @@
   <groupId>org.sylfra.idea.plugins</groupId>
   <artifactId>revu</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
+  <version>2.0</version>
   <name>revu Plugin</name>
   <description>reVu plugin for Intellij IDEA</description>
   <properties>
-    <idea.version>8.0</idea.version>
+    <idea.version>9.0</idea.version>
   </properties>
   <scm>
     <connection>scm:svn:http://idea-revu.googlecode.com/svn/trunk</connection>

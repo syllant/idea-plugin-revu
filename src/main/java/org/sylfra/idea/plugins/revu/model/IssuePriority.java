@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssuePriority extends AbstractRevuEntity<IssuePriority> implements Comparable<IssuePriority>,

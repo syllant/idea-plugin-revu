@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public interface IReviewExternalizer

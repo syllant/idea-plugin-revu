@@ -5,7 +5,7 @@ import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 import java.util.Collection;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ConverterUtils

@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Used to interface settings inside Settings panel
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, ReviewForm> implements ProjectComponent
@@ -263,8 +263,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
 
   protected ActionGroup createActionGroup()
   {
-    return (ActionGroup) ActionManager.getInstance()
-      .getAction("revu.settings.project.reviews");
+    return (ActionGroup) ActionManager.getInstance().getAction("revu.settings.project.reviews");
   }
 
   protected List<Review> getOriginalItems()

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * General exception related to Revu error
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuFriendlyException extends RevuException

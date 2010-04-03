@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewFileChooser
@@ -62,7 +62,7 @@ public class ReviewFileChooser
   }
 
   /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
    * @version $Id$
    */
   private static class ReviewFileChooserDescriptor extends FileChooserDescriptor

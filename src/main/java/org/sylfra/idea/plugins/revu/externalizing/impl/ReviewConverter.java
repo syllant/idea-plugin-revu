@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.model.*;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 class ReviewConverter extends AbstractConverter
@@ -57,6 +57,11 @@ class ReviewConverter extends AbstractConverter
     // Referential
     writer.startNode("referential");
     context.convertAnother(review.getDataReferential());
+    writer.endNode();
+
+    // FileScope
+    writer.startNode("filescope");
+    context.convertAnother(review.getFileScope());
     writer.endNode();
 
     // Issues
@@ -140,8 +145,11 @@ class ReviewConverter extends AbstractConverter
       }
       else if ("referential".equals(reader.getNodeName()))
       {
-        review.setDataReferential((DataReferential)
-          context.convertAnother(review, DataReferential.class));
+        review.setDataReferential((DataReferential) context.convertAnother(review, DataReferential.class));
+      }
+      else if ("filescope".equals(reader.getNodeName()))
+      {
+        review.setFileScope((FileScope) context.convertAnother(review, FileScope.class));
       }
       reader.moveUp();
     }

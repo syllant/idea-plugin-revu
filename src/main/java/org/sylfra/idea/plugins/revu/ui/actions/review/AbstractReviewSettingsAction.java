@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 abstract class AbstractReviewSettingsAction extends AnAction

@@ -2,10 +2,7 @@ package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.FileStatusManager;
+import com.intellij.openapi.vcs.*;
 import com.intellij.openapi.vcs.actions.VcsContextFactory;
 import com.intellij.openapi.vcs.diff.DiffProvider;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
@@ -16,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuVcsUtils
@@ -88,5 +85,24 @@ public class RevuVcsUtils
   public static String formatVcsFileRevision(@NotNull VirtualFile vFile, @NotNull String number)
   {
     return RevuBundle.message("general.vcsFileAndRev.text", vFile.getPath(), number);
+  }
+
+  public static boolean mayBrowseChangeLists(@NotNull Project project)
+  {
+    VirtualFile vFile = project.getBaseDir();
+    if (vFile == null)
+    {
+      return false;
+    }
+
+    AbstractVcs vcs = ProjectLevelVcsManager.getInstance(project).getVcsFor(vFile);
+    if (vcs == null || vcs.getCommittedChangesProvider() == null)
+    {
+      return false;
+    }
+
+    FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(vFile);
+
+    return AbstractVcs.fileInVcsByFileStatus(project, filePath);
   }
 }

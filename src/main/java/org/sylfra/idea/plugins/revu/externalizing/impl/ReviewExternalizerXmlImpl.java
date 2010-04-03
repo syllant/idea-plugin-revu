@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectComponent
@@ -82,7 +83,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
 
     try
     {
-      xstream.unmarshal(new XppDriver().createReader(stream), null, xstreamDataHolder);
+      xstream.unmarshal(new DomDriver().createReader(stream), null, xstreamDataHolder);
     }
     catch (Exception e)
     {
@@ -150,6 +151,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       xstream.alias("review", Review.class);
 
       xstream.registerConverter(new HistoryConverter());
+      xstream.registerConverter(new FileScopeConverter());
       xstream.registerConverter(new ReviewConverter());
       xstream.registerConverter(new IssueConverter());
       xstream.registerConverter(new IssueNoteConverter());

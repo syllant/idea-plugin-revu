@@ -3,6 +3,12 @@
 - layout filter
 - Master/Slave toolbar & target component
 
+- create review from changes
+- add ScopeConfigurable into Review
+- add a message in review settings to recall current user and his roles for review
+- display issues in tree instead of table
+  -> grouped by files/packages/modules
+
 Next release :
   - combo selection using keyboard
   - change location -> remove marker
@@ -24,7 +30,4 @@ Next release :
 - review merge UI
 - export CSV
 - create item from intention
-- option do display issues in tree instead of table
-  -> grouped by files/packages/modules
-  - OR grouping feature inside current table
 - review XML inspections

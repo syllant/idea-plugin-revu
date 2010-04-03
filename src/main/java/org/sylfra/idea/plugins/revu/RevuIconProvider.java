@@ -9,7 +9,7 @@ import javax.swing.*;
 /**
  * Provides an unified way to retrieve an icon defined in plugin resources
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class RevuIconProvider

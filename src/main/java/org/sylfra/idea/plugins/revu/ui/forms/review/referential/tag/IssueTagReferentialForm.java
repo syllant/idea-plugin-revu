@@ -8,7 +8,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractNameHold
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialDetailForm;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssueTagReferentialForm extends AbstractNameHolderReferentialForm<IssueTag>

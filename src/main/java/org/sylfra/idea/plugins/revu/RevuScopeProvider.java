@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -8,6 +9,7 @@ import com.intellij.psi.search.scope.packageSet.NamedScope;
 import com.intellij.psi.search.scope.packageSet.NamedScopesHolder;
 import com.intellij.psi.search.scope.packageSet.PackageSet;
 import org.jetbrains.annotations.NotNull;
+import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
@@ -15,7 +17,7 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
@@ -23,10 +25,10 @@ public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
   private final Project project;
   private final Map<Review, NamedScope> scopes;
 
-  public RevuScopeProvider(Project project)
+  public RevuScopeProvider(@NotNull Project project)
   {
     this.project = project;
-    scopes = new HashMap<Review, NamedScope>();
+    scopes = new IdentityHashMap<Review, NamedScope>();
     project.getComponent(ReviewManager.class).addReviewListener(this);
   }
 
@@ -44,7 +46,7 @@ public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
   public void reviewAdded(Review review)
   {
     String scopeTitle = RevuBundle.message("scope.title", review.getName());
-    scopes.put(review, new NamedScope(scopeTitle, new CustomPackageSet(review)));
+    scopes.put(review, new NamedScope(scopeTitle, new CustomPackageSet(project, review)));
   }
 
   public void reviewDeleted(Review review)
@@ -54,17 +56,21 @@ public class RevuScopeProvider implements CustomScopesProvider, IReviewListener
 
   private final static class CustomPackageSet implements PackageSet
   {
+    private final Project project;
     private final Review review;
+    private final FileScopeManager fileScopeManager;
 
-    private CustomPackageSet(@NotNull Review review)
+    private CustomPackageSet(@NotNull Project project, @NotNull Review review)
     {
+      this.project = project;
       this.review = review;
+      fileScopeManager = ApplicationManager.getApplication().getComponent(FileScopeManager.class);
     }
 
     public boolean contains(PsiFile file, NamedScopesHolder holder)
     {
       VirtualFile vFile = file.getVirtualFile();
-      return (vFile != null) && review.getIssuesByFiles().containsKey(vFile);
+      return (vFile != null) && fileScopeManager.belongsToScope(project, review.getFileScope(), vFile);
     }
 
     public PackageSet createCopy()

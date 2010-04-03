@@ -7,7 +7,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractNameHolderReferentialForm<T extends IRevuUniqueNameHolderEntity<T>>

@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id: RevuUtils.java 7 2008-11-15 09:20:32Z syllant $
  */
 public class RevuUtils

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
 * @version $Id$
 */
 public class RemoveReviewAction extends AbstractReviewSettingsAction

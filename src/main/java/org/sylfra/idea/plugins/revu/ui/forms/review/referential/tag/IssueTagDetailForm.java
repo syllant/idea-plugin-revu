@@ -5,7 +5,7 @@ import org.sylfra.idea.plugins.revu.model.IssueTag;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractNameHolderDetailForm;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssueTagDetailForm extends AbstractNameHolderDetailForm<IssueTag>

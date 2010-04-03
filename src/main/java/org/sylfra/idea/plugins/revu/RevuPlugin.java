@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * The main application component available as a singleton and providing convenient methods
  * to access services declared in plugin.xml
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuPlugin implements ProjectComponent
@@ -43,10 +43,9 @@ public class RevuPlugin implements ProjectComponent
    */
   public void initComponent()
   {
-    ExternalResourceManager.getInstance().addStdResource(
+    ExternalResourceManager.getInstance().addResource(
       "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
-      "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd",
-      RevuPlugin.class);
+      "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd");
 }
 
   /**

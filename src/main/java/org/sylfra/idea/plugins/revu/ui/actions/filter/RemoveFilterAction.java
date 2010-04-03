@@ -10,7 +10,7 @@ import org.sylfra.idea.plugins.revu.model.Filter;
 import javax.swing.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
 * @version $Id$
 */
 public class RemoveFilterAction extends AbstractFilterSettingsAction

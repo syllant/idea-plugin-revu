@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Used to interface settings inside Settings panel
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderEntity<E>,
@@ -54,17 +54,19 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
   {
     mainForm = createMainForm();
 
+    // List
+    JPanel pnList = new JPanel(new BorderLayout());
+    pnList.setMinimumSize(new Dimension(50, 0));
+    pnList.setMinimumSize(new Dimension(150, 0));
+
+    list = new JList();
+
     // Toolbar
     ActionToolbar actionToolbar = ActionManager.getInstance()
       .createActionToolbar(ActionPlaces.UNKNOWN, createActionGroup(), true);
     actionToolbar.setTargetComponent(list);
     toolBar = actionToolbar.getComponent();
 
-    JPanel pnList = new JPanel(new BorderLayout());
-    pnList.setMinimumSize(new Dimension(50, 0));
-    pnList.setMinimumSize(new Dimension(150, 0));
-
-    list = new JList();
     pnList.add(new JScrollPane(list), BorderLayout.CENTER);
     pnList.add(toolBar, BorderLayout.NORTH);
 
@@ -260,15 +262,12 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     DefaultListModel listModel = new DefaultListModel();
 
     List<E> originalItems = getOriginalItems();
-    if (originalItems != null)
+    for (E item : originalItems)
     {
-      for (E item : originalItems)
-      {
-        // List stores shallow clones so changes may be properly canceled
-        listModel.addElement(item.clone());
-      }
+      // List stores shallow clones so changes may be properly canceled
+      listModel.addElement(item.clone());
     }
-    
+
     list.setModel(listModel);
     if (list.getModel().getSize() > 0)
     {

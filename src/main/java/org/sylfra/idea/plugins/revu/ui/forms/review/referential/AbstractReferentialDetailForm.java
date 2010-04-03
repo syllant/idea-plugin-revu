@@ -6,7 +6,7 @@ import org.sylfra.idea.plugins.revu.model.IRevuEntity;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractReferentialDetailForm<T extends IRevuEntity<T>> extends AbstractUpdatableForm<T>

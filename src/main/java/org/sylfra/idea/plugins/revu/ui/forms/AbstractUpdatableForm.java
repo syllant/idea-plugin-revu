@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements IUpdatableForm<T>
@@ -200,6 +200,13 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     return true;
   }
 
+  protected boolean isHabilitedToEditReview(User user)
+  {
+    return (getEnclosingReview() != null)
+      && (!getEnclosingReview().isEmbedded())
+      && (user != null)
+      && (user.hasRole(User.Role.ADMIN));
+  }
 
   public abstract boolean isModified(@NotNull T data);
 

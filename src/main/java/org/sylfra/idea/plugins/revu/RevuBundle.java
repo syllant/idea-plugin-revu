@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 /**
  * Provides convenient methods to retrieve labels from bundles declared in plugin conf
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuBundle

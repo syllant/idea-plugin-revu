@@ -7,7 +7,7 @@ import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractIssueForm extends AbstractUpdatableForm<Issue>

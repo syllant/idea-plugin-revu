@@ -23,7 +23,7 @@ import java.awt.event.MouseEvent;
 /**
  * Note: Should have used {@link com.intellij.ui.AutoScrollToSourceHandler}, but this class does not support tables
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public final class CustomAutoScrollToSourceHandler

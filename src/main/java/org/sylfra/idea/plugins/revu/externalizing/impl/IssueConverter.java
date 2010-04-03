@@ -15,7 +15,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 class IssueConverter extends AbstractConverter
@@ -144,7 +144,7 @@ class IssueConverter extends AbstractConverter
         if (issueTag == null)
         {
           // @TODO report error to user
-          logger.warn("Can't find tag in referential. Tag:'" + tagName + "', review: " + review.getPath());
+          logger.warn("Can't find tag in referential. Tag: '" + tagName + "', review: " + review.getPath());
         }
         else
         {

@@ -1,10 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.browsingtable;
 
+import com.intellij.ide.DataManager;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.ui.search.SearchUtil;
-import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.ex.ActionUtil;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -34,7 +33,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssueTable extends TableView<Issue> implements DataProvider, OccurenceNavigator
@@ -72,7 +71,21 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
       {
         if (e.getClickCount() == 2)
         {
-          ActionUtil.execute("revu.JumpToSource", e, IssueTable.this, "issueTable", 0);
+          AnAction action = ActionManager.getInstance().getAction("revu.JumpToSource");
+          DataContext context = DataManager.getInstance().getDataContext(IssueTable.this);
+
+          Presentation presentation = (Presentation)action.getTemplatePresentation().clone();
+
+          AnActionEvent event = new AnActionEvent(e, context, "issueTable", presentation,
+            ActionManager.getInstance(), 0);
+
+          action.update(event);
+
+          if (event.getPresentation().isEnabled())
+          {
+            action.beforeActionPerformedUpdate(event);
+            action.actionPerformed(event);
+          }
         }
       }
     });

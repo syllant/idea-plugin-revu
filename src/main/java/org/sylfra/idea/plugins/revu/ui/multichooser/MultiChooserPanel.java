@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserItem<NestedData>> extends JPanel

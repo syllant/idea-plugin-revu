@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * General settings bean for plugin
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings

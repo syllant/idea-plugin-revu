@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class FilterManager implements ApplicationComponent
@@ -32,7 +32,7 @@ public class FilterManager implements ApplicationComponent
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".FilterManager";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public void initComponent()

@@ -24,7 +24,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuToolWindowManager implements ProjectComponent, IReviewListener

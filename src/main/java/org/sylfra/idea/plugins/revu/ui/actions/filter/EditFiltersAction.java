@@ -10,7 +10,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.filter.FilterSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class EditFiltersAction extends AnAction

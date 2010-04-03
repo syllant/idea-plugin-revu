@@ -7,7 +7,7 @@ import com.intellij.pom.Navigatable;
 import com.intellij.util.OpenSourceUtil;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class JumpToSourceAction extends AnAction

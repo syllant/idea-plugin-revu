@@ -1,6 +1,8 @@
 package org.sylfra.idea.plugins.revu.model;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +11,7 @@ import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHolderEntity<Review>,
@@ -24,6 +26,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private ReviewStatus status;
   private boolean embedded;
   private DataReferential dataReferential;
+  private FileScope fileScope;
   private Map<VirtualFile, List<Issue>> issuesByFiles;
   private final transient List<IIssueListener> issueListeners;
 
@@ -34,6 +37,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     issuesByFiles = new HashMap<VirtualFile, List<Issue>>();
     issueListeners = new LinkedList<IIssueListener>();
     dataReferential = new DataReferential(this);
+    fileScope = new FileScope();
   }
 
   public Review()
@@ -130,6 +134,17 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   public void setDataReferential(DataReferential dataReferential)
   {
     this.dataReferential = dataReferential;
+  }
+
+  @NotNull
+  public FileScope getFileScope()
+  {
+    return fileScope;
+  }
+
+  public void setFileScope(FileScope fileScope)
+  {
+    this.fileScope = fileScope;
   }
 
   @NotNull
@@ -271,77 +286,48 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   @Override
   public boolean equals(Object o)
   {
+    if (!(o instanceof Review))
+    {
+      return false;
+    }
     if (this == o)
     {
       return true;
     }
-    if (o == null || getClass() != o.getClass())
-    {
-      return false;
-    }
 
-    Review review = (Review) o;
-
-    if (status != review.status)
-    {
-      return false;
-    }
-    if (embedded != review.embedded)
-    {
-      return false;
-    }
-    if (shared != review.shared)
-    {
-      return false;
-    }
-    if (dataReferential != null ? !dataReferential.equals(review.dataReferential) : review.dataReferential != null)
-    {
-      return false;
-    }
-    if (goal != null ? !goal.equals(review.goal) : review.goal != null)
-    {
-      return false;
-    }
-    if (extendedReview != null ? !extendedReview.equals(review.extendedReview) : review.extendedReview != null)
-    {
-      return false;
-    }
-    if (history != null ? !history.equals(review.history) : review.history != null)
-    {
-      return false;
-    }
-    if (issuesByFiles != null ? !issuesByFiles.equals(review.issuesByFiles) : review.issuesByFiles != null)
-    {
-      return false;
-    }
-    if (path != null ? !path.equals(review.path) : review.path != null)
-    {
-      return false;
-    }
-    if (name != null ? !name.equals(review.name) : review.name != null)
-    {
-      return false;
-    }
-
-    return true;
+    Review r = (Review) o;
+    return new EqualsBuilder()
+      .appendSuper(super.equals(o))
+      .append(status, r.status)
+      .append(embedded, r.embedded)
+      .append(shared, r.shared)
+      .append(dataReferential, r.dataReferential)
+      .append(goal, r.goal)
+      .append(extendedReview, r.extendedReview)
+      .append(history, r.history)
+      .append(issuesByFiles, r.issuesByFiles)
+      .append(path, r.path)
+      .append(name, r.name)
+      .append(fileScope, r.fileScope)
+      .isEquals();
   }
 
   @Override
   public int hashCode()
   {
-    int result = extendedReview != null ? extendedReview.getName().hashCode() : 0;
-
-    result = 31 * result + (path != null ? path.hashCode() : 0);
-    result = 31 * result + (history != null ? history.hashCode() : 0);
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    result = 31 * result + (goal != null ? goal.hashCode() : 0);
-    result = 31 * result + (shared ? 1 : 0);
-    result = 31 * result + (status != null ? status.hashCode() : 0);
-    result = 31 * result + (embedded ? 1 : 0);
-    result = 31 * result + (dataReferential != null ? dataReferential.hashCode() : 0);
-    result = 31 * result + (issuesByFiles != null ? issuesByFiles.hashCode() : 0);
-
-    return result;
+    return new HashCodeBuilder()
+      .append(extendedReview == null ? "" : extendedReview.getName())
+      .append(path)
+      .append(history)
+      .append(name)
+      .append(goal)
+      .append(shared)
+      .append(status)
+      .append(embedded)
+      .append(dataReferential)
+      .append(issuesByFiles)
+      .append(fileScope)
+      .toHashCode();
   }
 
   @Override

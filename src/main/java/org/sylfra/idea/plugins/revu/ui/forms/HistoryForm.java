@@ -14,7 +14,7 @@ import java.text.DateFormat;
 import java.util.ResourceBundle;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class HistoryForm<T extends IRevuHistoryHolderEntity<T>> extends AbstractUpdatableForm<T>

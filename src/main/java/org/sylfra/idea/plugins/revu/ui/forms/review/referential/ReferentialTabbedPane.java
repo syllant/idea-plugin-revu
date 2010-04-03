@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential>
@@ -41,8 +41,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
     lbNoUserForEmbeddedReviews = new JLabel(
       RevuBundle.message("projectSettings.review.referential.noUserForEmbeddedReviews.text"));
     lbNoUserForEmbeddedReviews.setHorizontalAlignment(SwingConstants.CENTER);
-    CardLayout cardLayout = new CardLayout();
-    JPanel pnUsers = new JPanel(cardLayout);
+    JPanel pnUsers = new JPanel(new CardLayout());
     pnUsers.add("table", userReferentialForm.getContentPane());
     pnUsers.add("label", lbNoUserForEmbeddedReviews);
 

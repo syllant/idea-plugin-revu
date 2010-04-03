@@ -33,7 +33,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ReviewManager implements ProjectComponent
@@ -172,7 +172,7 @@ public class ReviewManager implements ProjectComponent
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".ReviewManager";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public void initComponent()
@@ -640,7 +640,7 @@ public class ReviewManager implements ProjectComponent
   }
 
   /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
    * @version $Id$
    */
   public static class RevuFileListener implements Disposable

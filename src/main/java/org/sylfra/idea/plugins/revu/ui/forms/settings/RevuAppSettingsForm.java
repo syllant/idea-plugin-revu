@@ -33,7 +33,7 @@ import java.util.ResourceBundle;
 /**
  * Used to interface settings inside Settings panel
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuAppSettingsForm implements ApplicationComponent, Configurable

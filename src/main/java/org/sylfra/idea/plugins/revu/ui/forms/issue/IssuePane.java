@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.ResourceBundle;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssuePane extends AbstractIssueForm

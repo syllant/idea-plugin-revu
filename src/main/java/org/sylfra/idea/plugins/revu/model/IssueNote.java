@@ -3,7 +3,7 @@ package org.sylfra.idea.plugins.revu.model;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class IssueNote extends AbstractRevuEntity<IssueNote> implements Comparable<IssueNote>,

@@ -20,7 +20,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
 import java.util.List;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class CreateIssueAction extends AbstractIssueAction

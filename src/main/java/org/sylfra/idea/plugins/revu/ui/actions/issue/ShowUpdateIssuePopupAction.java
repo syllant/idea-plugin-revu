@@ -9,7 +9,7 @@ import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssueDialog;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class ShowUpdateIssuePopupAction extends AnAction

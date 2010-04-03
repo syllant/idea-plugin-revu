@@ -10,7 +10,7 @@ import org.sylfra.idea.plugins.revu.ui.IssueBrowsingPane;
 import org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public abstract class AbstractSplitReviewBrowsingFormAction extends ToggleAction

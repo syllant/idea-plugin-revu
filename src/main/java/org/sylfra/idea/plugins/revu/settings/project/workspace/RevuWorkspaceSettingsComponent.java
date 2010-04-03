@@ -11,7 +11,7 @@ import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComp
  * NB: has to declare implementing PersistentStateComponent even if parent class already does because of IDEA
  * introspection mechanism ({@link com.intellij.util.ReflectionUtil#getRawType(java.lang.reflect.Type)}
  *
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 @State(

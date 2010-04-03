@@ -21,7 +21,7 @@
   </ul>
 </html>
 ]]></change-notes>
-  <idea-version since-build="8000"/>
+  <idea-version since-build="9000"/>
   <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 
   <application-components>
@@ -38,6 +38,9 @@
     </component>
     <component>
       <implementation-class>org.sylfra.idea.plugins.revu.business.FilterManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.sylfra.idea.plugins.revu.business.FileScopeManager</implementation-class>
     </component>
   </application-components>
 
@@ -128,6 +131,7 @@
             class="org.sylfra.idea.plugins.revu.ui.actions.review.ExportReviewAction"
             text="Export Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/exportReview.png"/>
+
     <action id="revu.SplitReviewBrowsingFormHorizontally"
             class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
             text="Split Horizontally"

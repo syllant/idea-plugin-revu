@@ -31,7 +31,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import java.util.*;
 
 /**
- * @author <a href="mailto:sylfradev@yahoo.fr">Sylvain FRANCOIS</a>
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
 public class RevuEditorHandler implements ProjectComponent
@@ -388,9 +388,12 @@ public class RevuEditorHandler implements ProjectComponent
         for (Editor editor : documentChangeTracker.getEditors())
         {
           Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
-          for (CustomGutterIconRenderer renderer : editorRenderers.values())
+          if (editorRenderers != null)
           {
-            renderer.checkFullySynchronized();
+            for (CustomGutterIconRenderer renderer : editorRenderers.values())
+            {
+              renderer.checkFullySynchronized();
+            }
           }
         }
       }
