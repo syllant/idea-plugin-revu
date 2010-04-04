@@ -8,8 +8,19 @@ import java.util.Date;
  */
 public class FileScope extends AbstractRevuEntity<FileScope>
 {
+  private String pathPattern;
   private String rev;
   private Date date;
+
+  public String getPathPattern()
+  {
+    return pathPattern;
+  }
+
+  public void setPathPattern(String pathPattern)
+  {
+    this.pathPattern = pathPattern;
+  }
 
   public String getRev()
   {

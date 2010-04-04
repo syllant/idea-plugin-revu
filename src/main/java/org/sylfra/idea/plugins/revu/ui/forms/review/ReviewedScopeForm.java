@@ -1,11 +1,16 @@
 package org.sylfra.idea.plugins.revu.ui.forms.review;
 
+import com.intellij.ide.util.scopeChooser.ScopeEditorPanel;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.*;
 import com.intellij.openapi.vcs.actions.VcsContextFactory;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.search.scope.packageSet.PackageSet;
+import com.intellij.psi.search.scope.packageSet.PackageSetFactory;
+import com.intellij.psi.search.scope.packageSet.ParsingException;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -46,16 +51,24 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
   private JTextField tfFromDate;
   private JButton bnDateHistory;
   private JRadioButton rbFromNone;
+  private JComponent pnScopeEditor;
   private Project project;
   private ActionListener fromChoiceListener;
+  private ScopeEditorPanel scopeEditorPanel;
 
   public ReviewedScopeForm(@NotNull final Project project)
   {
     this.project = project;
+    scopeEditorPanel = new ScopeEditorPanel(project);
 
     $$$setupUI$$$();
 
     configureUI(project);
+  }
+
+  private void createUIComponents()
+  {
+    pnScopeEditor = scopeEditorPanel.getPanel();
   }
 
   private void configureUI(@NotNull final Project project)
@@ -107,20 +120,34 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     {
       if (data.getRev() != null)
       {
-        return !rbFromRev.isSelected() || !tfFromRev.getText().equals(data.getRev());
+        if (!rbFromRev.isSelected() || !tfFromRev.getText().equals(data.getRev()))
+        {
+          return true;
+        }
       }
-      if (data.getDate() != null)
+      else if (data.getDate() != null)
       {
-        return !rbFromDate.isSelected() || DATE_FORMAT.parse(tfFromDate.getText()) != data.getDate();
+        if (!!rbFromDate.isSelected() || DATE_FORMAT.parse(tfFromDate.getText()) != data.getDate())
+        {
+          return true;
+        }
       }
-
-      return !rbFromNone.isSelected();
+      else
+      {
+        if (!rbFromNone.isSelected())
+        {
+          return true;
+        }
+      }
     }
     catch (ParseException e)
     {
       LOGGER.error(e);
-      return false;
     }
+
+    return (data.getPathPattern() == null) 
+      ? ((scopeEditorPanel.getCurrentScope() != null) && (scopeEditorPanel.getCurrentScope().getText().length() > 0))
+      : ((scopeEditorPanel.getCurrentScope() == null) || (!data.getPathPattern().equals(scopeEditorPanel.getCurrentScope().getText())));
   }
 
   @Override
@@ -128,7 +155,7 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
   {
     boolean isHabilited = isHabilitedToEditReview(user);
 
-    RevuUtils.setWriteAccess(isHabilited, rbFromDate, rbFromRev, tfFromDate, tfFromRev);
+    RevuUtils.setWriteAccess(isHabilited, rbFromDate, rbFromRev, tfFromDate, tfFromRev, scopeEditorPanel.getPanel());
     fromChoiceListener.actionPerformed(null);
   }
 
@@ -162,8 +189,21 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
       {
         revError = true;
       }
-      updateError(tfFromRev, revError, RevuBundle.message("general.invalidRev.text"));
+      updateError(tfFromRev, revError, RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
     }
+
+    boolean patternError;
+    try
+    {
+      scopeEditorPanel.apply();
+      patternError = false;
+    }
+    catch (ConfigurationException e)
+    {
+      patternError = true;
+    }
+    updateError(scopeEditorPanel.getPanel(), patternError,
+      RevuBundle.message("projectSettings.review.scope.invalidPattern.text"));
   }
 
   @Override
@@ -184,6 +224,26 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     {
       rbFromNone.setSelected(true);
     }
+
+    PackageSet packageSet;
+    if ((data == null) || (data.getPathPattern() == null) || (data.getPathPattern().length() == 0))
+    {
+      packageSet = null;
+    }
+    else
+    {
+      try
+      {
+        packageSet = PackageSetFactory.getInstance().compile(data.getPathPattern());
+      }
+      catch (ParsingException e)
+      {
+        LOGGER.warn("Failed to compile file scope path pattern: <" + data.getPathPattern() + ">");
+        packageSet = null;
+      }
+    }
+
+    scopeEditorPanel.reset(packageSet, null);
   }
 
   @Override
@@ -198,6 +258,8 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     {
       LOGGER.error(e);
     }
+
+    data.setPathPattern(scopeEditorPanel.getCurrentScope().getText());
   }
 
   public JComponent getPreferredFocusedComponent()

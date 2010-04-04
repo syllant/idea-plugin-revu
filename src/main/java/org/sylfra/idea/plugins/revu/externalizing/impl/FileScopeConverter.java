@@ -21,6 +21,11 @@ class FileScopeConverter extends AbstractConverter
   {
     FileScope fileScope = (FileScope) source;
 
+    if (fileScope.getPathPattern() != null)
+    {
+      writer.addAttribute("pathPattern", fileScope.getPathPattern());
+    }
+
     if (fileScope.getDate() != null)
     {
       writer.addAttribute("afterDate", formatDate(fileScope.getDate()));
@@ -35,6 +40,7 @@ class FileScopeConverter extends AbstractConverter
   {
     FileScope fileScope = new FileScope();
 
+    fileScope.setPathPattern(reader.getAttribute("pathPattern"));
     String value = reader.getAttribute("afterDate");
     if (value != null)
     {

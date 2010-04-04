@@ -7,7 +7,11 @@ import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.scope.packageSet.PackageSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.FileScope;
 import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
@@ -34,7 +38,13 @@ public class FileScopeManager implements ApplicationComponent
   {
   }
 
-  public boolean belongsToScope(@NotNull Project project, @NotNull FileScope fileScope, @NotNull VirtualFile vFile)
+  public boolean belongsToScope(@NotNull Project project, @NotNull FileScope fileScope, @Nullable PackageSet packageSet,
+    @NotNull VirtualFile vFile)
+  {
+    return matchFrom(project, fileScope, vFile) && matchPathPattern(project, packageSet, vFile);
+  }
+
+  private boolean matchFrom(Project project, FileScope fileScope, VirtualFile vFile)
   {
     if (fileScope.getDate() != null)
     {
@@ -70,5 +80,17 @@ public class FileScopeManager implements ApplicationComponent
     }
 
     return true;
+  }
+
+  private boolean matchPathPattern(@NotNull Project project, @Nullable PackageSet packageSet,
+    @NotNull VirtualFile vFile)
+  {
+    if (packageSet == null)
+    {
+      return true;
+    }
+
+    PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
+    return (psiFile == null) || packageSet.contains(psiFile, null);
   }
 }

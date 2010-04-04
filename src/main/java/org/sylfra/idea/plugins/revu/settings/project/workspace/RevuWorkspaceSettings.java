@@ -24,12 +24,14 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   private List<String> browsingColNames;
   private List<Filter> filters;
   private int selectedFilterIndex;
+  private boolean filterFilesWithIssues;
 
   public RevuWorkspaceSettings()
   {
     filters = new ArrayList<Filter>();
     selectedFilterIndex = -1;
-    toolWindowSplitOrientation = String.valueOf(JSplitPane.HORIZONTAL_SPLIT); 
+    toolWindowSplitOrientation = String.valueOf(JSplitPane.HORIZONTAL_SPLIT);
+    filterFilesWithIssues = false;
 
     IssueColumnInfo[] defaultColumnInfos = IssueColumnInfoRegistry.DEFAULT_COLUMN_INFOS;
     browsingColNames = new ArrayList<String>(defaultColumnInfos.length);
@@ -88,5 +90,15 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   public void setSelectedFilter(@Nullable Filter filter)
   {
     selectedFilterIndex = filters.indexOf(filter);
+  }
+
+  public boolean isFilterFilesWithIssues()
+  {
+    return filterFilesWithIssues;
+  }
+
+  public void setFilterFilesWithIssues(boolean filterFilesWithIssues)
+  {
+    this.filterFilesWithIssues = filterFilesWithIssues;
   }
 }

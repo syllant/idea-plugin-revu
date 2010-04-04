@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -44,6 +45,8 @@ import java.util.List;
  */
 public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, ReviewForm> implements ProjectComponent
 {
+  private static final Logger LOGGER = Logger.getInstance(RevuProjectSettingsForm.class.getName());
+
   private final IRevuSettingsListener<RevuAppSettings> appSettingsListener;
 
   public RevuProjectSettingsForm(@NotNull Project project)
@@ -204,8 +207,10 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
       }
       catch (Exception e)
       {
+        LOGGER.warn(e);
+        final String details = ((e.getLocalizedMessage() == null) ? e.toString() : e.getLocalizedMessage());
         throw new ConfigurationException(
-          RevuBundle.message("projectSettings.error.save.title.text", review.getName(), e.getMessage()),
+          RevuBundle.message("projectSettings.error.save.title.text", review.getName(), details),
           RevuBundle.message("general.plugin.title"));
       }
     }

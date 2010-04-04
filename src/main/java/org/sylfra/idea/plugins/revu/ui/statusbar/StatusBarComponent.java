@@ -4,6 +4,7 @@ import com.intellij.concurrency.JobScheduler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -43,6 +44,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class StatusBarComponent extends JLabel implements ProjectComponent, ApplicationComponent
 {
+  private static final Logger LOGGER = Logger.getInstance(StatusBarComponent.class.getName());
+
   private Project project;
   private List<StatusBarMessage> messages;
   private ScheduledFuture<?> blinkerTask;
@@ -181,6 +184,8 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
       public void saveFailed(Review review, Exception exception)
       {
+        LOGGER.warn(exception);
+        
         final String details = ((exception.getLocalizedMessage() == null)
           ? exception.toString() : exception.getLocalizedMessage());
         addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
