@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.filter;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
@@ -91,5 +92,17 @@ public class FilterSettingsForm extends AbstractListUpdatableForm<Filter, Filter
   protected String getMessageKeyWhenNoSelection()
   {
     return "filterSettings.noSelection.text";
+  }
+
+  @Override
+  protected DataKey createListSelectedEntityDataKey()
+  {
+    return null;
+  }
+
+  @Override
+  protected DataKey createListAllEntitiesDataKeys()
+  {
+    return null;
   }
 }

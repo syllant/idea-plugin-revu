@@ -28,7 +28,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -37,26 +36,27 @@ import java.util.ResourceBundle;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
+public class FileScopeForm extends AbstractUpdatableForm<FileScope>
 {
-  private static final Logger LOGGER = Logger.getInstance(ReviewedScopeForm.class.getName());
+  private static final Logger LOGGER = Logger.getInstance(FileScopeForm.class.getName());
   private final static DateFormat DATE_FORMAT = SimpleDateFormat
     .getDateTimeInstance(SimpleDateFormat.SHORT, SimpleDateFormat.SHORT, Locale.getDefault());
 
   private JPanel contentPane;
-  private JRadioButton rbFromRev;
-  private JTextField tfFromRev;
-  private JButton bnRevHistory;
-  private JRadioButton rbFromDate;
-  private JTextField tfFromDate;
-  private JButton bnDateHistory;
-  private JRadioButton rbFromNone;
+  private JCheckBox ckVcsAfterRev;
+  private JTextField tfVcsAfterRev;
+  private JButton bnVcsAfterRev;
+  private JCheckBox ckVcsBeforeRev;
+  private JTextField tfVcsBeforeRev;
+  private JButton bnVcsBeforeRev;
   private JComponent pnScopeEditor;
+  private JLabel lbWarningNoVcs;
+  private JPanel pnVcsRev;
   private Project project;
   private ActionListener fromChoiceListener;
   private ScopeEditorPanel scopeEditorPanel;
 
-  public ReviewedScopeForm(@NotNull final Project project)
+  public FileScopeForm(@NotNull final Project project)
   {
     this.project = project;
     scopeEditorPanel = new ScopeEditorPanel(project);
@@ -73,41 +73,44 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
 
   private void configureUI(@NotNull final Project project)
   {
-    fromChoiceListener = new ActionListener()
+    ckVcsBeforeRev.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
       {
         boolean mayBrowseChangeLists = RevuVcsUtils.mayBrowseChangeLists(project);
-
-        tfFromRev.setEnabled(rbFromRev.isEnabled() && rbFromRev.isSelected());
-        tfFromDate.setEnabled(rbFromDate.isEnabled() && rbFromDate.isSelected());
-        bnRevHistory.setEnabled(tfFromRev.isEnabled() && mayBrowseChangeLists);
-        bnDateHistory.setEnabled(tfFromDate.isEnabled() && mayBrowseChangeLists);
+        tfVcsBeforeRev.setEnabled(ckVcsBeforeRev.isEnabled() && ckVcsBeforeRev.isSelected());
+        bnVcsBeforeRev.setEnabled(tfVcsBeforeRev.isEnabled() && mayBrowseChangeLists);
       }
-    };
-    rbFromNone.addActionListener(fromChoiceListener);
-    rbFromDate.addActionListener(fromChoiceListener);
-    rbFromRev.addActionListener(fromChoiceListener);
+    });
+    ckVcsAfterRev.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        boolean mayBrowseChangeLists = RevuVcsUtils.mayBrowseChangeLists(project);
+        tfVcsAfterRev.setEnabled(ckVcsAfterRev.isEnabled() && ckVcsAfterRev.isSelected());
+        bnVcsAfterRev.setEnabled(tfVcsAfterRev.isEnabled() && mayBrowseChangeLists);
+      }
+    });
 
-    bnDateHistory.addActionListener(new ActionListener()
+    bnVcsBeforeRev.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
       {
         CommittedChangeList changeList = selectChangeList();
         if (changeList != null)
         {
-          tfFromDate.setText(DATE_FORMAT.format(changeList.getCommitDate()));
+          tfVcsBeforeRev.setText(String.valueOf(changeList.getNumber()));
         }
       }
     });
-    bnRevHistory.addActionListener(new ActionListener()
+    bnVcsAfterRev.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
       {
         CommittedChangeList changeList = selectChangeList();
         if (changeList != null)
         {
-          tfFromRev.setText(String.valueOf(changeList.getNumber()));
+          tfVcsAfterRev.setText(String.valueOf(changeList.getNumber()));
         }
       }
     });
@@ -116,34 +119,21 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
   @Override
   public boolean isModified(@NotNull FileScope data)
   {
-    try
-    {
-      if (data.getRev() != null)
+      if (data.getVcsAfterRev() != null)
       {
-        if (!rbFromRev.isSelected() || !tfFromRev.getText().equals(data.getRev()))
+        if (!ckVcsAfterRev.isSelected() || !tfVcsAfterRev.getText().equals(data.getVcsAfterRev()))
         {
           return true;
         }
       }
-      else if (data.getDate() != null)
+
+      if (data.getVcsBeforeRev() != null)
       {
-        if (!!rbFromDate.isSelected() || DATE_FORMAT.parse(tfFromDate.getText()) != data.getDate())
+        if (!ckVcsBeforeRev.isSelected() || !tfVcsBeforeRev.getText().equals(data.getVcsBeforeRev()))
         {
           return true;
         }
       }
-      else
-      {
-        if (!rbFromNone.isSelected())
-        {
-          return true;
-        }
-      }
-    }
-    catch (ParseException e)
-    {
-      LOGGER.error(e);
-    }
 
     return (data.getPathPattern() == null) 
       ? ((scopeEditorPanel.getCurrentScope() != null) && (scopeEditorPanel.getCurrentScope().getText().length() > 0))
@@ -151,78 +141,69 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(FileScope data, @Nullable User user)
   {
-    boolean isHabilited = isHabilitedToEditReview(user);
+    boolean isHabilited = isHabilitedToEditReview(data, user);
 
-    RevuUtils.setWriteAccess(isHabilited, rbFromDate, rbFromRev, tfFromDate, tfFromRev, scopeEditorPanel.getPanel());
-    fromChoiceListener.actionPerformed(null);
+    RevuUtils.setWriteAccess(isHabilited, ckVcsBeforeRev, ckVcsAfterRev, tfVcsBeforeRev, tfVcsAfterRev, scopeEditorPanel.getPanel());
+    RevuUtils.setWriteAccess(isHabilited && isProjectUnderVcs(), pnVcsRev);
   }
 
   @Override
-  protected void internalValidateInput()
+  protected void internalValidateInput(FileScope data)
   {
-    if (rbFromDate.isSelected())
+    AbstractVcs[] vcss = ProjectLevelVcsManager.getInstance(project).getAllActiveVcss();
+    if (vcss.length > 0)
     {
-      boolean dateError;
-      try
+      // @TODO handle case where projet has several VCS roots
+      // Here, I use the first VCS connection
+      AbstractVcs vcs = vcss[0];
+      if (ckVcsAfterRev.isSelected())
       {
-        DATE_FORMAT.parse(tfFromDate.getText());
-        dateError = false;
+        updateError(tfVcsAfterRev, vcs.parseRevisionNumber(tfVcsAfterRev.getText()) == null,
+          RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
-      catch (ParseException e)
+
+      if (ckVcsBeforeRev.isSelected())
       {
-        dateError = true;
+        updateError(tfVcsBeforeRev, vcs.parseRevisionNumber(tfVcsBeforeRev.getText()) == null,
+          RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
-      updateError(tfFromDate, dateError, RevuBundle.message("general.invalidDate.text"));
     }
 
-    if (rbFromRev.isSelected())
+    if (scopeEditorPanel.getCurrentScope() != null)
     {
-      boolean revError;
+      boolean patternError;
       try
       {
-        Long.parseLong(tfFromRev.getText());
-        revError = false;
+        scopeEditorPanel.apply();
+        patternError = false;
       }
-      catch (NumberFormatException e)
+      catch (ConfigurationException e)
       {
-        revError = true;
+        patternError = true;
       }
-      updateError(tfFromRev, revError, RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
+      updateError(scopeEditorPanel.getPanel(), patternError,
+        RevuBundle.message("projectSettings.review.scope.invalidPattern.text"));
     }
-
-    boolean patternError;
-    try
-    {
-      scopeEditorPanel.apply();
-      patternError = false;
-    }
-    catch (ConfigurationException e)
-    {
-      patternError = true;
-    }
-    updateError(scopeEditorPanel.getPanel(), patternError,
-      RevuBundle.message("projectSettings.review.scope.invalidPattern.text"));
   }
 
   @Override
   protected void internalUpdateUI(@Nullable FileScope data, boolean requestFocus)
   {
-    tfFromDate.setText((data == null) || (data.getDate() == null) ? "" : DATE_FORMAT.format(data.getDate()));
-    tfFromRev.setText((data == null) || (data.getRev() == null) ? "" : data.getRev());
+    lbWarningNoVcs.setVisible(isProjectUnderVcs());
+
+    tfVcsBeforeRev.setText((data == null) || (data.getVcsBeforeRev() == null) ? "" : data.getVcsBeforeRev());
+    tfVcsAfterRev.setText((data == null) || (data.getVcsAfterRev() == null) ? "" : data.getVcsAfterRev());
     
-    if (tfFromDate.getText().length() > 0)
+    if (tfVcsBeforeRev.getText().length() > 0)
     {
-      rbFromDate.setSelected(true);
+      ckVcsBeforeRev.setSelected(true);
     }
-    else if (tfFromRev.getText().length() > 0)
+
+    if (tfVcsAfterRev.getText().length() > 0)
     {
-      rbFromRev.setSelected(true);
-    }
-    else
-    {
-      rbFromNone.setSelected(true);
+      ckVcsAfterRev.setSelected(true);
     }
 
     PackageSet packageSet;
@@ -249,17 +230,10 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
   @Override
   protected void internalUpdateData(@NotNull FileScope data)
   {
-    try
-    {
-      data.setRev(rbFromRev.isEnabled() && rbFromRev.isSelected() ? tfFromRev.getText() : null);
-      data.setDate(rbFromDate.isEnabled() && rbFromDate.isSelected() ? DATE_FORMAT.parse(tfFromDate.getText()) : null);
-    }
-    catch (ParseException e)
-    {
-      LOGGER.error(e);
-    }
-
-    data.setPathPattern(scopeEditorPanel.getCurrentScope().getText());
+    data.setVcsBeforeRev(ckVcsBeforeRev.isEnabled() && ckVcsBeforeRev.isSelected() ? tfVcsBeforeRev.getText() : null);
+    data.setVcsAfterRev(ckVcsAfterRev.isEnabled() && ckVcsAfterRev.isSelected() ? tfVcsAfterRev.getText() : null);
+    data.setPathPattern(scopeEditorPanel.getCurrentScope() == null 
+      ? null : scopeEditorPanel.getCurrentScope().getText());
   }
 
   public JComponent getPreferredFocusedComponent()
@@ -282,13 +256,23 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(baseDir);
     assert (filePath != null);
 
-    AbstractVcs vcs = ProjectLevelVcsManager.getInstance(project).getVcsFor(baseDir);
+    AbstractVcs[] vcss = ProjectLevelVcsManager.getInstance(project).getAllActiveVcss();
+    assert (vcss.length > 0);
+
+    // @TODO handle case where projet has several VCS roots
+    // Here, I use the first VCS connection
+    AbstractVcs vcs = vcss[0];
     assert ((vcs != null) && (vcs.getCommittedChangesProvider() != null));
 
     RepositoryLocation location = vcs.getCommittedChangesProvider().getLocationFor(filePath);
 
     return AbstractVcsHelper.getInstance(project)
       .chooseCommittedChangeList(vcs.getCommittedChangesProvider(), location);
+  }
+
+  private boolean isProjectUnderVcs()
+  {
+    return ProjectLevelVcsManager.getInstance(project).getAllActiveVcss().length == 0;
   }
 
   /**
@@ -316,38 +300,29 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
       null, null, null, 0, false));
-    rbFromRev = new JRadioButton();
-    rbFromRev.setActionCommand("");
-    this.$$$loadButtonText$$$(rbFromRev,
+    ckVcsAfterRev = new JCheckBox();
+    ckVcsAfterRev.setActionCommand("");
+    this.$$$loadButtonText$$$(ckVcsAfterRev,
       ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
         "projectSettings.review.scope.from.rev.title"));
-    panel2.add(rbFromRev, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+    panel2.add(ckVcsAfterRev, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED,
       null, null, null, 0, false));
-    tfFromRev = new JTextField();
-    panel2.add(tfFromRev, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+    tfVcsAfterRev = new JTextField();
+    panel2.add(tfVcsAfterRev, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
       GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0,
       false));
-    bnRevHistory = new JButton();
-    bnRevHistory.setIcon(new ImageIcon(getClass().getResource("/objectBrowser/browser.png")));
-    bnRevHistory.setMargin(new Insets(0, 0, 0, 0));
-    bnRevHistory.setText("");
-    panel2.add(bnRevHistory,
+    bnVcsAfterRev = new JButton();
+    bnVcsAfterRev.setIcon(new ImageIcon(getClass().getResource("/objectBrowser/browser.png")));
+    bnVcsAfterRev.setMargin(new Insets(0, 0, 0, 0));
+    bnVcsAfterRev.setText("");
+    panel2.add(bnVcsAfterRev,
       new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
         GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel3 = new JPanel();
     panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 1, -1));
     panel2.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-      null, null, null, 0, false));
-    rbFromNone = new JRadioButton();
-    rbFromNone.setActionCommand("");
-    rbFromNone.setSelected(true);
-    this.$$$loadButtonText$$$(rbFromNone,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-        "projectSettings.review.scope.from.none.title"));
-    panel3.add(rbFromNone, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED,
       null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
     panel2.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
@@ -357,23 +332,23 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
     panel1.add(panel4, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
       null, null, null, 0, false));
-    rbFromDate = new JRadioButton();
-    rbFromDate.setActionCommand("");
-    this.$$$loadButtonText$$$(rbFromDate,
+    ckVcsBeforeRev = new JCheckBox();
+    ckVcsBeforeRev.setActionCommand("");
+    this.$$$loadButtonText$$$(ckVcsBeforeRev,
       ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
         "projectSettings.review.scope.from.date.title"));
-    panel4.add(rbFromDate, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+    panel4.add(ckVcsBeforeRev, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED,
       null, null, null, 0, false));
-    tfFromDate = new JTextField();
-    panel4.add(tfFromDate, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+    tfVcsBeforeRev = new JTextField();
+    panel4.add(tfVcsBeforeRev, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
       GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0,
       false));
-    bnDateHistory = new JButton();
-    bnDateHistory.setIcon(new ImageIcon(getClass().getResource("/objectBrowser/browser.png")));
-    bnDateHistory.setMargin(new Insets(0, 0, 0, 0));
-    bnDateHistory.setText("");
-    panel4.add(bnDateHistory,
+    bnVcsBeforeRev = new JButton();
+    bnVcsBeforeRev.setIcon(new ImageIcon(getClass().getResource("/objectBrowser/browser.png")));
+    bnVcsBeforeRev.setMargin(new Insets(0, 0, 0, 0));
+    bnVcsBeforeRev.setText("");
+    panel4.add(bnVcsBeforeRev,
       new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
         GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
@@ -384,9 +359,8 @@ public class ReviewedScopeForm extends AbstractUpdatableForm<FileScope>
       GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     ButtonGroup buttonGroup;
     buttonGroup = new ButtonGroup();
-    buttonGroup.add(rbFromRev);
-    buttonGroup.add(rbFromDate);
-    buttonGroup.add(rbFromNone);
+    buttonGroup.add(ckVcsAfterRev);
+    buttonGroup.add(ckVcsBeforeRev);
   }
 
   /**

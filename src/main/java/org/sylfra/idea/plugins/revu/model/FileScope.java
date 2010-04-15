@@ -1,7 +1,5 @@
 package org.sylfra.idea.plugins.revu.model;
 
-import java.util.Date;
-
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
@@ -9,8 +7,8 @@ import java.util.Date;
 public class FileScope extends AbstractRevuEntity<FileScope>
 {
   private String pathPattern;
-  private String rev;
-  private Date date;
+  private String vcsBeforeRev;
+  private String vcsAfterRev;
 
   public String getPathPattern()
   {
@@ -22,24 +20,24 @@ public class FileScope extends AbstractRevuEntity<FileScope>
     this.pathPattern = pathPattern;
   }
 
-  public String getRev()
+  public String getVcsBeforeRev()
   {
-    return rev;
+    return vcsBeforeRev;
   }
 
-  public void setRev(String rev)
+  public void setVcsBeforeRev(String vcsBeforeRev)
   {
-    this.rev = rev;
+    this.vcsBeforeRev = vcsBeforeRev;
   }
 
-  public Date getDate()
+  public String getVcsAfterRev()
   {
-    return date;
+    return vcsAfterRev;
   }
 
-  public void setDate(Date date)
+  public void setVcsAfterRev(String vcsAfterRev)
   {
-    this.date = date;
+    this.vcsAfterRev = vcsAfterRev;
   }
 
   public int compareTo(FileScope o)

@@ -27,7 +27,7 @@ public class ToggleFilterIssuesAction extends ToggleAction
       workspaceSettings.setFilterFilesWithIssues(!workspaceSettings.isFilterFilesWithIssues());
       workspaceSettingsComponent.loadState(workspaceSettings);
 
-      ProjectView.getInstance(project).refresh();
+      ProjectView.getInstance(project).getCurrentProjectViewPane().updateFromRoot(false);
     }
   }
 

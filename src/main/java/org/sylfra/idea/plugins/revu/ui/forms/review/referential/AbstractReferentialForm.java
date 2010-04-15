@@ -157,7 +157,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     return !items.equals(data.getItems());
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(ReferentialListHolder<T> data)
   {
   }
 
@@ -202,7 +202,7 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(ReferentialListHolder<T> data, @Nullable User user)
   {
   }
 

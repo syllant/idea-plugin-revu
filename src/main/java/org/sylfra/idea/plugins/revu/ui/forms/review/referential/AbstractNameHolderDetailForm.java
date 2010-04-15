@@ -36,12 +36,12 @@ public abstract class AbstractNameHolderDetailForm<T extends IRevuUniqueNameHold
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(@Nullable T data , @Nullable User user)
   {
     RevuUtils.setWriteAccess((user != null) && (user.hasRole(User.Role.ADMIN)), tfName);
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(@Nullable T data)
   {
     updateRequiredError(tfName, "".equals(tfName.getText().trim()));
     updateError(tfName, checkAlreadyExist(tfName.getText(), 0), RevuBundle.message("general.valueAlreadExist.text"));

@@ -33,7 +33,6 @@ public class IssuePriority extends AbstractRevuEntity<IssuePriority> implements 
     this.order = order;
   }
 
-  @NotNull
   public String getName()
   {
     return name;

@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.ui.RevuViewPane;
+import org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -25,6 +25,6 @@ public class ShowFileScopeAction extends AnAction
       return;
     }
 
-    ProjectViewSelectInTarget.select(project, this, RevuViewPane.ID, review.getName(), null, true);
+    ProjectViewSelectInTarget.select(project, this, RevuProjectViewPane.ID, review.getName(), null, true);
   }
 }

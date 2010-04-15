@@ -1,20 +1,23 @@
-- check admin rights
-- date filter
-- layout filter
-- Master/Slave toolbar & target component
+- add "Create Review" in main menu
+- colors in scope: modified, added
+- issue count in scope
+- diff action
 
+- combo selection using keyboard
+- change location -> remove marker
+- check save
+- minimum size of forms
+- check admin rights
 - create review from changes
-- add ScopeConfigurable into Review
-- add a message in review settings to recall current user and his roles for review
 - display issues in tree instead of table
   -> grouped by files/packages/modules
+- add shared review files in VCS
+- Rich filter
+  - date filter
+  - layout filter
+  - Master/Slave toolbar & target component
 
-Next release :
-  - combo selection using keyboard
-  - change location -> remove marker
-  - check save
-  - filter
-  - minimum size of forms
+-  fill user table from SCM committers in current project
 
 - add recipients tab in create issue dialog
 - keep last dir used for creating reviews

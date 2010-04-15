@@ -73,7 +73,7 @@ public class IssueNotesForm extends AbstractIssueForm
     {
       public void actionPerformed(ActionEvent e)
       {
-        Review review = getEnclosingReview();
+        Review review = getEnclosingReview(null);
         if (review != null)
         {
           IssueNote note = new IssueNote();
@@ -176,13 +176,13 @@ public class IssueNotesForm extends AbstractIssueForm
     return !data.getNotes().equals(notesTableModel.getItems());
   }
 
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Issue data, @Nullable User user)
   {
     RevuUtils.setWriteAccess(((user != null)
       && ((currentIssue == null) || (IssueStatus.CLOSED != currentIssue.getStatus()))), bnAdd);
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(Issue data)
   {
   }
 
@@ -222,7 +222,7 @@ public class IssueNotesForm extends AbstractIssueForm
 
   private boolean isEditable(@NotNull IssueNote note)
   {
-    Review enclosingReview = getEnclosingReview();
+    Review enclosingReview = getEnclosingReview(null);
     if (enclosingReview == null)
     {
       return false;
@@ -603,7 +603,7 @@ public class IssueNotesForm extends AbstractIssueForm
       lbUser.setText(note.getHistory().getCreatedBy().getDisplayName());
       lbDate.setText(DATE_FORMATTER.format(note.getHistory().getCreatedOn()));
 
-      User user = RevuUtils.getCurrentUser(getEnclosingReview());
+      User user = RevuUtils.getCurrentUser(getEnclosingReview(null));
       boolean mayUpdate = (user != null)
         && (((note.getHistory().getCreatedBy().getLogin().equals(user.getLogin())) && (isLastNote(note)))
         || (user.hasRole(User.Role.ADMIN)));

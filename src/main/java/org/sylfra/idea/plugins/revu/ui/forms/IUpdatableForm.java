@@ -20,11 +20,11 @@ public interface IUpdatableForm<T> extends Disposable
   JPanel getContentPane();
 
   @Nullable
-  Review getEnclosingReview();
+  Review getEnclosingReview(@Nullable T data);
 
   void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus);
 
   boolean updateData(@NotNull T data);
 
-  boolean validateInput();
+  boolean validateInput(@Nullable T data);
 }

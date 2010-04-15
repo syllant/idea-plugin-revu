@@ -63,15 +63,18 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(DataReferential data, @Nullable User user)
   {
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(DataReferential data)
   {
-    updateError(userReferentialForm.getContentPane(), !userReferentialForm.validateInput(), null);
-    updateError(issueTagReferentialForm.getContentPane(), !issueTagReferentialForm.validateInput(), null);
-    updateError(issuePriorityReferentialForm.getContentPane(), !issuePriorityReferentialForm.validateInput(), null);
+    updateError(userReferentialForm.getContentPane(),
+      !userReferentialForm.validateInput(new ReferentialListHolder<User>(data.getUsers(true), null)), null);
+    updateError(issueTagReferentialForm.getContentPane(),
+      !issueTagReferentialForm.validateInput(new ReferentialListHolder<IssueTag>(data.getIssueTags(true), null)), null);
+    updateError(issuePriorityReferentialForm.getContentPane(),
+      !issuePriorityReferentialForm.validateInput(new ReferentialListHolder<IssuePriority>(data.getIssuePriorities(true), null)), null);
 
     updateTabIcons(tabbedPane);
   }
@@ -80,7 +83,7 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
   {
     updateTabIcons(tabbedPane);
 
-    Review review = getEnclosingReview();
+    Review review = getEnclosingReview(data);
 
     JPanel pnUsers = (JPanel) tabbedPane.getComponentAt(0);
     CardLayout userLayout = (CardLayout) pnUsers.getLayout();

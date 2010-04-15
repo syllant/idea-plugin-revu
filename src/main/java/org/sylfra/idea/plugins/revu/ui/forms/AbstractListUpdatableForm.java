@@ -1,14 +1,12 @@
 package org.sylfra.idea.plugins.revu.ui.forms;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -17,6 +15,7 @@ import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
@@ -31,15 +30,17 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
   protected final Project project;
   protected JComponent contentPane;
   protected JComponent toolBar;
-  protected JList list;
+  protected RevuEntityJList<E> list;
   protected JLabel lbMessageWholePane;
   protected JLabel lbMessageMainPane;
+  protected final IdentityHashMap<E, E> originalItemsMap;
   protected F mainForm;
   private JPanel mainPane;
 
   public AbstractListUpdatableForm(@NotNull Project project)
   {
     this.project = project;
+    originalItemsMap = new IdentityHashMap<E,E>();
 
     setupUI();
     configureUI();
@@ -59,7 +60,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     pnList.setMinimumSize(new Dimension(50, 0));
     pnList.setMinimumSize(new Dimension(150, 0));
 
-    list = new JList();
+    list = new RevuEntityJList<E>(createListSelectedEntityDataKey(), createListAllEntitiesDataKeys());
 
     // Toolbar
     ActionToolbar actionToolbar = ActionManager.getInstance()
@@ -126,6 +127,11 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
         }
       }
     });
+  }
+
+  public JList getList()
+  {
+    return list;
   }
 
   protected void showWholeMessage(boolean visible)
@@ -261,11 +267,15 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
 
     DefaultListModel listModel = new DefaultListModel();
 
+    originalItemsMap.clear();
+
     List<E> originalItems = getOriginalItems();
     for (E item : originalItems)
     {
       // List stores shallow clones so changes may be properly canceled
-      listModel.addElement(item.clone());
+      E clone = item.clone();
+      originalItemsMap.put(clone, item);
+      listModel.addElement(clone);
     }
 
     list.setModel(listModel);
@@ -304,6 +314,43 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
 
   protected abstract ActionGroup createActionGroup();
 
+  protected abstract DataKey createListSelectedEntityDataKey();
+
+  protected abstract DataKey createListAllEntitiesDataKeys();
+
   @NotNull
   protected abstract List<E> getOriginalItems();
+
+  protected static class RevuEntityJList<E extends IRevuUniqueNameHolderEntity<E>> extends JList implements DataProvider
+  {
+    private final DataKey listSelectedEntityDataKey;
+    private final DataKey listAllEntitiesDataKeys;
+
+    public RevuEntityJList(DataKey listSelectedEntityDataKey, DataKey listAllEntitiesDataKeys)
+    {
+      this.listSelectedEntityDataKey = listSelectedEntityDataKey;
+      this.listAllEntitiesDataKeys = listAllEntitiesDataKeys;
+    }
+
+    public Object getData(@NonNls String dataId)
+    {
+      if (listSelectedEntityDataKey.getName().equals(dataId))
+      {
+        return getSelectedValue();
+      }
+
+      if (listAllEntitiesDataKeys.getName().equals(dataId))
+      {
+        List<E> items = new ArrayList<E>(getModel().getSize());
+        for (int i=0; i<getModel().getSize(); i++)
+        {
+          items.add((E) getModel().getElementAt(i));
+        }
+
+        return items;
+      }
+
+      return null;
+    }
+  }
 }

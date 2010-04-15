@@ -46,7 +46,8 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   private JTextArea taGoal;
   private JComboBox cbStatus;
   private JTabbedPane tabbedPane;
-  private ReviewedScopeForm reviewedScopeForm;
+  private FileScopeForm fileScopeForm;
+  private JLabel lbUserRoleMsg;
   private Review extendedReview;
 
   public ReviewForm(@NotNull final Project project, @NotNull List<Review> editedReviews)
@@ -61,7 +62,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   private void createUIComponents()
   {
     referentialForm = new ReferentialTabbedPane(project);
-    reviewedScopeForm = new ReviewedScopeForm(project);
+    fileScopeForm = new FileScopeForm(project);
     cbStatus = new JComboBox(ReviewStatus.values());
   }
 
@@ -147,7 +148,13 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   {
     historyForm.dispose();
     referentialForm.dispose();
-    reviewedScopeForm.dispose();
+    fileScopeForm.dispose();
+  }
+
+  @Override
+  public Review getEnclosingReview(@Nullable Review data)
+  {
+    return data;
   }
 
   public boolean isModified(@NotNull Review data)
@@ -177,7 +184,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
       return true;
     }
 
-    if (reviewedScopeForm.isModified(data.getFileScope()))
+    if (fileScopeForm.isModified(data.getFileScope()))
     {
       return true;
     }
@@ -186,24 +193,25 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Review data, @Nullable User user)
   {
-    boolean canWrite = isHabilitedToEditReview(user);
+    boolean canWrite = isHabilitedToEditReview(data, user);
     RevuUtils.setWriteAccess(canWrite, tfName, taGoal, cbStatus, ckShare, bnImport);
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(Review data)
   {
     updateRequiredError(tfName, "".equals(tfName.getText().trim()));
-    updateError(referentialForm.getContentPane(), !referentialForm.validateInput(), null);
-    updateError(reviewedScopeForm.getContentPane(), !reviewedScopeForm.validateInput(), null);
+    updateError(referentialForm.getContentPane(), !referentialForm.validateInput(data.getDataReferential()), null);
+    updateError(fileScopeForm.getContentPane(), !fileScopeForm.validateInput(data.getFileScope()), null);
 
     updateTabIcons(tabbedPane);
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     Review review = reviewManager.getReviewByName(tfName.getText());
-    boolean nameAlreadyExists = ((review != null) && (getEnclosingReview() != null)
-      && (!review.getPath().equals(getEnclosingReview().getPath())));
+    Review enclosingReview = getEnclosingReview(data);
+    boolean nameAlreadyExists = ((review != null) && (enclosingReview != null)
+      && (!review.getPath().equals(enclosingReview.getPath())));
     updateError(tfName, nameAlreadyExists,
       RevuBundle.message("projectSettings.review.importDialog.nameAlreadyExists.text"));
   }
@@ -212,16 +220,17 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   {
     updateTabIcons(tabbedPane);
 
-    tfName.setText((data == null) ? "" : data.getName());
-    taGoal.setText((data == null) ? "" : data.getGoal());
-    lbFile.setText((data == null) ? "" : (data.getPath() == null)
-      ? "" : RevuVfsUtils.buildPresentablePath(data.getPath()));
-    cbStatus.setSelectedItem((data == null) ? ReviewStatus.DRAFT : data.getStatus());
+    boolean nullData = data == null;
+
+    tfName.setText(nullData ? "" : data.getName());
+    taGoal.setText(nullData ? "" : data.getGoal());
+    lbFile.setText(nullData ? "" : (data.isEmbedded()) ? "" : RevuVfsUtils.buildPresentablePath(data.getPath()));
+    cbStatus.setSelectedItem(nullData ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
 
-    extendedReview = (data == null) ? null : data.getExtendedReview();
+    extendedReview = nullData ? null : data.getExtendedReview();
 
-    boolean noExtendedReview = (data == null) || (data.getExtendedReview() == null);
+    boolean noExtendedReview = nullData || (data.getExtendedReview() == null);
     if (noExtendedReview)
     {
       lbExtends.setVisible(false);
@@ -236,8 +245,37 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
       ? "projectSettings.review.referential.import.text"
       : "projectSettings.review.referential.deleteLink.text"));
 
-    referentialForm.updateUI(data, (data == null) ? null : data.getDataReferential(), true);
-    reviewedScopeForm.updateUI(data, (data == null) ? null : data.getFileScope(), true);
+    if (nullData)
+    {
+      lbUserRoleMsg.setVisible(false);
+    }
+    else
+    {
+      lbUserRoleMsg.setVisible(true);
+
+      String message;
+      if (data.isEmbedded())
+      {
+        message = RevuBundle.message("reviewForm.cantModifyEmbeddedReview.text");
+      }
+      else
+      {
+        String currentLogin = RevuUtils.getCurrentUserLogin();
+        User user = (currentLogin == null) ? null : data.getDataReferential().getUser(currentLogin, true);
+        User.Role role = (user == null) ? null : user.getHigherRole();
+
+        message = RevuBundle.message(
+          role == null
+            ? "reviewForm.userRole.none.text"
+            : "reviewForm.userRole." + role.toString().toLowerCase() + ".text",
+          currentLogin == null ? RevuBundle.message("general.noLoginValue.text") : currentLogin);
+      }
+
+      lbUserRoleMsg.setText(message);
+    }
+
+    referentialForm.updateUI(data, nullData ? null : data.getDataReferential(), true);
+    fileScopeForm.updateUI(data, nullData ? null : data.getFileScope(), true);
 
     historyForm.updateUI(data, data, false);
   }
@@ -253,7 +291,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     data.setExtendedReview(extendedReview);
 
     referentialForm.updateData(data.getDataReferential());
-    reviewedScopeForm.updateData(data.getFileScope());
+    fileScopeForm.updateData(data.getFileScope());
 
     data.getHistory().setLastUpdatedBy(RevuUtils.getCurrentUser(data));
     data.getHistory().setLastUpdatedOn(new Date());
@@ -314,7 +352,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     panel4.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
     tabbedPane.addTab(ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
       "projectSettings.review.scope.title"), panel4);
-    panel4.add(reviewedScopeForm.$$$getRootComponent$$$(),
+    panel4.add(fileScopeForm.$$$getRootComponent$$$(),
       new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

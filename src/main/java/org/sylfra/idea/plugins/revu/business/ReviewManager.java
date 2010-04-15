@@ -47,7 +47,6 @@ public class ReviewManager implements ProjectComponent
 
   private final Project project;
   private final RevuFileListener fileListener;
-  private List<Review> reviews;
   private Map<Review, MetaReview> metaReviews;
   private Map<String, Review> reviewsByPaths;
   private Map<String, Review> reviewsByNames;
@@ -60,7 +59,6 @@ public class ReviewManager implements ProjectComponent
   {
     this.project = project;
     this.fileListener = new RevuFileListener(project, this);
-    reviews = new ArrayList<Review>();
     metaReviews = new IdentityHashMap<Review, MetaReview>();
     reviewsByPaths = new HashMap<String, Review>();
     reviewsByNames = new HashMap<String, Review>();
@@ -81,30 +79,32 @@ public class ReviewManager implements ProjectComponent
   }
 
   @NotNull
-  public List<Review> getReviews()
+  public SortedSet<Review> getReviews()
   {
-    return Collections.unmodifiableList(reviews);
+    TreeSet<Review> result = new TreeSet<Review>(new ReviewComparator());
+    result.addAll(reviewsByNames.values());
+    return result;
   }
 
   @NotNull
-  public List<Review> getReviews(@Nullable String userLogin, @Nullable ReviewStatus... statuses)
+  public Collection<Review> getReviews(@Nullable String userLogin, @Nullable ReviewStatus... statuses)
   {
     return getReviews(null, userLogin, statuses);
   }
 
   @NotNull
-  public List<Review> getReviews(@Nullable String userLogin, boolean active)
+  public Collection<Review> getReviews(@Nullable String userLogin, boolean active)
   {
     return getReviews(userLogin, (active ? new ReviewStatus[] {ReviewStatus.REVIEWING, ReviewStatus.FIXING} : null));
   }
 
   @NotNull
-  public List<Review> getReviews(@Nullable List<Review> customReviews, @Nullable String userLogin,
+  public Collection<Review> getReviews(@Nullable Collection<Review> customReviews, @Nullable String userLogin,
     @Nullable ReviewStatus... statuses)
   {
     if (customReviews == null)
     {
-      customReviews = reviews;
+      customReviews = reviewsByNames.values();
     }
 
     List<ReviewStatus> statusList = Arrays.asList((statuses == null) ? ReviewStatus.values() : statuses);
@@ -131,15 +131,17 @@ public class ReviewManager implements ProjectComponent
         loadAndAdd(settings.getReviewFiles(), true);
       }
     };
-    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
-    {
-      public void settingsChanged(RevuWorkspaceSettings settings)
-      {
-        loadAndAdd(settings.getReviewFiles(), false);
-      }
-    };
     project.getComponent(RevuProjectSettingsComponent.class).addListener(projectSettingsListener);
-    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(workspaceSettingsListener);
+
+    // Sould reload review when some workspace settins change ?!
+//    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
+//    {
+//      public void settingsChanged(RevuWorkspaceSettings settings)
+//      {
+//        loadAndAdd(settings.getReviewFiles(), false);
+//      }
+//    };
+//    project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(workspaceSettingsListener);
   }
 
   public void projectOpened()
@@ -166,7 +168,7 @@ public class ReviewManager implements ProjectComponent
   public void projectClosed()
   {
     project.getComponent(RevuProjectSettingsComponent.class).removeListener(projectSettingsListener);
-    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
+//    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
   }
 
   @NotNull
@@ -206,7 +208,6 @@ public class ReviewManager implements ProjectComponent
 
   private void addReview(@NotNull Review review)
   {
-    reviews.add(review);
     reviewsByPaths.put(review.getPath(), review);
     reviewsByNames.put(review.getName(), review);
     metaReviews.put(review, new MetaReview(review, 0));
@@ -214,10 +215,9 @@ public class ReviewManager implements ProjectComponent
 
   public void removeReview(@NotNull Review review)
   {
-    reviews.remove(review);
-    reviewsByPaths.remove(review.getPath());
+    Review oldReview = reviewsByPaths.remove(review.getPath());
     reviewsByNames.remove(review.getName());
-    metaReviews.remove(review);
+    metaReviews.remove(oldReview);
 
     fireReviewDeleted(review);
   }
@@ -275,7 +275,9 @@ public class ReviewManager implements ProjectComponent
 
   private void initEmbeddedReviews()
   {
-    reviews.clear();
+    reviewsByNames.clear();
+    reviewsByPaths.clear();
+    metaReviews.clear();
 
     for (Map.Entry<String, String> entry : EMBEDDED_REVIEWS.entrySet())
     {
@@ -296,6 +298,7 @@ public class ReviewManager implements ProjectComponent
     if (sharedFilter != null)
     {
       // Delete obsolete reviews
+      Collection<Review> reviews = new HashSet<Review>(getReviews());
       for (Iterator<Review> it = reviews.iterator(); it.hasNext();)
       {
         Review review = it.next();
@@ -313,9 +316,9 @@ public class ReviewManager implements ProjectComponent
         {
           fireReviewDeleted(review);
         }
-        reviewsByPaths.remove(review.getPath());
+        Review oldReview = reviewsByPaths.remove(review.getPath());
         reviewsByNames.remove(review.getName());
-        metaReviews.remove(review);
+        metaReviews.remove(oldReview);
         it.remove();
       }
     }
@@ -334,7 +337,7 @@ public class ReviewManager implements ProjectComponent
       }
     }
 
-    for (Review review : reviews)
+    for (Review review : getReviews())
     {
       if ((!review.isEmbedded()) && (((sharedFilter == null) || review.isShared() == sharedFilter)))
       {
@@ -510,7 +513,7 @@ public class ReviewManager implements ProjectComponent
 
   public void saveChangedReviews()
   {
-    for (Review review : reviews)
+    for (Review review : getReviews())
     {
       if (!review.isEmbedded())
       {
@@ -732,6 +735,24 @@ public class ReviewManager implements ProjectComponent
     {
       LocalFileSystem.getInstance().removeVirtualFileListener(virtualFileListener);
       messageBusConnection.disconnect();
+    }
+  }
+
+  private final static class ReviewComparator implements Comparator<Review>
+  {
+    public int compare(Review o1, Review o2)
+    {
+      if (o1.isEmbedded())
+      {
+        return o2.isEmbedded() ? o1.getName().compareToIgnoreCase(o2.getName()) : -1;
+      }
+
+      if (o2.isEmbedded())
+      {
+        return 1;
+      }
+
+      return o1.getName().compareToIgnoreCase(o2.getName());
     }
   }
 }

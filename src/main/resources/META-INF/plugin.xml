@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>1.0.1</version>
+  <version>${pom.version}</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
@@ -82,20 +82,28 @@
   </project-components>
 
   <extensions defaultExtensionNs="com.intellij">
-    <projectViewPane implementation="org.sylfra.idea.plugins.revu.ui.RevuViewPane"/>
+    <projectViewPane implementation="org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane"/>
   </extensions>
 
   <actions>
 
     <action id="revu.ShowProjectSettings"
             class="org.sylfra.idea.plugins.revu.ui.actions.ShowProjectSettingsAction"
-            text="Show Project Settings"
+            text="Show reVu Settings"
             icon="/general/projectSettings.png"/>
+
+    <!-- Reviewing process -->
+    <action id="revu.Annotate"
+            class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.RevuAnnotateToggleAction"
+            text="Annotate for &amp;review ''{0}''"/>
+    <action id="revu.StopReviewing"
+            class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.StopReviewingAction"
+            text="St&amp;op reviewing ''{0}''"/>
 
     <!-- Project view -->
     <action id="revu.ProjectView.ToggleFilterIssues"
             class="org.sylfra.idea.plugins.revu.ui.actions.ToggleFilterIssuesAction"
-            text="Show only files with at lest one issue"
+            text="Show only files with at last one issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/gutterIssue.png"/>
 
     <!-- Filters -->
@@ -184,10 +192,37 @@
             text="Autoscroll to Source"
             icon="/general/autoscrollToSource.png"/>
 
-    <!-- Editor -->
-    <group id="revu.editor.popup">
+    <!-- Reviewing process -->
+    <group id="revu.reviewing.reviewsToStart"
+           popup="true"
+           text="Start reviewing"
+           class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.StartReviewsActionGroup">
+    </group>
+
+    <group id="revu.reviewing.create"
+           popup="true"
+           text="Create review"
+           class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.CreateReviewActionGroup">
+    </group>
+
+    <group id="revu.reviewing.main" text="reVu" popup="true">
+      <reference ref="revu.reviewing.create"/>
+      <separator/>
+      <reference ref="revu.reviewing.reviewsToStart"/>
+      <reference ref="revu.StopReviewing"/>
       <separator/>
       <reference ref="revu.CreateIssue"/>
+      <separator/>
+      <reference ref="revu.Annotate"/>
+      <separator/>
+      <reference ref="revu.ShowProjectSettings"/>
+      <add-to-group group-id="MainMenu" anchor="after" relative-to-action="AnalyzeMenu"/>
+    </group>
+
+    <group id="revu.reviewing.editor">
+      <separator/>
+      <reference ref="revu.CreateIssue"/>
+      <reference ref="revu.Annotate"/>
       <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       <add-to-group group-id="AnalyzeMenu" anchor="last"/>
     </group>
@@ -270,8 +305,6 @@
 
     <group id="RevuProjectViewPopupMenu">
       <reference ref="ProjectViewPopupMenu"/>
-      <separator/>
-      <!--<action id="ScopeView.EditScopes" class="com.intellij.ide.scopeView.EditScopesAction"/>-->
     </group>
 
   </actions>

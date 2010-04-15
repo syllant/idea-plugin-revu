@@ -64,11 +64,11 @@ public class HistoryForm<T extends IRevuHistoryHolderEntity<T>> extends Abstract
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(@Nullable T data , @Nullable User user)
   {
   }
 
-  public void internalValidateInput()
+  public void internalValidateInput(@Nullable T data)
   {
   }
 

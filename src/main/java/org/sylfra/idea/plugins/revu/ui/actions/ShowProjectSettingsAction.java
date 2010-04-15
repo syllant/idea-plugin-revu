@@ -16,6 +16,7 @@ public class ShowProjectSettingsAction extends AnAction
   public void actionPerformed(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, RevuProjectSettingsForm.class);
+
+    ShowSettingsUtil.getInstance().editConfigurable(project, project.getComponent(RevuProjectSettingsForm.class));
   }
 }

@@ -11,11 +11,11 @@ import java.awt.event.ActionListener;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class UpdataPasswordActionListener implements ActionListener
+public class UpdatePasswordActionListener implements ActionListener
 {
   private IPasswordReceiver passwordReceiver;
 
-  public UpdataPasswordActionListener(IPasswordReceiver passwordReceiver)
+  public UpdatePasswordActionListener(IPasswordReceiver passwordReceiver)
   {
     this.passwordReceiver = passwordReceiver;
   }

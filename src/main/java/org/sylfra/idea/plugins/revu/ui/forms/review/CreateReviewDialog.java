@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.ResourceBundle;
 
 public class CreateReviewDialog extends DialogWrapper
@@ -379,7 +380,7 @@ public class CreateReviewDialog extends DialogWrapper
     return ImportType.BLANK;
   }
 
-  public void show(@NotNull java.util.List<Review> currentReviews, @Nullable Review review)
+  public void show(@NotNull Collection<Review> currentReviews, @Nullable Review review)
   {
     currentReview = review;
 

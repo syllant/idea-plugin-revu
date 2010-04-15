@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package org.sylfra.idea.plugins.revu.ui;
+package org.sylfra.idea.plugins.revu.ui.projectView;
 
 import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
-import com.intellij.ide.scopeView.ScopePaneSelectInTarget;
 import com.intellij.ide.scopeView.ScopeTreeViewPanel;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.util.Disposer;
@@ -34,30 +31,33 @@ import com.intellij.packageDependencies.ui.PackageDependenciesNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.scope.packageSet.*;
+import com.intellij.psi.search.scope.packageSet.NamedScope;
+import com.intellij.psi.search.scope.packageSet.NamedScopesHolder;
+import com.intellij.psi.search.scope.packageSet.PackageSet;
 import com.intellij.ui.PopupHandler;
 import com.intellij.util.Alarm;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * @author cdr
+ * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
+ * @version $Id$
  */
-public class RevuViewPane extends AbstractProjectViewPane implements IReviewListener
+public class RevuProjectViewPane extends AbstractProjectViewPane implements IReviewListener
 {
+  private final static ReviewStatus[] VISIBLE_STATUSES
+    = {ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING};
+
   @NonNls
   public static final String ID = "Revu";
   public static final Icon ICON = IconLoader.getIcon("/org/sylfra/idea/plugins/revu/resources/icons/revu.png");
@@ -66,7 +66,7 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
   private ScopeTreeViewPanel myViewPanel;
   private final Map<Review, NamedScope> scopes;
 
-  public RevuViewPane(Project project, ProjectView projectView)
+  public RevuProjectViewPane(Project project, ProjectView projectView)
   {
     super(project);
     myProjectView = projectView;
@@ -74,12 +74,9 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
 
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
     reviewManager.addReviewListener(this);
-    for (Review review : reviewManager.getReviews())
+    for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), VISIBLE_STATUSES))
     {
-      if (!review.isEmbedded())
-      {
-        reviewAdded(review);
-      }
+      reviewAdded(review);
     }
   }
 
@@ -142,6 +139,7 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
   public void addToolbarActions(DefaultActionGroup actionGroup)
   {
     actionGroup.add(ActionManager.getInstance().getAction("revu.ProjectView.ToggleFilterIssues"));
+    actionGroup.add(ActionManager.getInstance().getAction("revu.ShowProjectSettings"));
   }
 
   public ActionCallback updateFromRoot(boolean restoreExpandedPaths)
@@ -151,9 +149,10 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
       if (namedScope.getName().equals(getSubId()))
       {
         myViewPanel.selectScope(namedScope);
+        break;
       }
     }
-    
+
     return new ActionCallback.Done();
   }
 
@@ -228,7 +227,7 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
 
   public SelectInTarget createSelectInTarget()
   {
-    return new ScopePaneSelectInTarget(myProject);
+    return new RevuPaneSelectInTarget(myProject);
   }
 
   protected Object exhumeElementFromNode(final DefaultMutableTreeNode node)
@@ -257,7 +256,11 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
 
   public void reviewAdded(Review review)
   {
-    scopes.put(review, new NamedScope(getScopeName(review), new CustomPackageSet(myProject, review)));
+    if (!Arrays.asList(VISIBLE_STATUSES).contains(review.getStatus()))
+    {
+      return;
+    }
+    scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
     refreshView();
   }
 
@@ -280,8 +283,8 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
         {
           return;
         }
-        myProjectView.removeProjectPane(RevuViewPane.this);
-        myProjectView.addProjectPane(RevuViewPane.this);
+        myProjectView.removeProjectPane(RevuProjectViewPane.this);
+        myProjectView.addProjectPane(RevuProjectViewPane.this);
       }
     }, 10);
   }
@@ -291,64 +294,4 @@ public class RevuViewPane extends AbstractProjectViewPane implements IReviewList
     return review.getName();
   }
 
-  private final static class CustomPackageSet implements PackageSet
-  {
-    private static final Logger LOGGER = Logger.getInstance(CustomPackageSet.class.getName());
-
-    private final Project project;
-    private final Review review;
-    private final FileScopeManager fileScopeManager;
-    private final PackageSet packageSet;
-
-    private CustomPackageSet(@NotNull Project project, @NotNull Review review)
-    {
-      this.project = project;
-      this.review = review;
-      fileScopeManager = ApplicationManager.getApplication().getComponent(FileScopeManager.class);
-
-      PackageSet packageSetTmp = null;
-      String pathPattern = review.getFileScope().getPathPattern();
-      try
-      {
-        if (pathPattern != null)
-        {
-          packageSetTmp = PackageSetFactory.getInstance().compile(pathPattern);
-        }
-      }
-      catch (ParsingException e)
-      {
-        LOGGER.warn("Failed to compile file scope path pattern: <" + pathPattern + ">");
-      }
-
-      packageSet = packageSetTmp;
-    }
-
-    public boolean contains(PsiFile file, NamedScopesHolder holder)
-    {
-      VirtualFile vFile = file.getVirtualFile();
-      return (vFile != null)
-        && (checkFilter(vFile))
-        && fileScopeManager.belongsToScope(project, review.getFileScope(), packageSet, vFile);
-    }
-
-    private boolean checkFilter(VirtualFile vFile)
-    {
-      return !RevuUtils.getWorkspaceSettings(project).isFilterFilesWithIssues() || review.hasIssues(vFile);
-    }
-
-    public PackageSet createCopy()
-    {
-      return this;
-    }
-
-    public String getText()
-    {
-      return "";
-    }
-
-    public int getNodePriority()
-    {
-      return 0;
-    }
-  }
 }

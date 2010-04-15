@@ -2,18 +2,23 @@ package org.sylfra.idea.plugins.revu.ui.actions.review;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
+import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.History;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.review.CreateReviewDialog;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.swing.*;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +29,9 @@ import java.util.List;
 @SuppressWarnings({"ComponentNotRegistered"})
 public class CreateReviewAction extends AbstractReviewSettingsAction
 {
-  private List<Review> editedReviews;
   private final boolean shared;
 
-  public CreateReviewAction(boolean shared, List<Review> editedReviews)
+  public CreateReviewAction(boolean shared)
   {
     super(RevuBundle.message(shared
       ? "projectSettings.review.addReview.shared.title" : "projectSettings.review.addReview.local.title"), null,
@@ -35,21 +39,53 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
         : RevuIconProvider.IconRef.REVIEW_LOCAL));
 
     this.shared = shared;
-    this.editedReviews = editedReviews;
   }
 
   public void actionPerformed(AnActionEvent e)
   {
-    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
     Project project = e.getData(DataKeys.PROJECT);
 
-    CreateReviewDialog dialog = new CreateReviewDialog(project, true);
-    dialog.show(editedReviews, null);
+    Collection<Review> reviews = getExistingReviews(e);
+
+    final CreateReviewDialog dialog = new CreateReviewDialog(project, true);
+    dialog.show(reviews, null);
     if (!dialog.isOK())
     {
       return;
     }
 
+    final RevuProjectSettingsForm form = project.getComponent(RevuProjectSettingsForm.class);
+    if (!form.getContentPane().isShowing())
+    {
+      ShowSettingsUtil.getInstance().editConfigurable(project, form, new Runnable()
+      {
+        public void run()
+        {
+          execute(dialog, form);
+        }
+      });
+    }
+    else
+    {
+      execute(dialog, form);
+    }
+  }
+
+  protected Collection<Review> getExistingReviews(AnActionEvent e)
+  {
+    List<Review> reviews = e.getData(RevuDataKeys.REVIEW_LIST);
+    if (reviews != null)
+    {
+      return reviews;
+    }
+
+    Project project = e.getData(DataKeys.PROJECT);
+    return project.getComponent(ReviewManager.class).getReviews();
+  }
+
+  private void execute(CreateReviewDialog dialog, RevuProjectSettingsForm form)
+  {
+    JList liReviews = form.getList();
     DefaultListModel model = (DefaultListModel) liReviews.getModel();
     Review review = new Review();
     review.setStatus(ReviewStatus.DRAFT);

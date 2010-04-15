@@ -194,11 +194,11 @@ public class FilterForm extends AbstractUpdatableForm<Filter>
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Filter data, @Nullable User user)
   {
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(Filter data)
   {
     updateRequiredError(tfName, "".equals(tfName.getText().trim()));
   }

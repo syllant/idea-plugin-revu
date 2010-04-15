@@ -309,8 +309,7 @@ public class RevuEditorHandler implements ProjectComponent
       }
       documentChangeTracker.getEditors().add(editor);
 
-      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), true))
+      for (Review review : RevuUtils.getActiveReviewsForCurrentUser(project))
       {
         List<Issue> issues = review.getIssues(vFile);
 

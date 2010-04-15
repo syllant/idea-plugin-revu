@@ -46,6 +46,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -393,7 +394,7 @@ public class IssueBrowsingPane implements Disposable
     else
     {
       // No review
-      List<Review> reviews = project.getComponent(ReviewManager.class).getReviews(null, true);
+      Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews(null, true);
       if (reviews.isEmpty())
       {
         message = RevuBundle.message("browsing.issues.noReview.text");
@@ -469,7 +470,7 @@ public class IssueBrowsingPane implements Disposable
       .removeListener(appSettingsListener);
     project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
 
-    List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+    Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
     for (Review review : reviews)
     {
       review.removeIssueListener(issueListener);

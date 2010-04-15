@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
+import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
@@ -82,7 +83,7 @@ public class IssuePane extends AbstractIssueForm
       {
         if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
         {
-          previewForm.updateUI(getEnclosingReview(), currentIssue, true);
+          previewForm.updateUI(getEnclosingReview(null), currentIssue, true);
         }
       }
     });
@@ -110,11 +111,11 @@ public class IssuePane extends AbstractIssueForm
     return mainForm.getPreferredFocusedComponent();
   }
 
-  public void internalValidateInput()
+  public void internalValidateInput(Issue data)
   {
-    updateError(mainForm.getContentPane(), !mainForm.validateInput(), null);
-    updateError(recipientsForm.getContentPane(), !recipientsForm.validateInput(), null);
-    updateError(notesForm.getContentPane(), !notesForm.validateInput(), null);
+    updateError(mainForm.getContentPane(), !mainForm.validateInput(data), null);
+    updateError(recipientsForm.getContentPane(), !recipientsForm.validateInput(data), null);
+    updateError(notesForm.getContentPane(), !notesForm.validateInput(data), null);
 
     updateTabIcons(tabbedPane);
   }
@@ -134,14 +135,15 @@ public class IssuePane extends AbstractIssueForm
     pnStatus.setBackground(data == null ? null : RevuUtils.getIssueStatusColor(data.getStatus()));
     lbStatus.setText((data == null) ? "" : RevuUtils.buildIssueStatusLabel(data.getStatus()));
 
-    mainForm.updateUI(getEnclosingReview(), data, requestFocus);
-    recipientsForm.updateUI(getEnclosingReview(), data, requestFocus);
-    notesForm.updateUI(getEnclosingReview(), data, requestFocus);
-    historyForm.updateUI(getEnclosingReview(), data, requestFocus);
+    Review enclosingReview = getEnclosingReview(data);
+    mainForm.updateUI(enclosingReview, data, requestFocus);
+    recipientsForm.updateUI(enclosingReview, data, requestFocus);
+    notesForm.updateUI(enclosingReview, data, requestFocus);
+    historyForm.updateUI(enclosingReview, data, requestFocus);
 
     if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
     {
-      previewForm.updateUI(getEnclosingReview(), data, requestFocus);
+      previewForm.updateUI(enclosingReview, data, requestFocus);
     }
   }
 
@@ -163,7 +165,7 @@ public class IssuePane extends AbstractIssueForm
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Issue data, @Nullable User user)
   {
     IssueStatus status = (currentIssue == null) ? null : currentIssue.getStatus();
 

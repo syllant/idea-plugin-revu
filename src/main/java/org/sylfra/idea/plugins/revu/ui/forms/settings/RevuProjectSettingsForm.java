@@ -2,6 +2,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.settings;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -183,8 +185,9 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
   {
     List<String> projectReviewFiles = new ArrayList<String>();
     List<String> workspaceReviewFiles = new ArrayList<String>();
-    for (Review review : items)
+    for (int i = 0, itemsSize = items.size(); i < itemsSize; i++)
     {
+      Review review = items.get(i);
       if (review.isEmbedded())
       {
         continue;
@@ -201,9 +204,20 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
         workspaceReviewFiles.add(reviewFilePath);
       }
 
+      // Change original review to avoid handling an obsolete instance
+      Review originalReview = originalItemsMap.get(review);
+      if (originalReview == null)
+      {
+        originalReview = review;
+      }
+      else
+      {
+        originalReview.copyFrom(review);
+      }
+
       try
       {
-        project.getComponent(ReviewManager.class).save(review);
+        project.getComponent(ReviewManager.class).save(originalReview);
       }
       catch (Exception e)
       {
@@ -273,6 +287,18 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
 
   protected List<Review> getOriginalItems()
   {
-    return project.getComponent(ReviewManager.class).getReviews();
+    return new ArrayList<Review>(project.getComponent(ReviewManager.class).getReviews());
+  }
+
+  @Override
+  protected DataKey createListSelectedEntityDataKey()
+  {
+    return RevuDataKeys.REVIEW;
+  }
+
+  @Override
+  protected DataKey createListAllEntitiesDataKeys()
+  {
+    return RevuDataKeys.REVIEW_LIST;
   }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public final class RevuDataKeys
 {
   public static final DataKey<Review> REVIEW = DataKey.create("revu.Review");
+  public static final DataKey<List<Review>> REVIEW_LIST = DataKey.create("revu.ReviewList");
   public static final DataKey<Issue> ISSUE = DataKey.create("revu.Issue");
-  public static final DataKey<List<Issue>> ISSUE_ARRAY = DataKey.create("revu.IssueArray");
+  public static final DataKey<List<Issue>> ISSUE_LIST = DataKey.create("revu.IssueList");
 }

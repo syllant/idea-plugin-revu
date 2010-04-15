@@ -10,10 +10,7 @@ import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 import org.sylfra.idea.plugins.revu.model.Review;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -82,7 +79,7 @@ public abstract class UniqueNameMultiChooserPanel<T extends IRevuUniqueNameHolde
   @Override
   protected List<T> retrieveAllAvailableElements()
   {
-    List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+    Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
     Set<String> names = new HashSet<String>();
     List<T> result = new ArrayList<T>();
     for (Review review : reviews)

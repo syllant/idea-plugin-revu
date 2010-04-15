@@ -161,7 +161,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   }
 
   // Build a proxy on actions to inject issue
-  // Want to use DataContext, but didn't find any way to inject data into EditorComponent from this renderer
+  // Want to use DataContext, but didn't find proper way to inject data into EditorComponent from this renderer
   private AnAction buildActionProxy(final AnAction templateAction, final Issue issue)
   {
     AnAction actionProxy = new AnAction()

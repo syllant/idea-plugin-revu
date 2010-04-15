@@ -12,11 +12,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.util.ui.UIUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
+import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
@@ -32,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -187,7 +190,7 @@ public class RevuUtils
       }
       else
       {
-        component.setEnabled(canWrite);
+        UIUtil.setEnabled(component, canWrite, true);
       }
     }
   }
@@ -246,16 +249,37 @@ public class RevuUtils
     return Color.decode(appSettings.getIssueStatusColors().get(status));
   }
 
+  @Nullable
+  public static Review getReviewingReview(@NotNull Project project)
+  {
+    String reviewName = getWorkspaceSettings(project).getReviewingReviewName();
+    if (reviewName == null)
+    {
+      return null;
+    }
+
+    return project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+  }
+
+  @NotNull
+  public static Collection<Review> getActiveReviewsForCurrentUser(@NotNull Project project)
+  {
+    return project.getComponent(ReviewManager.class).getReviews(RevuUtils.getCurrentUserLogin(), true);
+  }
+
+  @NotNull
   public static RevuAppSettings getAppSettings()
   {
     return ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState();
   }
 
+  @NotNull
   public static RevuWorkspaceSettings getWorkspaceSettings(@NotNull Project project)
   {
     return project.getComponent(RevuWorkspaceSettingsComponent.class).getState();
   }
 
+  @NotNull
   public static RevuProjectSettings getProjectSettings(@NotNull Project project)
   {
     return project.getComponent(RevuProjectSettingsComponent.class).getState();

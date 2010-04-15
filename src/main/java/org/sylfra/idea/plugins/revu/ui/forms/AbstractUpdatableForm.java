@@ -25,7 +25,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 {
   protected final java.util.List<JComponent> errors;
   protected final java.util.List<UpdatableFormListener<T>> listeners;
-  protected Review enclosingReview;
+  private Review enclosingReview;
 
   protected AbstractUpdatableForm()
   {
@@ -33,7 +33,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     listeners = new ArrayList<UpdatableFormListener<T>>();
   }
 
-  public Review getEnclosingReview()
+  public Review getEnclosingReview(@Nullable T data)
   {
     return enclosingReview;
   }
@@ -43,10 +43,10 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     listeners.add(listener);
   }
 
-  public boolean validateInput()
+  public boolean validateInput(@Nullable T data)
   {
     clearErrors();
-    internalValidateInput();
+    internalValidateInput(data);
     return errors.isEmpty();
   }
 
@@ -164,7 +164,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
     internalUpdateUI(data, requestFocus);
 
-    internalUpdateWriteAccess(RevuUtils.getCurrentUser(enclosingReview));
+    internalUpdateWriteAccess(data, RevuUtils.getCurrentUser(getEnclosingReview(data)));
 
     if ((requestFocus) && (getPreferredFocusedComponent() != null))
     {
@@ -184,7 +184,7 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
       return true;
     }
 
-    if (!validateInput())
+    if (!validateInput(data))
     {
       errors.get(0).requestFocusInWindow();
       return false;
@@ -200,19 +200,19 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     return true;
   }
 
-  protected boolean isHabilitedToEditReview(User user)
+  protected boolean isHabilitedToEditReview(@Nullable T data, User user)
   {
-    return (getEnclosingReview() != null)
-      && (!getEnclosingReview().isEmbedded())
-      && (user != null)
-      && (user.hasRole(User.Role.ADMIN));
+    Review enclosingReview = getEnclosingReview(data);
+
+    return (enclosingReview != null) && (!enclosingReview.isEmbedded())
+      && (user != null) && (user.hasRole(User.Role.ADMIN));
   }
 
   public abstract boolean isModified(@NotNull T data);
 
-  protected abstract void internalUpdateWriteAccess(@Nullable User user);
+  protected abstract void internalUpdateWriteAccess(@Nullable T data , @Nullable User user);
 
-  protected abstract void internalValidateInput();
+  protected abstract void internalValidateInput(@Nullable T data);
 
   protected abstract void internalUpdateUI(@Nullable T data, boolean requestFocus);
 

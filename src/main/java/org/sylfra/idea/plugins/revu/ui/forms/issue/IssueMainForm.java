@@ -213,9 +213,8 @@ public class IssueMainForm extends AbstractIssueForm
       ReviewComboBoxModel reviewComboBoxModel = (ReviewComboBoxModel) cbReview.getModel();
       reviewComboBoxModel.updateReviews();
 
-      // Select default review if only one exists (but combo as 2 items with [Select ...])
       Review defaultReview = ((data == null) || (data.getReview() == null))
-        ? (Review) ((reviewComboBoxModel.getSize() == 2) ? reviewComboBoxModel.getElementAt(1) : null)
+        ? RevuUtils.getReviewingReview(project)
         : data.getReview();
 
       cbReview.setSelectedItem(defaultReview);
@@ -306,7 +305,7 @@ public class IssueMainForm extends AbstractIssueForm
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Issue data, @Nullable User user)
   {
     boolean mayReview = (((createMode) || (user != null))
       && ((currentIssue == null) || (currentIssue.getReview() == null)
@@ -321,7 +320,7 @@ public class IssueMainForm extends AbstractIssueForm
     tagsMultiChooserPanel.setEnabled(mayReview && ((!createMode) || (cbReview.getSelectedIndex() > 0)));
   }
 
-  public void internalValidateInput()
+  public void internalValidateInput(Issue data)
   {
     updateRequiredError(taSummary, "".equals(taSummary.getText().trim()));
     if (createMode)
@@ -672,7 +671,7 @@ public class IssueMainForm extends AbstractIssueForm
     {
       reviews.clear();
       reviews.add(null);
-      reviews.addAll(project.getComponent(ReviewManager.class).getReviews(RevuUtils.getCurrentUserLogin(), true));
+      reviews.addAll(RevuUtils.getActiveReviewsForCurrentUser(project));
       Collections.sort(reviews, REVIEW_COMPARATOR);
     }
 

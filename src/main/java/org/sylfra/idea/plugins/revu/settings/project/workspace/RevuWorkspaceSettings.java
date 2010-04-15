@@ -25,6 +25,7 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   private List<Filter> filters;
   private int selectedFilterIndex;
   private boolean filterFilesWithIssues;
+  private String reviewingReviewName;
 
   public RevuWorkspaceSettings()
   {
@@ -100,5 +101,16 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   public void setFilterFilesWithIssues(boolean filterFilesWithIssues)
   {
     this.filterFilesWithIssues = filterFilesWithIssues;
+  }
+
+  @Nullable
+  public String getReviewingReviewName()
+  {
+    return reviewingReviewName;
+  }
+
+  public void setReviewingReviewName(@Nullable String reviewingReviewName)
+  {
+    this.reviewingReviewName = reviewingReviewName;
   }
 }

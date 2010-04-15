@@ -4,10 +4,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractDetailDialog;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialDetailForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialForm;
+import org.sylfra.idea.plugins.revu.ui.forms.review.referential.ReferentialListHolder;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
@@ -29,14 +31,15 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
   }
 
   @Override
-  protected void internalValidateInput()
+  protected void internalValidateInput(ReferentialListHolder<User> data)
   {
-    if ((getEnclosingReview() == null) || (getEnclosingReview().isEmbedded()))
+    Review enclosingReview = getEnclosingReview(data);
+    if ((enclosingReview == null) || (enclosingReview.isEmbedded()))
     {
       return;
     }
 
-    super.internalValidateInput();
+    super.internalValidateInput(data);
 
     // Check if current user is contained in list
     boolean adminFound = false;
@@ -137,7 +140,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
           @Override
           public int getWidth(JTable table)
           {
-            return 50;
+            return 55;
           }
         },
         new ReferentialColumnInfo<User, Boolean>(RevuBundle.message("userRoles.reviewer.text"))
@@ -156,7 +159,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
           @Override
           public int getWidth(JTable table)
           {
-            return 50;
+            return 55;
           }
         },
         new ReferentialColumnInfo<User, Boolean>(RevuBundle.message("userRoles.author.text"))
@@ -175,7 +178,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
           @Override
           public int getWidth(JTable table)
           {
-            return 50;
+            return 55;
           }
         }
       };

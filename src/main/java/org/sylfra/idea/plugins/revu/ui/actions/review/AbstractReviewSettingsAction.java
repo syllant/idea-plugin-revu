@@ -13,7 +13,7 @@ import java.awt.*;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-abstract class AbstractReviewSettingsAction extends AnAction
+public abstract class AbstractReviewSettingsAction extends AnAction
 {
   protected AbstractReviewSettingsAction()
   {

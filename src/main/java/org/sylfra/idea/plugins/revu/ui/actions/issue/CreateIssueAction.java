@@ -17,7 +17,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.issue.IssueDialog;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -95,7 +95,7 @@ public class CreateIssueAction extends AbstractIssueAction
 
     if ((project != null) && (vFile != null))
     {
-      List<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
+      Collection<Review> reviews = RevuUtils.getActiveReviewsForCurrentUser(project);
       for (Review review : reviews)
       {
         User user = RevuUtils.getCurrentUser(review);

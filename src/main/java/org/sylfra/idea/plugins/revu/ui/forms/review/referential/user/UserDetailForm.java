@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.User;
-import org.sylfra.idea.plugins.revu.ui.actions.UpdataPasswordActionListener;
+import org.sylfra.idea.plugins.revu.ui.actions.UpdatePasswordActionListener;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialDetailForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -39,16 +39,25 @@ public class UserDetailForm extends AbstractReferentialDetailForm<User>
   {
     super(table);
 
-    UpdataPasswordActionListener updataPasswordActionListener = new UpdataPasswordActionListener(
-      new UpdataPasswordActionListener.IPasswordReceiver()
+    bnUpdatePassword.addActionListener(new UpdatePasswordActionListener(
+      new UpdatePasswordActionListener.IPasswordReceiver()
       {
         public void setPassword(@Nullable String password)
         {
           UserDetailForm.this.password = password;
         }
-      });
-    bnUpdatePassword.addActionListener(updataPasswordActionListener);
+      }));
 
+    tfLogin.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        if (tfDisplayName.getText().length() == 0)
+        {
+          tfDisplayName.setText(tfLogin.getText());
+        }
+      }
+    });
     ckAdmin.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -105,12 +114,12 @@ public class UserDetailForm extends AbstractReferentialDetailForm<User>
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(User data, @Nullable User user)
   {
     RevuUtils.setWriteAccess((user != null) && (user.hasRole(User.Role.ADMIN)), tfLogin, tfDisplayName);
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(User data)
   {
     updateRequiredError(tfLogin, "".equals(tfLogin.getText().trim()));
     updateRequiredError(tfDisplayName, "".equals(tfDisplayName.getText().trim()));

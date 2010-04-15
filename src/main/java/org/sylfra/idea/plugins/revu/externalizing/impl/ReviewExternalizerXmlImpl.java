@@ -83,7 +83,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
 
     try
     {
-      xstream.unmarshal(new DomDriver().createReader(stream), null, xstreamDataHolder);
+      xstream.unmarshal(new DomDriver().createReader(new InputStreamReader(stream, "UTF-8")), null, xstreamDataHolder);
     }
     catch (Exception e)
     {
@@ -129,9 +129,13 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
       writer.writeStartDocument("UTF-8", "1.0");
       writer.setDefaultNamespace("http://plugins.intellij.net/revu");
       xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, null);
-      xstream.marshal(review, new XppDriver().createWriter(stream), xstreamDataHolder);
+      xstream.marshal(review, new XppDriver().createWriter(new OutputStreamWriter(stream, "UTF-8")), xstreamDataHolder);
     }
     catch (XMLStreamException e)
+    {
+      throw new RevuException("Failed to serialize review: " + review, e);
+    }
+    catch (UnsupportedEncodingException e)
     {
       throw new RevuException("Failed to serialize review: " + review, e);
     }

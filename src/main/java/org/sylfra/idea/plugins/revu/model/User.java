@@ -4,9 +4,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -35,15 +33,16 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
 
   public final static User UNKNOWN = new User("[unknown]", null, "[unknown]");
   public final static User DEFAULT = new User("[default]", null, "[default]");
+  public final static Comparator<Role> ROLE_COMPARATOR = new RoleComparator();
 
   private String login;
   private String password;
   private String displayName;
-  private Set<Role> roles;
+  private SortedSet<Role> roles;
 
   public User()
   {
-    roles = new HashSet<Role>();
+    roles = new TreeSet<Role>(ROLE_COMPARATOR);
   }
 
   public User(@NotNull String login, @Nullable String password, @NotNull String displayName,
@@ -53,9 +52,10 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
     this.login = login;
     this.password = password;
     this.displayName = displayName;
-    this.roles = new HashSet<User.Role>(Arrays.asList(roles));
-  }
 
+    this.roles = new TreeSet<Role>(ROLE_COMPARATOR);
+    this.roles.addAll(Arrays.asList(roles));
+  }
 
   public String getDisplayName()
   {
@@ -66,7 +66,6 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
   {
     this.displayName = displayName;
   }
-
 
   public String getLogin()
   {
@@ -89,30 +88,20 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
     this.password = password;
   }
 
-
   public Set<Role> getRoles()
   {
     return roles;
   }
 
-  public void setRoles( Set<Role> roles)
+  public void setRoles(Set<Role> roles)
   {
-    this.roles = roles;
+    this.roles = new TreeSet<Role>(ROLE_COMPARATOR);
+    this.roles.addAll(roles);
   }
 
   public void addRole(Role role)
   {
     roles.add(role);
-  }
-
-  public String getName()
-  {
-    return login;
-  }
-
-  public void setName(String name)
-  {
-    login = name;
   }
 
   public boolean hasRole(@NotNull Role role)
@@ -126,6 +115,22 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
     }
     
     return false;
+  }
+
+  @Nullable
+  public Role getHigherRole()
+  {
+    return roles.isEmpty() ? null : roles.first();
+  }
+
+  public String getName()
+  {
+    return login;
+  }
+
+  public void setName(String name)
+  {
+    login = name;
   }
 
   public int compareTo(User other)
@@ -185,5 +190,13 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
       append("password", password).
       append("displayName", displayName).
       toString();
+  }
+
+  private static class RoleComparator implements Comparator<Role>
+  {
+    public int compare(Role o1, Role o2)
+    {
+      return o1.getPower() - o2.getPower();
+    }
   }
 }

@@ -25,7 +25,7 @@ public class RemoveIssueAction extends AbstractIssueAction
   public void actionPerformed(AnActionEvent e)
   {
     Project project = e.getData(DataKeys.PROJECT);
-    List<Issue> issues = e.getData(RevuDataKeys.ISSUE_ARRAY);
+    List<Issue> issues = e.getData(RevuDataKeys.ISSUE_LIST);
 
     if (issues == null)
     {
@@ -40,21 +40,18 @@ public class RemoveIssueAction extends AbstractIssueAction
     }
 
     Set<Review> reviewsToSave = new HashSet<Review>();
-    if (issues != null)
+    for (Issue issue : issues)
     {
-      for (Issue issue : issues)
-      {
-        Review review = issue.getReview();
-        review.removeIssue(issue);
+      Review review = issue.getReview();
+      review.removeIssue(issue);
 
-        reviewsToSave.add(review);
-      }
+      reviewsToSave.add(review);
+    }
 
-      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewsToSave)
-      {
-        reviewManager.saveSilently(review);
-      }
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    for (Review review : reviewsToSave)
+    {
+      reviewManager.saveSilently(review);
     }
   }
 

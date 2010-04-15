@@ -52,13 +52,26 @@ class UserConverter extends AbstractConverter
     user.setPassword(password);
 
     // Roles
+    if (roles.length() == 0)
+    {
+      // Set at least author role for each user
+      roles = User.Role.AUTHOR.toString();
+    }
+    
     String[] roleNames = roles.split(",");
     Set<User.Role> roleSet = new HashSet<User.Role>();
-    user.setRoles(roleSet);
     for (String roleName : roleNames)
     {
-      roleSet.add(User.Role.valueOf(roleName.toUpperCase()));
+      try
+      {
+        roleSet.add(User.Role.valueOf(roleName.toUpperCase()));
+      }
+      catch (IllegalArgumentException e)
+      {
+        logger.warn("No user role for this value: <" + roleName + "> !");
+      }
     }
+    user.setRoles(roleSet);
 
     return user;
   }

@@ -56,13 +56,13 @@ public class IssueRecipientsForm extends AbstractIssueForm
     return !elementsChooser.getMarkedElements().equals(data.getRecipients());
   }
 
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Issue data, @Nullable User user)
   {
     RevuUtils.setWriteAccess((user != null) && (user.hasRole(User.Role.REVIEWER)
       && ((currentIssue == null) || (IssueStatus.CLOSED != currentIssue.getStatus()))), elementsChooser);
   }
 
-  protected void internalValidateInput()
+  protected void internalValidateInput(Issue data)
   {
     // Nothing to validate
   }

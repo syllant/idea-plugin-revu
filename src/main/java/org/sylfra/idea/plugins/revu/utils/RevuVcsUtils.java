@@ -95,8 +95,8 @@ public class RevuVcsUtils
       return false;
     }
 
-    AbstractVcs vcs = ProjectLevelVcsManager.getInstance(project).getVcsFor(vFile);
-    if (vcs == null || vcs.getCommittedChangesProvider() == null)
+    AbstractVcs[] vcss = ProjectLevelVcsManager.getInstance(project).getAllActiveVcss();
+    if (vcss.length == 0)
     {
       return false;
     }

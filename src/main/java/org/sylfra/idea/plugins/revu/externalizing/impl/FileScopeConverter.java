@@ -26,13 +26,14 @@ class FileScopeConverter extends AbstractConverter
       writer.addAttribute("pathPattern", fileScope.getPathPattern());
     }
 
-    if (fileScope.getDate() != null)
+    if (fileScope.getVcsAfterRev() != null)
     {
-      writer.addAttribute("afterDate", formatDate(fileScope.getDate()));
+      writer.addAttribute("vcsAfterRev", fileScope.getVcsAfterRev());
     }
-    else if (fileScope.getRev() != null)
+
+    if (fileScope.getVcsBeforeRev() != null)
     {
-      writer.addAttribute("afterRev", fileScope.getRev());
+      writer.addAttribute("vcsBeforeRev", fileScope.getVcsBeforeRev());
     }
   }
 
@@ -41,19 +42,8 @@ class FileScopeConverter extends AbstractConverter
     FileScope fileScope = new FileScope();
 
     fileScope.setPathPattern(reader.getAttribute("pathPattern"));
-    String value = reader.getAttribute("afterDate");
-    if (value != null)
-    {
-      fileScope.setDate(parseDate(value));
-    }
-    else
-    {
-      value = reader.getAttribute("afterRev");
-      if (value != null)
-      {
-        fileScope.setRev(value);
-      }
-    }
+    fileScope.setVcsAfterRev(reader.getAttribute("vcsAfterRev"));
+    fileScope.setVcsBeforeRev(reader.getAttribute("vcsBeforeRev"));
 
     return fileScope;
   }

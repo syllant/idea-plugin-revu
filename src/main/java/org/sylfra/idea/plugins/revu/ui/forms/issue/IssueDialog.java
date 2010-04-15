@@ -66,7 +66,7 @@ public class IssueDialog extends DialogWrapper
   @Override
   protected void doOKAction()
   {
-    if (currentForm.validateInput())
+    if (currentForm.validateInput(null))
     {
       super.doOKAction();
     }

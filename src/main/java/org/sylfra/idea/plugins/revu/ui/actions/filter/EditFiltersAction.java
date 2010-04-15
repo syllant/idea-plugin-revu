@@ -23,7 +23,7 @@ public class EditFiltersAction extends AnAction
       return;
     }
 
-    final FilterSettingsForm form = new FilterSettingsForm(project);
+    final FilterSettingsForm form = project.getComponent(FilterSettingsForm.class);
     ShowSettingsUtil.getInstance().editConfigurable(project, form, new Runnable()
     {
       public void run()

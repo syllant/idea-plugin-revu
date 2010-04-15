@@ -18,7 +18,7 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.actions.UpdataPasswordActionListener;
+import org.sylfra.idea.plugins.revu.ui.actions.UpdatePasswordActionListener;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
@@ -63,15 +63,15 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 
   private void installListeners()
   {
-    UpdataPasswordActionListener updataPasswordActionListener = new UpdataPasswordActionListener(
-      new UpdataPasswordActionListener.IPasswordReceiver()
+    UpdatePasswordActionListener updatePasswordActionListener = new UpdatePasswordActionListener(
+      new UpdatePasswordActionListener.IPasswordReceiver()
       {
         public void setPassword(@Nullable String password)
         {
           RevuAppSettingsForm.this.password = RevuUtils.z(password, null);
         }
       });
-    bnUpdatePassword.addActionListener(updataPasswordActionListener);
+    bnUpdatePassword.addActionListener(updatePasswordActionListener);
 
     MouseListener colorMouseListener = new MouseAdapter()
     {

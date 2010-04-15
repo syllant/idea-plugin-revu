@@ -72,7 +72,7 @@ public class IssuePreviewForm extends AbstractIssueForm
     return pnViewer;
   }
 
-  public void internalValidateInput()
+  public void internalValidateInput(Issue data)
   {
   }
 
@@ -86,7 +86,8 @@ public class IssuePreviewForm extends AbstractIssueForm
   {
     super.internalUpdateUI(data, requestFocus);
 
-    boolean currentIdModified = (data != null) && RevuVcsUtils.fileIsModifiedFromVcs(project, data.getFile());
+    boolean currentIdModified = (data != null) && (data.getFile() != null)
+      && RevuVcsUtils.fileIsModifiedFromVcs(project, data.getFile());
     String currentRev = RevuVcsUtils.formatRevision((data == null)
       ? null : RevuVcsUtils.getVcsRevisionNumber(project, data.getFile()), currentIdModified);
     String initialRev = RevuVcsUtils.formatRevision((data == null) ? null : data.getVcsRev(),
@@ -287,7 +288,7 @@ public class IssuePreviewForm extends AbstractIssueForm
   }
 
   @Override
-  protected void internalUpdateWriteAccess(@Nullable User user)
+  protected void internalUpdateWriteAccess(Issue data, @Nullable User user)
   {
   }
 

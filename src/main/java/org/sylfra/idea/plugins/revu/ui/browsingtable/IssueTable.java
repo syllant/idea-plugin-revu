@@ -174,7 +174,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
       return getSelectedObject();
     }
 
-    if (RevuDataKeys.ISSUE_ARRAY.getName().equals(dataId))
+    if (RevuDataKeys.ISSUE_LIST.getName().equals(dataId))
     {
       return getSelection();
     }

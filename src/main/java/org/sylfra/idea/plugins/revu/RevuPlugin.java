@@ -4,6 +4,7 @@ import com.intellij.javaee.ExternalResourceManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,9 +44,15 @@ public class RevuPlugin implements ProjectComponent
    */
   public void initComponent()
   {
-    ExternalResourceManager.getInstance().addResource(
-      "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
-      "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd");
+    UIUtil.invokeLaterIfNeeded(new Runnable()
+    {
+      public void run()
+      {
+        ExternalResourceManager.getInstance().addResource(
+          "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
+          "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd");
+      }
+    });
 }
 
   /**
