@@ -14,8 +14,7 @@ import org.sylfra.idea.plugins.revu.model.IRevuUniqueNameHolderEntity;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -33,8 +32,8 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
   protected RevuEntityJList<E> list;
   protected JLabel lbMessageWholePane;
   protected JLabel lbMessageMainPane;
-  protected final IdentityHashMap<E, E> originalItemsMap;
   protected F mainForm;
+  private final IdentityHashMap<E, E> originalItemsMap;
   private JPanel mainPane;
 
   public AbstractListUpdatableForm(@NotNull Project project)
@@ -129,9 +128,21 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     });
   }
 
-  public JList getList()
+  public void addItem(E item)
   {
-    return list;
+    DefaultListModel model = (DefaultListModel) list.getModel();
+
+    // Put item according to sort
+    int index = 0;
+    //noinspection unchecked
+    while ((index < model.getSize()) && (((E) model.getElementAt(index)).compareTo(item) < 0))
+    {
+      index++;
+    }
+
+    model.add(index, item);
+
+    list.setSelectedValue(item, true);
   }
 
   protected void showWholeMessage(boolean visible)
@@ -202,21 +213,14 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
       return false;
     }
 
-    List<E> originalItems = getOriginalItems();
-
-    // Review count
+    // Item count
     int itemCount = list.getModel().getSize();
-    if (itemCount != originalItems.size())
+    if (itemCount != originalItemsMap.size())
     {
       return true;
     }
 
-    if (itemCount == 0)
-    {
-      return false;
-    }
-
-    // Current edited review
+    // Current edited item
     E selectedValue = (E) list.getSelectedValue();
     if (mainForm.isModified(selectedValue))
     {
@@ -226,8 +230,8 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     // Other lists
     for (int i = 0; i < itemCount; i++)
     {
-      E review = (E) list.getModel().getElementAt(i);
-      if (!review.equals(originalItems.get(i)))
+      E item = (E) list.getModel().getElementAt(i);
+      if (!item.equals(originalItemsMap.get(item)))
       {
         return true;
       }
@@ -248,11 +252,12 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     }
 
     int itemCount = list.getModel().getSize();
-    List<E> items = new ArrayList<E>(itemCount);
+    Map<E, E> items = new HashMap<E, E>(itemCount);
     for (int i=0; i < itemCount; i++)
     {
       //noinspection unchecked
-      items.add((E) list.getModel().getElementAt(i));
+      E item = (E) list.getModel().getElementAt(i);
+      items.put(item, originalItemsMap.get(item));
     }
 
     apply(items);
@@ -308,7 +313,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     return null;
   }
 
-  protected abstract void apply(List<E> items) throws ConfigurationException;
+  protected abstract void apply(Map<E, E> items) throws ConfigurationException;
 
   protected abstract F createMainForm();
 
@@ -344,6 +349,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
         List<E> items = new ArrayList<E>(getModel().getSize());
         for (int i=0; i<getModel().getSize(); i++)
         {
+          //noinspection unchecked
           items.add((E) getModel().getElementAt(i));
         }
 

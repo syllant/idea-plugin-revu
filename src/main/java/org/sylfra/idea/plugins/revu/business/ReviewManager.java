@@ -81,9 +81,7 @@ public class ReviewManager implements ProjectComponent
   @NotNull
   public SortedSet<Review> getReviews()
   {
-    TreeSet<Review> result = new TreeSet<Review>(new ReviewComparator());
-    result.addAll(reviewsByNames.values());
-    return result;
+    return new TreeSet<Review>(reviewsByNames.values());
   }
 
   @NotNull
@@ -206,7 +204,7 @@ public class ReviewManager implements ProjectComponent
     reviewExternalizationListeners.remove(listener);
   }
 
-  private void addReview(@NotNull Review review)
+  public void addReview(@NotNull Review review)
   {
     reviewsByPaths.put(review.getPath(), review);
     reviewsByNames.put(review.getName(), review);
@@ -735,24 +733,6 @@ public class ReviewManager implements ProjectComponent
     {
       LocalFileSystem.getInstance().removeVirtualFileListener(virtualFileListener);
       messageBusConnection.disconnect();
-    }
-  }
-
-  private final static class ReviewComparator implements Comparator<Review>
-  {
-    public int compare(Review o1, Review o2)
-    {
-      if (o1.isEmbedded())
-      {
-        return o2.isEmbedded() ? o1.getName().compareToIgnoreCase(o2.getName()) : -1;
-      }
-
-      if (o2.isEmbedded())
-      {
-        return 1;
-      }
-
-      return o1.getName().compareToIgnoreCase(o2.getName());
     }
   }
 }

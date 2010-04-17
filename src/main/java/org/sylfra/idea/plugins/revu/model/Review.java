@@ -280,7 +280,17 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
 
   public int compareTo(Review o)
   {
-    return name.compareTo(o.getName());
+    if (isEmbedded())
+    {
+      return o.isEmbedded() ? name.compareToIgnoreCase(o.getName()) : -1;
+    }
+
+    if (o.isEmbedded())
+    {
+      return 1;
+    }
+
+    return name.compareToIgnoreCase(o.getName());
   }
 
   @Override

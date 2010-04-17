@@ -1,9 +1,10 @@
-- add "Create Review" in main menu
-- colors in scope: modified, added
-- issue count in scope
 - diff action
+- remove filters
+- wiki
+- warning when shared review files are not under VCS -> intention to add in VCS ! 
 
 - combo selection using keyboard
+
 - change location -> remove marker
 - check save
 - minimum size of forms
@@ -19,6 +20,7 @@
 
 -  fill user table from SCM committers in current project
 
+- colors in scope: modified, added
 - add recipients tab in create issue dialog
 - keep last dir used for creating reviews
 - active in diff

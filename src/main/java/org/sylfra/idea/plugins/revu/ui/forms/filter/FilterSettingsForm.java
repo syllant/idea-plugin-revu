@@ -17,6 +17,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to interface settings inside Settings panel
@@ -61,13 +62,13 @@ public class FilterSettingsForm extends AbstractListUpdatableForm<Filter, Filter
    * {@inheritDoc}
    */
   @Override
-  protected void apply(List<Filter> items) throws ConfigurationException
+  protected void apply(Map<Filter, Filter> items) throws ConfigurationException
   {
     RevuWorkspaceSettingsComponent workspaceSettingsComponent =
       project.getComponent(RevuWorkspaceSettingsComponent.class);
 
     RevuWorkspaceSettings workspaceSettings = workspaceSettingsComponent.getState();
-    workspaceSettings.setFilters(items);
+//    workspaceSettings.setFilters(items);
     workspaceSettingsComponent.loadState(workspaceSettings);
   }
 

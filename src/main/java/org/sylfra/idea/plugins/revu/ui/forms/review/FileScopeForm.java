@@ -52,9 +52,8 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
   private JComponent pnScopeEditor;
   private JLabel lbWarningNoVcs;
   private JPanel pnVcsRev;
-  private Project project;
-  private ActionListener fromChoiceListener;
-  private ScopeEditorPanel scopeEditorPanel;
+  private final Project project;
+  private final ScopeEditorPanel scopeEditorPanel;
 
   public FileScopeForm(@NotNull final Project project)
   {

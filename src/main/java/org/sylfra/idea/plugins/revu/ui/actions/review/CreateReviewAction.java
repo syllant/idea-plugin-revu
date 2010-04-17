@@ -17,7 +17,6 @@ import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
-import javax.swing.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -33,8 +32,8 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
 
   public CreateReviewAction(boolean shared)
   {
-    super(RevuBundle.message(shared
-      ? "projectSettings.review.addReview.shared.title" : "projectSettings.review.addReview.local.title"), null,
+    super(RevuBundle.message("projectSettings.review.addReview." + (shared ? "shared" : "local") + ".title"),
+      RevuBundle.message("projectSettings.review.addReview." + (shared ? "shared" : "local") + ".tip"),
       RevuIconProvider.getIcon(shared ? RevuIconProvider.IconRef.REVIEW_SHARED
         : RevuIconProvider.IconRef.REVIEW_LOCAL));
 
@@ -85,8 +84,6 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
 
   private void execute(CreateReviewDialog dialog, RevuProjectSettingsForm form)
   {
-    JList liReviews = form.getList();
-    DefaultListModel model = (DefaultListModel) liReviews.getModel();
     Review review = new Review();
     review.setStatus(ReviewStatus.DRAFT);
     review.setPath(RevuVfsUtils.buildAbsolutePath(dialog.getReviewFile()));
@@ -125,7 +122,6 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
     history.setLastUpdatedOn(now);
     review.setHistory(history);
 
-    model.addElement(review);
-    liReviews.setSelectedValue(review, true);
+    form.addItem(review);
   }
 }

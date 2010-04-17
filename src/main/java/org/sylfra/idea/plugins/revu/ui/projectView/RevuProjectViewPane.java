@@ -18,10 +18,18 @@ package org.sylfra.idea.plugins.revu.ui.projectView;
 
 import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.projectView.ProjectViewNodeDecorator;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.ide.scopeView.ScopeTreeViewPanel;
+import com.intellij.ide.scopeView.nodes.BasePsiNode;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.extensions.Extensions;
+import com.intellij.openapi.ide.CopyPasteManager;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.util.Disposer;
@@ -34,7 +42,9 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.scope.packageSet.NamedScope;
 import com.intellij.psi.search.scope.packageSet.NamedScopesHolder;
 import com.intellij.psi.search.scope.packageSet.PackageSet;
+import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.PopupHandler;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.Alarm;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -107,6 +117,8 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
     myTree = myViewPanel.getTree();
     PopupHandler.installPopupHandler(myTree, "RevuProjectViewPopupMenu", "RevuProjectViewPopup");
     enableDnD();
+
+    myTree.setCellRenderer(new CustomTreeCellRenderer(myProject, myViewPanel));
 
     return myViewPanel.getPanel();
   }
@@ -294,4 +306,81 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
     return review.getName();
   }
 
+  // See com.intellij.ide.scopeView.ScopeTreeViewPanel.MyTreeCellRenderer
+
+  private class CustomTreeCellRenderer extends ColoredTreeCellRenderer
+  {
+    private final Project project;
+    private final ScopeTreeViewPanel scopeTreeViewPanel;
+
+    public CustomTreeCellRenderer(Project project, ScopeTreeViewPanel scopeTreeViewPanel)
+    {
+      this.project = project;
+      this.scopeTreeViewPanel = scopeTreeViewPanel;
+    }
+
+    public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf,
+      int row, boolean hasFocus)
+    {
+      if (value instanceof PackageDependenciesNode)
+      {
+        PackageDependenciesNode node = (PackageDependenciesNode) value;
+        try
+        {
+          setIcon(expanded ? node.getOpenIcon() : node.getClosedIcon());
+        }
+        catch (IndexNotReadyException ignore)
+        {
+        }
+        final SimpleTextAttributes regularAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
+        TextAttributes textAttributes = regularAttributes.toTextAttributes();
+        if (node instanceof BasePsiNode && ((BasePsiNode) node).isDeprecated())
+        {
+          textAttributes =
+            EditorColorsManager.getInstance().getGlobalScheme().getAttributes(CodeInsightColors.DEPRECATED_ATTRIBUTES)
+              .clone();
+        }
+        final PsiElement psiElement = node.getPsiElement();
+        textAttributes.setForegroundColor(
+          CopyPasteManager.getInstance().isCutElement(psiElement) ? CopyPasteManager.CUT_COLOR :
+            node.getStatus().getColor());
+        append(node.toString(), SimpleTextAttributes.fromTextAttributes(textAttributes));
+
+        String oldToString = toString();
+        for (ProjectViewNodeDecorator decorator : Extensions.getExtensions(ProjectViewNodeDecorator.EP_NAME, myProject))
+        {
+          decorator.decorate(node, this);
+        }
+
+        int issueCount = retrieveIssueCount(psiElement);
+        if (issueCount > 0)
+        {
+          append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
+            SimpleTextAttributes.GRAY_ATTRIBUTES);
+        }
+
+        if (toString().equals(oldToString))
+        {   // nothing was decorated
+          final String locationString = node.getComment();
+          if (locationString != null && locationString.length() > 0)
+          {
+            append(" (" + locationString + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+          }
+        }
+      }
+    }
+
+    private int retrieveIssueCount(PsiElement psiElement)
+    {
+      if ((psiElement == null) || (psiElement.getContainingFile() == null))
+      {
+        return 0;
+      }
+
+      String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
+      Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+
+      return (review == null) ? 0 : review.getIssues(psiElement.getContainingFile().getVirtualFile()).size();
+    }
+  }
 }

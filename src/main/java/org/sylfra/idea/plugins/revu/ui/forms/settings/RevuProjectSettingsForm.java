@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to interface settings inside Settings panel
@@ -181,21 +182,24 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
    * {@inheritDoc}
    */
   @Override
-  protected void apply(List<Review> items) throws ConfigurationException
+  protected void apply(Map<Review, Review> items) throws ConfigurationException
   {
+    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+
     List<String> projectReviewFiles = new ArrayList<String>();
     List<String> workspaceReviewFiles = new ArrayList<String>();
-    for (int i = 0, itemsSize = items.size(); i < itemsSize; i++)
+    for (Map.Entry<Review, Review> entry : items.entrySet())
     {
-      Review review = items.get(i);
-      if (review.isEmbedded())
+      Review editedReview = entry.getKey();
+      Review originalReview = entry.getValue();
+      if (editedReview.isEmbedded())
       {
         continue;
       }
 
-      String reviewFilePath = RevuVfsUtils.buildRelativePath(project, review.getPath());
+      String reviewFilePath = RevuVfsUtils.buildRelativePath(project, editedReview.getPath());
 
-      if (review.isShared())
+      if (editedReview.isShared())
       {
         projectReviewFiles.add(reviewFilePath);
       }
@@ -205,26 +209,26 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
       }
 
       // Change original review to avoid handling an obsolete instance
-      Review originalReview = originalItemsMap.get(review);
       if (originalReview == null)
       {
-        originalReview = review;
+        originalReview = editedReview;
+        reviewManager.addReview(originalReview);
       }
       else
       {
-        originalReview.copyFrom(review);
+        originalReview.copyFrom(editedReview);
       }
 
       try
       {
-        project.getComponent(ReviewManager.class).save(originalReview);
+        reviewManager.save(originalReview);
       }
       catch (Exception e)
       {
         LOGGER.warn(e);
         final String details = ((e.getLocalizedMessage() == null) ? e.toString() : e.getLocalizedMessage());
         throw new ConfigurationException(
-          RevuBundle.message("projectSettings.error.save.title.text", review.getName(), details),
+          RevuBundle.message("projectSettings.error.save.title.text", editedReview.getName(), details),
           RevuBundle.message("general.plugin.title"));
       }
     }
