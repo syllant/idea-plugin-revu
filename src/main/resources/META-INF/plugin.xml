@@ -37,9 +37,6 @@
       <implementation-class>org.sylfra.idea.plugins.revu.utils.VcsFetcher</implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.business.FilterManager</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.sylfra.idea.plugins.revu.business.FileScopeManager</implementation-class>
     </component>
   </application-components>
@@ -105,20 +102,6 @@
             class="org.sylfra.idea.plugins.revu.ui.actions.ToggleFilterIssuesAction"
             text="Show only files with at last one issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/gutterIssue.png"/>
-
-    <!-- Filters -->
-    <action id="revu.Filters.Create"
-            class="org.sylfra.idea.plugins.revu.ui.actions.filter.CreateFilterAction"
-            text="Create Filter"
-            icon="/general/add.png"/>
-    <action id="revu.Filters.Remove"
-            class="org.sylfra.idea.plugins.revu.ui.actions.filter.RemoveFilterAction"
-            text="Create Filter"
-            icon="/general/remove.png"/>
-    <action id="revu.Filters.Edit"
-            class="org.sylfra.idea.plugins.revu.ui.actions.filter.EditFiltersAction"
-            text="Edit Filters"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/filter.png"/>
 
     <!-- Review -->
     <action id="revu.ShowReviewEditForm"

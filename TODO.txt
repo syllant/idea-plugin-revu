@@ -1,5 +1,4 @@
 - diff action
-- remove filters
 - wiki
 - warning when shared review files are not under VCS -> intention to add in VCS ! 
 
@@ -13,10 +12,6 @@
 - display issues in tree instead of table
   -> grouped by files/packages/modules
 - add shared review files in VCS
-- Rich filter
-  - date filter
-  - layout filter
-  - Master/Slave toolbar & target component
 
 -  fill user table from SCM committers in current project
 

@@ -16,11 +16,9 @@ import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.business.FilterManager;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
-import org.sylfra.idea.plugins.revu.model.Filter;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
@@ -41,8 +39,6 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -66,9 +62,7 @@ public class IssueBrowsingPane implements Disposable
   private JLabel lbMessage;
   private JComponent fullTextFilterComponent;
   private JLabel lbCount;
-  private JComboBox cbFilter;
   private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
-  private IRevuSettingsListener<RevuWorkspaceSettings> workspaceSettingsListener;
   private MessageClickHandler messageClickHandler;
   private IIssueListener issueListener;
 
@@ -150,26 +144,6 @@ public class IssueBrowsingPane implements Disposable
 
     new IssueTableSearchBar(issueTable);
     fullTextFilterComponent = issueTable.buildFilterComponent();
-
-    RevuWorkspaceSettings workspaceSettings = RevuUtils.getWorkspaceSettings(project);
-    cbFilter = new JComboBox(new FilterComboBoxModel(workspaceSettings));
-    cbFilter.setRenderer(new DefaultListCellRenderer()
-    {
-      @Override
-      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-        boolean cellHasFocus)
-      {
-        value = (value == null) ? RevuBundle.message("browsing.filter.none.text") : ((Filter) value).getName();
-        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-      }
-    });
-    cbFilter.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        updateIssues();
-      }
-    });
   }
 
   private void configureUI()
@@ -302,18 +276,6 @@ public class IssueBrowsingPane implements Disposable
     RevuAppSettingsComponent appSettingsComponent =
       ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
     appSettingsComponent.addListener(appSettingsListener);
-
-    // Workspace Settings
-    workspaceSettingsListener = new IRevuSettingsListener<RevuWorkspaceSettings>()
-    {
-      public void settingsChanged(RevuWorkspaceSettings settings)
-      {
-        ((FilterComboBoxModel) cbFilter.getModel()).filtersChanged(settings.getFilters());
-      }
-    };
-    RevuWorkspaceSettingsComponent workspaceSettingsComponent =
-      project.getComponent(RevuWorkspaceSettingsComponent.class);
-    workspaceSettingsComponent.addListener(workspaceSettingsListener);
   }
 
   private void updateIssues()
@@ -442,9 +404,6 @@ public class IssueBrowsingPane implements Disposable
       issues = review.getIssues();
     }
 
-    // Apply filters
-    ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
-
     return issues;
   }
 
@@ -468,7 +427,6 @@ public class IssueBrowsingPane implements Disposable
     issuePane.dispose();
     ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
       .removeListener(appSettingsListener);
-    project.getComponent(RevuWorkspaceSettingsComponent.class).removeListener(workspaceSettingsListener);
 
     Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
     for (Review review : reviews)
@@ -525,8 +483,6 @@ public class IssueBrowsingPane implements Disposable
       ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("browsing.filter.label"));
     panel3.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-    panel3.add(cbFilter, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JScrollPane scrollPane1 = new JScrollPane();
     panel2.add(scrollPane1, BorderLayout.CENTER);
     scrollPane1.setViewportView(issueTable);
@@ -617,48 +573,6 @@ public class IssueBrowsingPane implements Disposable
         case NO_ISSUE:
           break;
       }
-    }
-  }
-
-  private final static class FilterComboBoxModel extends AbstractListModel implements ComboBoxModel
-  {
-    private final RevuWorkspaceSettings workspaceSettings;
-
-    public FilterComboBoxModel(RevuWorkspaceSettings workspaceSettings)
-    {
-      this.workspaceSettings = workspaceSettings;
-      // model is not defined as listener to make listener removal easier
-    }
-
-    public int getSize()
-    {
-      // [None] filter
-      return workspaceSettings.getFilters().size() + 1;
-    }
-
-    public Object getElementAt(int index)
-    {
-      // [None] filter
-      if (index == 0)
-      {
-        return null;
-      }
-      return workspaceSettings.getFilters().get(index - 1);
-    }
-
-    public void setSelectedItem(Object anItem)
-    {
-      workspaceSettings.setSelectedFilter((Filter) anItem);
-    }
-
-    public Object getSelectedItem()
-    {
-      return workspaceSettings.getSelectedFilter();
-    }
-
-    public void filtersChanged(List<Filter> filters)
-    {
-      fireContentsChanged(this, 0, filters.size());
     }
   }
 }

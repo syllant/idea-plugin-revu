@@ -1,6 +1,5 @@
 package org.sylfra.idea.plugins.revu.ui.editor;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -17,7 +16,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.business.FilterManager;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -313,9 +311,6 @@ public class RevuEditorHandler implements ProjectComponent
       {
         List<Issue> issues = review.getIssues(vFile);
 
-        // Apply filter
-        ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
-
         for (Issue issue : issues)
         {
           addMarker(editor, issue, false);
@@ -409,10 +404,7 @@ public class RevuEditorHandler implements ProjectComponent
     {
       review.addIssueListener(issueListener);
 
-      // Apply filter
       List<Issue> issues = review.getIssues();
-      ApplicationManager.getApplication().getComponent(FilterManager.class).filter(project, issues);
-
       for (Issue issue : issues)
       {
         addMarker(null, issue, false);
