@@ -229,7 +229,6 @@
       <reference ref="NextOccurence"/>
       <separator/>
       <reference ref="revu.SelectColumns"/>
-      <reference ref="revu.Filters.Edit"/>
       <separator/>
       <reference ref="revu.JumpToSource"/>
       <reference ref="revu.AutoscrollToSource"/>
@@ -278,12 +277,6 @@
       <separator/>
       <reference ref="revu.ImportReview"/>
       <reference ref="revu.ExportReview"/>
-    </group>
-
-    <group id="revu.settings.project.filters">
-      <reference ref="revu.Filters.Create"/>
-      <reference ref="revu.Filters.Remove"/>
-      <separator/>
     </group>
 
     <group id="RevuProjectViewPopupMenu">
