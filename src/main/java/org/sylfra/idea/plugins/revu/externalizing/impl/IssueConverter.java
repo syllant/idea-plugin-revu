@@ -54,7 +54,7 @@ class IssueConverter extends AbstractConverter
     if ((tagList != null) && (!tagList.isEmpty()))
     {
       SortedSet<IssueTag> tags = new TreeSet<IssueTag>(tagList);
-      writer.addAttribute("tags", ConverterUtils.toString(tags, false));
+      writer.addAttribute("tags", ConverterUtils.toString(tags, ",", false));
     }
 
     if (issue.getPriority() != null)
@@ -63,12 +63,12 @@ class IssueConverter extends AbstractConverter
     }
     writer.addAttribute("status", issue.getStatus().toString().toLowerCase());
 
-    // Recipients
-    List<User> recipients = issue.getRecipients();
-    if ((recipients != null) && (!recipients.isEmpty()))
+    // Assignees
+    List<User> assignees = issue.getAssignees();
+    if ((assignees != null) && (!assignees.isEmpty()))
     {
-      SortedSet<User> users = new TreeSet<User>(recipients);
-      writer.addAttribute("recipients", ConverterUtils.toString(users, false));
+      SortedSet<User> users = new TreeSet<User>(assignees);
+      writer.addAttribute("assignees", ConverterUtils.toString(users, ",", false));
     }
 
     // History
@@ -111,7 +111,7 @@ class IssueConverter extends AbstractConverter
     String tags = reader.getAttribute("tags");
     String priority = reader.getAttribute("priority");
     String status = reader.getAttribute("status");
-    String recipients = reader.getAttribute("recipients");
+    String assignees = reader.getAttribute("assignees");
 
     Review review = getReview(context);
 
@@ -144,7 +144,7 @@ class IssueConverter extends AbstractConverter
         if (issueTag == null)
         {
           // @TODO report error to user
-          logger.warn("Can't find tag in referential. Tag: '" + tagName + "', review: " + review.getPath());
+          logger.warn("Can't find tag in referential. Tag: '" + tagName + "', review: " + review.getFile());
         }
         else
         {
@@ -153,9 +153,9 @@ class IssueConverter extends AbstractConverter
       }
       issue.setTags(tagSet);
     }
-    if (recipients != null)
+    if (assignees != null)
     {
-      String[] userLogins = recipients.split(",");
+      String[] userLogins = assignees.split(",");
       List<User> userSet = new ArrayList<User>();
       for (String login : userLogins)
       {
@@ -163,14 +163,14 @@ class IssueConverter extends AbstractConverter
         if (user == null)
         {
           // @TODO report error to user
-          logger.warn("Can't find user in referential. Login:'" + login + "', review: " + review.getPath());
+          logger.warn("Can't find user in referential. Login:'" + login + "', review: " + review.getFile());
         }
         else
         {
           userSet.add(user);
         }
       }
-      issue.setRecipients(userSet);
+      issue.setAssignees(userSet);
     }
     if (priority != null)
     {

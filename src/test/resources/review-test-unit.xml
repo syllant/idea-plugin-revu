@@ -2,7 +2,7 @@
 <review xmlns="http://plugins.intellij.net/revu"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/revu/ns/revu_1_0.xsd"
-        name="Test review" status="true" shared="true">
+        name="Test review" status="draft" shared="true">
   <history createdBy="u1" lastUpdatedBy="u2" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-01-01T12:00:00"/>
   <goal>A test review. A test review. A test review. A test review. A test review.</goal>
   <referential>
@@ -25,12 +25,12 @@
     <issue summary="Test item review 1" filePath="Test-1.java" lineStart="1" lineEnd="2" hash="1" tags="tag1"
           priority="priority1" status="to_resolve">
       <history createdBy="u2" lastUpdatedBy="u3" createdOn="2008-01-01T12:00:00" lastUpdatedOn="2008-02-02T12:00:00"/>
-      <goal>Test item review 1. Test item review 1.</goal>
+      <desc>Test item review 1. Test item review 1.</desc>
     </issue>
     <issue summary="Test item review 2" filePath="Test-2.java" lineStart="2" lineEnd="5" hash="1" tags="tag2"
           priority="priority2" status="to_resolve">
       <history createdBy="u3" lastUpdatedBy="u1" createdOn="2008-02-01T12:00:00" lastUpdatedOn="2008-03-02T12:00:00"/>
-      <goal>Test item review 2. Test item review 2.</goal>
+      <desc>Test item review 2. Test item review 2.</desc>
     </issue>
   </issues>
 </review>

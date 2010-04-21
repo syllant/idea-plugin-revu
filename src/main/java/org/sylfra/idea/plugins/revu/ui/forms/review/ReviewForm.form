@@ -128,11 +128,11 @@
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <labelFor value="61013"/>
+                      <labelFor value="50671"/>
                       <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="reviewForm.status.label"/>
                     </properties>
                   </component>
-                  <component id="61013" class="javax.swing.JComboBox" binding="cbStatus" custom-create="true">
+                  <component id="50671" class="com.intellij.openapi.ui.ComboBox" binding="cbStatus" custom-create="true">
                     <constraints>
                       <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -145,6 +145,7 @@
                       </grid>
                     </constraints>
                     <properties>
+                      <horizontalTextPosition value="10"/>
                       <text value="file" noi18n="true"/>
                       <verticalAlignment value="1"/>
                       <verticalTextPosition value="1"/>

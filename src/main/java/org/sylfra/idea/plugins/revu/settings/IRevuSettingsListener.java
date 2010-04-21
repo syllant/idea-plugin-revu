@@ -6,5 +6,5 @@ package org.sylfra.idea.plugins.revu.settings;
  */
 public interface IRevuSettingsListener<T extends IRevuSettings>
 {
-  void settingsChanged(T settings);
+  void settingsChanged(T oldSettings, T newSettings);
 }

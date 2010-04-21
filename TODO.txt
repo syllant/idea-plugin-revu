@@ -1,29 +1,30 @@
-- diff action
+- user display name overwritten (SFS/sfrancois)
+- issues in whole file: not shown in editor neither in project pane
+- add assignees tab in create issue dialog
+- focus on summary when creating issue
+- filepaths labels aligned to right (review + issue forms)
+
+- colors in scope: modified, added
 - wiki
-- warning when shared review files are not under VCS -> intention to add in VCS ! 
 
-- combo selection using keyboard
-
+- compare with action
+- show changes in gutter in reviewing mode
 - change location -> remove marker
-- check save
 - minimum size of forms
-- check admin rights
 - create review from changes
 - display issues in tree instead of table
   -> grouped by files/packages/modules
 - add shared review files in VCS
-
+- compare with version before review
 -  fill user table from SCM committers in current project
 
-- colors in scope: modified, added
-- add recipients tab in create issue dialog
+- warning when shared review files are not under VCS -> intention to add in VCS !
 - keep last dir used for creating reviews
 - active in diff
 - navigation popup in gutter
 - assign files
   - from VCS changes
 - multi-locations in a issue
-- errorSubmitter
 - option to show/hide 'all reviews' tool window
 - review config : required fields, ...
 - detailed history
@@ -31,3 +32,26 @@
 - export CSV
 - create item from intention
 - review XML inspections
+
+
+Known bugs:
+- some combo boxes are not selectable using keyboard (e.g. : priorities in "Issue Edit Form") ?
+- Index: 2, Size: 2: Index: 2, Size: 2
+java.lang.IndexOutOfBoundsException: Index: 2, Size: 2
+	at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+	at java.util.ArrayList.get(ArrayList.java:322)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.removeAll(Container.java:1239)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.a(ScopeEditorPanel.java:416)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.access$2000(ScopeEditorPanel.java:57)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$11$1.run(ScopeEditorPanel.java:377)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runReadAction(ApplicationImpl.java:695)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$11.run(ScopeEditorPanel.java:351)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl$2.run(ProgressManagerImpl.java:198)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:223)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.runProcess(ProgressManagerImpl.java:189)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.e(ScopeEditorPanel.java:386)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.access$1100(ScopeEditorPanel.java:57)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$10$1.run(ScopeEditorPanel.java:311)

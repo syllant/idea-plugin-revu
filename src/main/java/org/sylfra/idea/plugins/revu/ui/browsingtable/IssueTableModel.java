@@ -43,10 +43,10 @@ public final class IssueTableModel extends ListTableModel<Issue> implements IIss
   {
     project.getComponent(RevuWorkspaceSettingsComponent.class).addListener(new IRevuSettingsListener<RevuWorkspaceSettings>()
     {
-      public void settingsChanged(RevuWorkspaceSettings settings)
+      public void settingsChanged(RevuWorkspaceSettings oldSettings, RevuWorkspaceSettings newSettings)
       {
         List<String> currentColumnNames = IssueColumnInfoRegistry.getColumnNames(Arrays.asList(getColumnInfos()));
-        if (!settings.getBrowsingColNames().equals(currentColumnNames))
+        if (!newSettings.getBrowsingColNames().equals(currentColumnNames))
         {
           setColumnInfos(retrieveColumnsFromSettings(project));
         }

@@ -125,7 +125,7 @@ public class IssueColumnInfoRegistry
     @Nullable
     public String valueOf(Issue issue)
     {
-      return ConverterUtils.toString(issue.getTags(), false);
+      return ConverterUtils.toString(issue.getTags(), " ", false);
     }
   };
 

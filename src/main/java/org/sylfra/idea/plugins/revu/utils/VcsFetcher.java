@@ -84,7 +84,7 @@ public class VcsFetcher implements ApplicationComponent
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".VcsFetcher";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public static interface IVcsFetchListener

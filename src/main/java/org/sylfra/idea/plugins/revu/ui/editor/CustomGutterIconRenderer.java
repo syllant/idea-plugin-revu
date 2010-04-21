@@ -109,7 +109,10 @@ class CustomGutterIconRenderer extends GutterIconRenderer
     for (Iterator<Issue> it = issues.keySet().iterator(); it.hasNext();)
     {
       Issue issue = it.next();
-      buffer.append("<b>")
+      buffer
+        .append("[")
+        .append(issue.getReview().getName())
+        .append("]<br/><b>")
         .append(issue.getHistory().getCreatedBy().getDisplayName())
         .append("</b> - <i>")
         .append(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(
@@ -173,7 +176,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         {
           public Object getData(@NonNls String dataId)
           {
-            if (RevuDataKeys.ISSUE.getName().equals(dataId))
+            if (RevuDataKeys.ISSUE.is(dataId))
             {
               return issue;
             }
@@ -183,6 +186,12 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         AnActionEvent eventProxy = new AnActionEvent(e.getInputEvent(), dataContextProxy, e.getPlace(),
           e.getPresentation(), e.getActionManager(), e.getModifiers());
         templateAction.actionPerformed(eventProxy);
+      }
+
+      @Override
+      public void update(AnActionEvent e)
+      {
+        templateAction.update(e);
       }
     };
     actionProxy.copyFrom(templateAction);

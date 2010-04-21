@@ -16,5 +16,12 @@
       </excludes>
       <outputDirectory>/revu/lib</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>src/main/config</directory>
+      <includes>
+        <include>lib/*</include>
+      </includes>
+      <outputDirectory>/revu</outputDirectory>
+    </fileSet>
   </fileSets>
 </assembly>

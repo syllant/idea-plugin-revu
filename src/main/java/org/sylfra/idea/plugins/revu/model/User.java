@@ -196,7 +196,7 @@ public class User extends AbstractRevuEntity<User> implements Comparable<User>, 
   {
     public int compare(Role o1, Role o2)
     {
-      return o1.getPower() - o2.getPower();
+      return o2.getPower() - o1.getPower();
     }
   }
 }

@@ -115,7 +115,7 @@
       <xsd:attribute name="tags" type="xsd:string" use="optional"/>
       <xsd:attribute name="priority" type="xsd:string" use="required"/>
       <xsd:attribute name="status" type="xs:status" use="required"/>
-      <xsd:attribute name="recipients" type="xsd:string" use="optional"/>
+      <xsd:attribute name="assignees" type="xsd:string" use="optional"/>
     </xsd:complexType>
   </xsd:element>
 

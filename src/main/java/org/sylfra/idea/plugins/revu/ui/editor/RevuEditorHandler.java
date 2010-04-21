@@ -69,7 +69,7 @@ public class RevuEditorHandler implements ProjectComponent
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".RevuEditorHandler";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public void initComponent()
@@ -423,7 +423,7 @@ public class RevuEditorHandler implements ProjectComponent
 
   private static class CustomWorkspaceSettingsListener implements IRevuSettingsListener<RevuWorkspaceSettings>
   {
-    public void settingsChanged(RevuWorkspaceSettings settings)
+    public void settingsChanged(RevuWorkspaceSettings oldSettings, RevuWorkspaceSettings newSettings)
     {
     }
   }

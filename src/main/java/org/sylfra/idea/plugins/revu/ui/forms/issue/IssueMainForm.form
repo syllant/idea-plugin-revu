@@ -43,7 +43,7 @@
         </constraints>
         <properties>
           <font style="1"/>
-          <labelFor value="66336"/>
+          <labelFor value="87b08"/>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.main.review.label"/>
         </properties>
       </component>
@@ -178,7 +178,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="66336" class="javax.swing.JComboBox" binding="cbReview">
+          <component id="87b08" class="com.intellij.openapi.ui.ComboBox" binding="cbReview">
             <constraints>
               <card name="combo"/>
             </constraints>
@@ -199,17 +199,15 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="db060"/>
+          <labelFor value="30cd6"/>
           <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="issueForm.main.priority.label"/>
         </properties>
       </component>
-      <component id="db060" class="javax.swing.JComboBox" binding="cbPriority">
+      <component id="30cd6" class="com.intellij.openapi.ui.ComboBox" binding="cbPriority">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <editable value="false"/>
-        </properties>
+        <properties/>
       </component>
     </children>
   </grid>

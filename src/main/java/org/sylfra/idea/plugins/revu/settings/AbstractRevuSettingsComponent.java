@@ -43,13 +43,15 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> imp
    */
   public void internalLoadState(T object)
   {
+    T oldSettings = settings;
+
     settings = object;
 
     // Defensive copy against concurrent modifications
     List<IRevuSettingsListener<T>> copy = new ArrayList<IRevuSettingsListener<T>>(listeners);
     for (IRevuSettingsListener<T> listener : copy)
     {
-      listener.settingsChanged(settings);
+      listener.settingsChanged(oldSettings, settings);
     }
   }
 

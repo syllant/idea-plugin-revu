@@ -3,6 +3,7 @@ package org.sylfra.idea.plugins.revu.ui.forms.review.referential.user;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
@@ -10,7 +11,6 @@ import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractDetailDi
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialDetailForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.AbstractReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.ReferentialListHolder;
-import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 
@@ -31,43 +31,30 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
   }
 
   @Override
-  protected void internalValidateInput(ReferentialListHolder<User> data)
+  protected void internalValidateInput(@Nullable ReferentialListHolder<User> data)
   {
-    Review enclosingReview = getEnclosingReview(data);
-    if ((enclosingReview == null) || (enclosingReview.isEmbedded()))
-    {
-      return;
-    }
-
     super.internalValidateInput(data);
 
     // Check if current user is contained in list
-    boolean adminFound = false;
-    boolean currentUserFound = false;
-    for (User user : table.getListTableModel().getItems())
-    {
-      if (user.getLogin().equals(RevuUtils.getCurrentUserLogin()))
-      {
-        currentUserFound = true;
-        if (adminFound)
-        {
-          break;
-        }
-      }
+    boolean adminFound;
 
-      if (user.getRoles().contains(User.Role.ADMIN))
+    Review enclosingReview = getEnclosingReview(data);
+    if ((data != null) || (enclosingReview == null) || (enclosingReview.isEmbedded()))
+    {
+      adminFound = true;
+    }
+    else
+    {
+      adminFound = false;
+
+      for (User user : table.getListTableModel().getItems())
       {
-        adminFound = true;
-        if (currentUserFound)
+        if (user.getRoles().contains(User.Role.ADMIN))
         {
-          break;
+          adminFound = true;
         }
       }
     }
-
-    updateError(table, !currentUserFound,
-      RevuBundle.message("projectSettings.review.referential.user.form.currentUserNotFound.message",
-        RevuUtils.getCurrentUserLogin()));
 
     updateError(table, !adminFound,
       RevuBundle.message("projectSettings.review.referential.user.form.adminNotFound.message"));

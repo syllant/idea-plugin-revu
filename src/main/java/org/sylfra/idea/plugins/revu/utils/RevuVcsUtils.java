@@ -4,13 +4,19 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.*;
 import com.intellij.openapi.vcs.actions.VcsContextFactory;
+import com.intellij.openapi.vcs.changes.committed.ChangesBrowserDialog;
+import com.intellij.openapi.vcs.changes.committed.CommittedChangesTableModel;
 import com.intellij.openapi.vcs.diff.DiffProvider;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -19,6 +25,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 public class RevuVcsUtils
 {
   private static final Logger LOGGER = Logger.getInstance(RevuVcsUtils.class.getName());
+  private static final int RETRIEVED_CHANGES_MAX_COUNT = 50;
 
   @Nullable
   public static DiffProvider getDiffProvider(@NotNull Project project, @NotNull VirtualFile vFile)
@@ -104,5 +111,46 @@ public class RevuVcsUtils
     FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(vFile);
 
     return AbstractVcs.fileInVcsByFileStatus(project, filePath);
+  }
+
+  @Nullable
+  public static CommittedChangeList chooseCommittedChangeList(@NotNull Project project)
+    throws VcsException
+  {
+    AbstractVcs[] vcss = ProjectLevelVcsManager.getInstance(project).getAllActiveVcss();
+    assert (vcss.length > 0);
+
+    // @TODO handle case where projet has several VCS roots
+    // Here, I use the first VCS connection
+    AbstractVcs vcs = vcss[0];
+    assert ((vcs != null) && (vcs.getCommittedChangesProvider() != null));
+
+    CommittedChangesProvider provider = vcs.getCommittedChangesProvider();
+    assert (provider != null);
+
+    List<CommittedChangeList> changes = new ArrayList<CommittedChangeList>();
+    VirtualFile[] vFiles = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
+    for (VirtualFile vFile : vFiles)
+    {
+      changes.addAll(retrieveChanges(vFile, provider));
+    }
+
+    final ChangesBrowserDialog dialog = new ChangesBrowserDialog(project,
+      new CommittedChangesTableModel(changes, provider.getColumns(), false), ChangesBrowserDialog.Mode.Choose);
+    dialog.show();
+
+    return dialog.isOK() ? dialog.getSelectedChangeList() : null;
+  }
+
+  private static List<CommittedChangeList> retrieveChanges(VirtualFile vFile,
+    CommittedChangesProvider provider) throws VcsException
+  {
+    FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(vFile);
+    assert (filePath != null);
+
+    RepositoryLocation location = provider.getLocationFor(filePath);
+
+    //noinspection unchecked
+    return provider.getCommittedChanges(provider.createDefaultSettings(), location, RETRIEVED_CHANGES_MAX_COUNT);
   }
 }

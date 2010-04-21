@@ -91,7 +91,7 @@
                   <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="projectSettings.review.importDialog.type.link.text"/>
                 </properties>
               </component>
-              <component id="91fc2" class="javax.swing.JComboBox" binding="cbReviewLink">
+              <component id="f4d59" class="com.intellij.openapi.ui.ComboBox" binding="cbReviewLink">
                 <constraints>
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -108,7 +108,7 @@
                   <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="projectSettings.review.importDialog.type.copy.text"/>
                 </properties>
               </component>
-              <component id="33433" class="javax.swing.JComboBox" binding="cbReviewCopy">
+              <component id="12720" class="com.intellij.openapi.ui.ComboBox" binding="cbReviewCopy">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>

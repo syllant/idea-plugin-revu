@@ -17,7 +17,13 @@
   <change-notes><![CDATA[
 <html>
   <ul>
-    <li>Fix: review import was invalid in some cases
+    <li>New: File scope management
+    <li>New: Reviewing mode, with annotations
+    <li>New: New main menu
+    <li>New: Detect external changes on review files
+    <li>New: color management for issue statuses
+    <li>New: lots of miscellaneous hints to improve usability
+    <li>Fix: lots of miscellaneous fixes
   </ul>
 </html>
 ]]></change-notes>
@@ -80,65 +86,71 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <projectViewPane implementation="org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane"/>
+    <errorHandler implementation="nu.studer.idea.errorreporting.PluginErrorReportSubmitter"/>
   </extensions>
 
   <actions>
 
+    <!-- Settings -->
     <action id="revu.ShowProjectSettings"
-            class="org.sylfra.idea.plugins.revu.ui.actions.ShowProjectSettingsAction"
-            text="Show reVu Settings"
+            class="org.sylfra.idea.plugins.revu.actions.ShowProjectSettingsAction"
+            text="Show reVu Project Settings"
             icon="/general/projectSettings.png"/>
+    <action id="revu.ShowAppSettings"
+            class="org.sylfra.idea.plugins.revu.actions.ShowAppSettingsAction"
+            text="Show reVu IDE Settings"
+            icon="/general/ideOptions.png"/>
 
     <!-- Reviewing process -->
     <action id="revu.Annotate"
-            class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.RevuAnnotateToggleAction"
-            text="Annotate for &amp;review ''{0}''"/>
+            class="org.sylfra.idea.plugins.revu.actions.reviewing.RevuAnnotateToggleAction"
+            text="Annotate for &amp;Review ''{0}''"/>
     <action id="revu.StopReviewing"
-            class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.StopReviewingAction"
-            text="St&amp;op reviewing ''{0}''"/>
+            class="org.sylfra.idea.plugins.revu.actions.reviewing.StopReviewAction"
+            text="St&amp;op Reviewing ''{0}''"/>
 
     <!-- Project view -->
     <action id="revu.ProjectView.ToggleFilterIssues"
-            class="org.sylfra.idea.plugins.revu.ui.actions.ToggleFilterIssuesAction"
+            class="org.sylfra.idea.plugins.revu.actions.ToggleFilterIssuesAction"
             text="Show only files with at last one issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/gutterIssue.png"/>
 
     <!-- Review -->
     <action id="revu.ShowReviewEditForm"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.ShowUpdateReviewPopupAction"
+            class="org.sylfra.idea.plugins.revu.actions.ShowProjectSettingsAction"
             text="Edit Review"
             icon="/actions/editSource.png"/>
     <action id="revu.ShowFileScope"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.ShowFileScopeAction"
-            text="Show files in scope"
+            class="org.sylfra.idea.plugins.revu.actions.review.ShowFileScopeAction"
+            text="Show Files in Scope"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/showFileScope.png"/>
     <action id="revu.SaveReview"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.SaveReviewAction"
+            class="org.sylfra.idea.plugins.revu.actions.review.SaveReviewAction"
             text="Save Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/save.png"/>
     <action id="revu.CreateReview"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.PrepareCreateReviewAction"
+            class="org.sylfra.idea.plugins.revu.actions.review.PrepareCreateReviewAction"
             text="Create Review"
             icon="/general/add.png"/>
     <action id="revu.RemoveReview"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.RemoveReviewAction"
+            class="org.sylfra.idea.plugins.revu.actions.review.RemoveReviewAction"
             text="Delete Review"
             icon="/general/remove.png"/>
     <action id="revu.ImportReview"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.ImportReviewAction"
+            class="org.sylfra.idea.plugins.revu.actions.review.ImportReviewAction"
             text="Import Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/importReview.png"/>
     <action id="revu.ExportReview"
-            class="org.sylfra.idea.plugins.revu.ui.actions.review.ExportReviewAction"
+            class="org.sylfra.idea.plugins.revu.actions.review.ExportReviewAction"
             text="Export Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/exportReview.png"/>
 
     <action id="revu.SplitReviewBrowsingFormHorizontally"
-            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
+            class="org.sylfra.idea.plugins.revu.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
             text="Split Horizontally"
             icon="/actions/splitHorizontally.png"/>
     <action id="revu.SplitReviewBrowsingFormVertically"
-            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
+            class="org.sylfra.idea.plugins.revu.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
             text="Split Vertically"
             icon="/actions/splitVertically.png"/>
 
@@ -149,43 +161,52 @@
 
     <!-- Issue -->
     <action id="revu.CreateIssue"
-            class="org.sylfra.idea.plugins.revu.ui.actions.issue.CreateIssueAction"
+            class="org.sylfra.idea.plugins.revu.actions.issue.CreateIssueAction"
             text="Add Issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/addIssue.png">
       <keyboard-shortcut first-keystroke="alt i" keymap="$default"/>
     </action>
     <action id="revu.ShowUpdateIssuePopup"
-            class="org.sylfra.idea.plugins.revu.ui.actions.issue.ShowUpdateIssuePopupAction"
+            class="org.sylfra.idea.plugins.revu.actions.issue.ShowUpdateIssuePopupAction"
             text="Update Issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/editIssue.png"/>
     <action id="revu.RemoveIssue"
-            class="org.sylfra.idea.plugins.revu.ui.actions.issue.RemoveIssueAction"
+            class="org.sylfra.idea.plugins.revu.actions.issue.RemoveIssueAction"
             text="Remove Issue"
             icon="/general/remove.png"/>
 
     <!-- Source -->
     <action id="revu.JumpToSource"
-            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.JumpToSourceAction"
+            class="org.sylfra.idea.plugins.revu.actions.toolwindow.JumpToSourceAction"
             text="Jump to Source"
             icon="/actions/editSource.png">
       <keyboard-shortcut first-keystroke="F4" keymap="$default"/>
     </action>
     <action id="revu.AutoscrollToSource"
-            class="org.sylfra.idea.plugins.revu.ui.actions.toolwindow.ToggleAutoscrollToSourceAction"
+            class="org.sylfra.idea.plugins.revu.actions.toolwindow.ToggleAutoscrollToSourceAction"
             text="Autoscroll to Source"
             icon="/general/autoscrollToSource.png"/>
+
+    <!-- Settings -->
+    <group id="revu.settings"
+           text="Show reVu Settings"
+           popup="true"
+           icon="/general/ideOptions.png">
+      <reference ref="revu.ShowProjectSettings"/>
+      <reference ref="revu.ShowAppSettings"/>
+    </group>
 
     <!-- Reviewing process -->
     <group id="revu.reviewing.reviewsToStart"
            popup="true"
-           text="Start reviewing"
-           class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.StartReviewsActionGroup">
+           text="Start Reviewing"
+           class="org.sylfra.idea.plugins.revu.actions.reviewing.StartReviewsActionGroup">
     </group>
 
     <group id="revu.reviewing.create"
            popup="true"
-           text="Create review"
-           class="org.sylfra.idea.plugins.revu.ui.actions.reviewing.CreateReviewActionGroup">
+           text="Create Review"
+           class="org.sylfra.idea.plugins.revu.actions.reviewing.CreateReviewActionGroup">
     </group>
 
     <group id="revu.reviewing.main" text="reVu" popup="true">
@@ -193,12 +214,11 @@
       <separator/>
       <reference ref="revu.reviewing.reviewsToStart"/>
       <reference ref="revu.StopReviewing"/>
+      <reference ref="revu.Annotate"/>
       <separator/>
       <reference ref="revu.CreateIssue"/>
       <separator/>
-      <reference ref="revu.Annotate"/>
-      <separator/>
-      <reference ref="revu.ShowProjectSettings"/>
+      <reference ref="revu.settings"/>
       <add-to-group group-id="MainMenu" anchor="after" relative-to-action="AnalyzeMenu"/>
     </group>
 
@@ -223,7 +243,7 @@
     </group>
 
     <group id="revu.toolWindow.allReviews" popup="true">
-      <reference ref="revu.ShowProjectSettings"/>
+      <reference ref="revu.settings"/>
       <separator/>
       <reference ref="PreviousOccurence"/>
       <reference ref="NextOccurence"/>

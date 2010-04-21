@@ -160,15 +160,18 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
   public final void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus)
   {
     this.enclosingReview = enclosingReview;
+
     clearErrors();
+    internalValidateInput(null);
 
     internalUpdateUI(data, requestFocus);
 
     internalUpdateWriteAccess(data, RevuUtils.getCurrentUser(getEnclosingReview(data)));
 
-    if ((requestFocus) && (getPreferredFocusedComponent() != null))
+    JComponent component = getPreferredFocusedComponent();
+    if ((requestFocus) && (component != null))
     {
-      getPreferredFocusedComponent().requestFocusInWindow();
+      component.requestFocusInWindow();
     }
 
     for (UpdatableFormListener<T> listener : listeners)

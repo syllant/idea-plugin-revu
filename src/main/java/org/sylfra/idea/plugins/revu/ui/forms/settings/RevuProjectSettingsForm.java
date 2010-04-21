@@ -7,7 +7,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.Nls;
@@ -61,9 +60,9 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
 
     appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
     {
-      public void settingsChanged(RevuAppSettings settings)
+      public void settingsChanged(RevuAppSettings oldSettings, RevuAppSettings newSettings)
       {
-        updateUIDependingOnAppSettings(settings);
+        updateUIDependingOnAppSettings(newSettings);
       }
     };
     appSettingsComponent.addListener(appSettingsListener);
@@ -85,8 +84,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
       public void mouseClicked(MouseEvent e)
       {
         // Open App settings in a new dialog. Could also open settings using current dialog...
-        ShowSettingsUtil.getInstance().editConfigurable(project,
-          ApplicationManager.getApplication().getComponent(RevuAppSettingsForm.class));
+        RevuUtils.editAppSettings(project);
       }
     });
 
@@ -107,7 +105,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".ProjectSettingsConfigurable";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   /**
@@ -185,7 +183,9 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
   protected void apply(Map<Review, Review> items) throws ConfigurationException
   {
     ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    List<Review> originalReviews = getOriginalItems();
 
+    // Manage existing reviews
     List<String> projectReviewFiles = new ArrayList<String>();
     List<String> workspaceReviewFiles = new ArrayList<String>();
     for (Map.Entry<Review, Review> entry : items.entrySet())
@@ -197,7 +197,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
         continue;
       }
 
-      String reviewFilePath = RevuVfsUtils.buildRelativePath(project, editedReview.getPath());
+      String reviewFilePath = RevuVfsUtils.buildRelativePath(project, editedReview.getFile());
 
       if (editedReview.isShared())
       {
@@ -208,6 +208,12 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
         workspaceReviewFiles.add(reviewFilePath);
       }
 
+      // No change
+      if ((originalReview != null) && (originalReview.equals(editedReview)))
+      {
+        continue;
+      }
+
       // Change original review to avoid handling an obsolete instance
       if (originalReview == null)
       {
@@ -216,7 +222,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
       }
       else
       {
-        originalReview.copyFrom(editedReview);
+        originalReview.copyFromTemplate(editedReview);
       }
 
       try
@@ -228,8 +234,17 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
         LOGGER.warn(e);
         final String details = ((e.getLocalizedMessage() == null) ? e.toString() : e.getLocalizedMessage());
         throw new ConfigurationException(
-          RevuBundle.message("projectSettings.error.save.title.text", editedReview.getName(), details),
+          RevuBundle.message("projectSettings.error.save.title.text", originalReview.getName(), details),
           RevuBundle.message("general.plugin.title"));
+      }
+    }
+
+    // Delete obsolete reviews
+    for (Review review : originalReviews)
+    {
+      if (!items.containsValue(review))
+      {
+        reviewManager.removeReview(review);
       }
     }
 

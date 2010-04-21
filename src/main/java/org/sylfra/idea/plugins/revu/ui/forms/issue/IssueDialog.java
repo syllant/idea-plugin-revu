@@ -78,8 +78,8 @@ public class IssueDialog extends DialogWrapper
     return currentForm.getPreferredFocusedComponent();
   }
 
-  public void updateData(@NotNull Issue issue)
+  public boolean updateData(@NotNull Issue issue)
   {
-    currentForm.updateData(issue);
+    return currentForm.updateData(issue);
   }
 }

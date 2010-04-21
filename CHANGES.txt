@@ -1,10 +1,8 @@
 2.0
-    <li>NEW: File scope management
-    <li>NEW: Reviewing mode, with annotations
+    <li>New: File scope management
+    <li>New: Reviewing mode, with annotations
     <li>New: New main menu
     <li>New: Detect external changes on review files
     <li>New: color management for issue statuses
-    <li>FIX: lots of miscellaneous fixes
-    <li>Fix: review import was invalid in some cases
-    <li>Fix: ConcurrentModificationException in DocumentChangeTracker#updateIssues()
-    <li>Fix: Encoding issue when saving review files
+    <li>New: lots of miscellaneous hints to improve usability
+    <li>Fix: lots of miscellaneous fixes

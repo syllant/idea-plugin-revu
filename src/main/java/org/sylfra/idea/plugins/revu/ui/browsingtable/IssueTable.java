@@ -94,7 +94,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
     ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
       .addListener(new IRevuSettingsListener<RevuAppSettings>()
     {
-      public void settingsChanged(RevuAppSettings settings)
+      public void settingsChanged(RevuAppSettings oldSettings, RevuAppSettings newSettings)
       {
         repaint();
       }
@@ -156,7 +156,7 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
 
   public Object getData(@NonNls String dataId)
   {
-    if (PlatformDataKeys.NAVIGATABLE_ARRAY.getName().equals(dataId))
+    if (PlatformDataKeys.NAVIGATABLE_ARRAY.is(dataId))
     {
       Issue currentIssue = getSelectedObject();
       if ((currentIssue != null) && (currentIssue.getFile() != null))
@@ -169,17 +169,17 @@ public class IssueTable extends TableView<Issue> implements DataProvider, Occure
       return null;
     }
 
-    if (RevuDataKeys.ISSUE.getName().equals(dataId))
+    if (RevuDataKeys.ISSUE.is(dataId))
     {
       return getSelectedObject();
     }
 
-    if (RevuDataKeys.ISSUE_LIST.getName().equals(dataId))
+    if (RevuDataKeys.ISSUE_LIST.is(dataId))
     {
       return getSelection();
     }
 
-    if (RevuDataKeys.REVIEW.getName().equals(dataId))
+    if (RevuDataKeys.REVIEW.is(dataId))
     {
       // Dont return 'review' since it's null in all tab
       Issue issue = getSelectedObject();

@@ -6,10 +6,10 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
@@ -24,8 +24,7 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuAppSettingsForm;
-import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -162,21 +162,24 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
 
     reviewExternalizationListener = new IReviewExternalizationListener()
     {
-      public void loadFailed(final String path, Exception exception)
+      public void loadFailed(final File file, Exception exception)
       {
         final String details = ((exception.getLocalizedMessage() == null)
           ? exception.toString() : exception.getLocalizedMessage());
-        final VirtualFile vFile = RevuVfsUtils.findVFileFromRelativeFile(project, path);
+        final VirtualFile vFile = LocalFileSystem.getInstance().findFileByIoFile(file);
         ActionListener action = new ActionListener()
         {
           public void actionPerformed(ActionEvent e)
           {
-            FileEditorManager.getInstance(project).openFile(vFile, true);
+            if (vFile != null)
+            {
+              FileEditorManager.getInstance(project).openFile(vFile, true);
+            }
           }
         };
         addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
           RevuBundle.message("friendlyError.externalizing.load.error.title.text"),
-          RevuBundle.message("friendlyError.externalizing.load.error.details.text", path, details),
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", file, details),
           ((vFile != null) && (vFile.exists()))
             ? RevuBundle.message("friendlyError.externalizing.load.error.action.text") : null,
           action), true);
@@ -190,7 +193,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
           ? exception.toString() : exception.getLocalizedMessage());
         addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
           RevuBundle.message("friendlyError.externalizing.save.error.title.text"),
-          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getPath(), details)), true);
+          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getFile(), details)), true);
       }
 
       public void loadSucceeded(Review review)
@@ -212,7 +215,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".StatusBarComponent";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public void initComponent()
@@ -244,7 +247,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
         {
           public void actionPerformed(ActionEvent e)
           {
-            ShowSettingsUtil.getInstance().showSettingsDialog(null, RevuAppSettingsForm.class);
+            RevuUtils.editAppSettings(project);
           }
         }), true);
     }

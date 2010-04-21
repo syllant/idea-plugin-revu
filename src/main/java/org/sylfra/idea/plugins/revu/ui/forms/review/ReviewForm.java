@@ -1,11 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.forms.review;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -25,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -44,7 +41,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   private JButton bnImport;
   private JLabel lbFile;
   private JTextArea taGoal;
-  private JComboBox cbStatus;
+  private ComboBox cbStatus;
   private JTabbedPane tabbedPane;
   private FileScopeForm fileScopeForm;
   private JLabel lbUserRoleMsg;
@@ -55,7 +52,6 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     this.project = project;
     this.editedReviews = editedReviews;
 
-    $$$setupUI$$$();
     configureUI(project);
   }
 
@@ -63,7 +59,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   {
     referentialForm = new ReferentialTabbedPane(project);
     fileScopeForm = new FileScopeForm(project);
-    cbStatus = new JComboBox(ReviewStatus.values());
+    cbStatus = new ComboBox(ReviewStatus.values(), -1);
   }
 
   private void configureUI(@NotNull final Project project)
@@ -112,7 +108,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
           switch (dialog.getImportType())
           {
             case COPY:
-              currentReview.copyFrom(dialog.getImportedReview());
+              currentReview.getDataReferential().copyFrom(dialog.getImportedReview().getDataReferential());
               break;
             case LINK:
               extendedReview = dialog.getImportedReview();
@@ -137,7 +133,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
       public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
         boolean cellHasFocus)
       {
-        value = (value == null) ? "?" : RevuUtils.buildReviewStatusLabel((ReviewStatus) value);
+        value = (value == null) ? "?" : RevuUtils.buildReviewStatusLabel((ReviewStatus) value, false);
         return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
     });
@@ -165,6 +161,11 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     }
 
     if (!checkEquals(tfName.getText(), data.getName()))
+    {
+      return true;
+    }
+
+    if (!checkEquals(taGoal.getText(), data.getGoal()))
     {
       return true;
     }
@@ -199,21 +200,31 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     RevuUtils.setWriteAccess(canWrite, tfName, taGoal, cbStatus, ckShare, bnImport);
   }
 
-  protected void internalValidateInput(Review data)
+  protected void internalValidateInput(@Nullable Review data)
   {
-    updateRequiredError(tfName, "".equals(tfName.getText().trim()));
-    updateError(referentialForm.getContentPane(), !referentialForm.validateInput(data.getDataReferential()), null);
-    updateError(fileScopeForm.getContentPane(), !fileScopeForm.validateInput(data.getFileScope()), null);
+    updateRequiredError(tfName, (data != null) && "".equals(tfName.getText().trim()));
+    updateError(referentialForm.getContentPane(),
+      (data != null) && !referentialForm.validateInput(data.getDataReferential()), null);
+    updateError(fileScopeForm.getContentPane(),
+      (data != null) && !fileScopeForm.validateInput(data.getFileScope()), null);
 
-    updateTabIcons(tabbedPane);
-
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    Review review = reviewManager.getReviewByName(tfName.getText());
-    Review enclosingReview = getEnclosingReview(data);
-    boolean nameAlreadyExists = ((review != null) && (enclosingReview != null)
-      && (!review.getPath().equals(enclosingReview.getPath())));
+    // Check if name already exists
+    boolean nameAlreadyExists;
+    if (data == null)
+    {
+      nameAlreadyExists = false;
+    }
+    else
+    {
+      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+      Review review = reviewManager.getReviewByName(tfName.getText());
+      nameAlreadyExists = ((review != null) && (!review.getFile().equals(data.getFile())));
+    }
+    
     updateError(tfName, nameAlreadyExists,
       RevuBundle.message("projectSettings.review.importDialog.nameAlreadyExists.text"));
+
+    updateTabIcons(tabbedPane);
   }
 
   protected void internalUpdateUI(Review data, boolean requestFocus)
@@ -224,7 +235,8 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
 
     tfName.setText(nullData ? "" : data.getName());
     taGoal.setText(nullData ? "" : data.getGoal());
-    lbFile.setText(nullData ? "" : (data.isEmbedded()) ? "" : RevuVfsUtils.buildPresentablePath(data.getPath()));
+    lbFile.setText(nullData ? "" : (data.isEmbedded()) ? "" : RevuVfsUtils.buildPresentablePath(data.getFile()));
+    lbFile.setToolTipText(lbFile.getText());
     cbStatus.setSelectedItem(nullData ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
 
@@ -284,7 +296,6 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   {
     data.setName(tfName.getText());
     data.setGoal(taGoal.getText());
-    data.setPath(lbFile.getText());
     data.setStatus((ReviewStatus) cbStatus.getSelectedItem());
     data.setShared(ckShare.isSelected());
 
@@ -304,210 +315,6 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
 
   @NotNull
   public JPanel getContentPane()
-  {
-    return contentPane;
-  }
-
-  /**
-   * Method generated by IntelliJ IDEA GUI Designer
-   * >>> IMPORTANT!! <<<
-   * DO NOT edit this method OR call it in your code!
-   *
-   * @noinspection ALL
-   */
-  private void $$$setupUI$$$()
-  {
-    createUIComponents();
-    contentPane = new JPanel();
-    contentPane.setLayout(new CardLayout(0, 0));
-    final JPanel panel1 = new JPanel();
-    panel1.setLayout(new BorderLayout(0, 0));
-    contentPane.add(panel1, "review");
-    tabbedPane = new JTabbedPane();
-    panel1.add(tabbedPane, BorderLayout.CENTER);
-    final JPanel panel2 = new JPanel();
-    panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    tabbedPane.addTab(ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-      "projectSettings.review.main.title"), panel2);
-    final JScrollPane scrollPane1 = new JScrollPane();
-    panel2.add(scrollPane1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    taGoal = new JTextArea();
-    taGoal.setLineWrap(true);
-    taGoal.setWrapStyleWord(true);
-    scrollPane1.setViewportView(taGoal);
-    final JLabel label1 = new JLabel();
-    this.$$$loadLabelText$$$(label1,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-        "projectSettings.review.main.goal.label"));
-    panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTHEAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel3 = new JPanel();
-    panel3.setLayout(new BorderLayout(0, 0));
-    tabbedPane.addTab(ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-      "projectSettings.review.referential.title"), panel3);
-    panel3.add(referentialForm.$$$getRootComponent$$$(), BorderLayout.CENTER);
-    final JPanel panel4 = new JPanel();
-    panel4.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-    tabbedPane.addTab(ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-      "projectSettings.review.scope.title"), panel4);
-    panel4.add(fileScopeForm.$$$getRootComponent$$$(),
-      new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final Spacer spacer1 = new Spacer();
-    panel4.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1,
-      GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    final JPanel panel5 = new JPanel();
-    panel5.setLayout(new BorderLayout(0, 0));
-    tabbedPane.addTab(ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-      "projectSettings.history.title"), panel5);
-    historyForm = new HistoryForm();
-    panel5.add(historyForm.$$$getRootComponent$$$(), BorderLayout.CENTER);
-    final JPanel panel6 = new JPanel();
-    panel6.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), 0, 0));
-    panel1.add(panel6, BorderLayout.NORTH);
-    final JPanel panel7 = new JPanel();
-    panel7.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
-    panel6.add(panel7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    tfName = new JTextField();
-    panel7.add(tfName, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0,
-      false));
-    final JLabel label2 = new JLabel();
-    label2.setFont(new Font(label2.getFont().getName(), Font.BOLD, label2.getFont().getSize()));
-    this.$$$loadLabelText$$$(label2,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("reviewForm.status.label"));
-    panel7.add(label2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
-    panel7.add(cbStatus, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    lbFile = new JLabel();
-    lbFile.setText("file");
-    lbFile.setVerticalAlignment(1);
-    lbFile.setVerticalTextPosition(1);
-    panel7.add(lbFile, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_NORTHEAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(50, -1), null, null, 0,
-      false));
-    final JLabel label3 = new JLabel();
-    label3.setFont(new Font(label3.getFont().getName(), Font.BOLD, label3.getFont().getSize()));
-    this.$$$loadLabelText$$$(label3,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString("reviewForm.name.label"));
-    panel7.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel8 = new JPanel();
-    panel8.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    panel1.add(panel8, BorderLayout.SOUTH);
-    ckShare = new JCheckBox();
-    this.$$$loadButtonText$$$(ckShare,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-        "projectSettings.share.text"));
-    panel8.add(ckShare, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, 1,
-      GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel9 = new JPanel();
-    panel9.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    panel8.add(panel9, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    lbExtends = new JLabel();
-    lbExtends
-      .setIcon(new ImageIcon(getClass().getResource("/org/sylfra/idea/plugins/revu/resources/icons/linkedReview.png")));
-    this.$$$loadLabelText$$$(lbExtends,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-        "projectSettings.review.referential.extends.text"));
-    panel9.add(lbExtends, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    bnImport = new JButton();
-    this.$$$loadButtonText$$$(bnImport,
-      ResourceBundle.getBundle("org/sylfra/idea/plugins/revu/resources/Bundle").getString(
-        "projectSettings.review.referential.import.text"));
-    panel9.add(bnImport, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    label1.setLabelFor(taGoal);
-    label2.setLabelFor(cbStatus);
-    label3.setLabelFor(tfName);
-  }
-
-  /**
-   * @noinspection ALL
-   */
-  private void $$$loadLabelText$$$(JLabel component, String text)
-  {
-    StringBuffer result = new StringBuffer();
-    boolean haveMnemonic = false;
-    char mnemonic = '\0';
-    int mnemonicIndex = -1;
-    for (int i = 0; i < text.length(); i++)
-    {
-      if (text.charAt(i) == '&')
-      {
-        i++;
-        if (i == text.length())
-        {
-          break;
-        }
-        if (!haveMnemonic && text.charAt(i) != '&')
-        {
-          haveMnemonic = true;
-          mnemonic = text.charAt(i);
-          mnemonicIndex = result.length();
-        }
-      }
-      result.append(text.charAt(i));
-    }
-    component.setText(result.toString());
-    if (haveMnemonic)
-    {
-      component.setDisplayedMnemonic(mnemonic);
-      component.setDisplayedMnemonicIndex(mnemonicIndex);
-    }
-  }
-
-  /**
-   * @noinspection ALL
-   */
-  private void $$$loadButtonText$$$(AbstractButton component, String text)
-  {
-    StringBuffer result = new StringBuffer();
-    boolean haveMnemonic = false;
-    char mnemonic = '\0';
-    int mnemonicIndex = -1;
-    for (int i = 0; i < text.length(); i++)
-    {
-      if (text.charAt(i) == '&')
-      {
-        i++;
-        if (i == text.length())
-        {
-          break;
-        }
-        if (!haveMnemonic && text.charAt(i) != '&')
-        {
-          haveMnemonic = true;
-          mnemonic = text.charAt(i);
-          mnemonicIndex = result.length();
-        }
-      }
-      result.append(text.charAt(i));
-    }
-    component.setText(result.toString());
-    if (haveMnemonic)
-    {
-      component.setMnemonic(mnemonic);
-      component.setDisplayedMnemonicIndex(mnemonicIndex);
-    }
-  }
-
-  /**
-   * @noinspection ALL
-   */
-  public JComponent $$$getRootComponent$$$()
   {
     return contentPane;
   }

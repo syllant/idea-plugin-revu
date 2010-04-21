@@ -210,7 +210,8 @@ public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserIt
       {
         setIcon(RevuIconProvider.getIcon(iconRef));
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8),
-          BorderFactory.createEtchedBorder()));
+          BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(),
+            BorderFactory.createEmptyBorder(1, 1, 1, 3))));
       }
       else
       {

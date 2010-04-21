@@ -1,8 +1,11 @@
 package org.sylfra.idea.plugins.revu.externalizing.impl;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.DataHolder;
@@ -14,6 +17,7 @@ import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.externalizing.IReviewExternalizer;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -49,7 +53,7 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".ReviewLoader";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   /**
@@ -92,50 +96,58 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
     }
   }
 
-  public void save(@NotNull Review review, @NotNull File file) throws RevuException, IOException
+  public void save(@NotNull Review review, @NotNull final File file) throws RevuException, IOException
   {
     // Review will be fully serialized into a temporary memory stream before. It prevents
     // cases where serialization fails while writing to file and make an corrupted file
+    final StringWriter writer = new StringWriter();
+    save(review, writer);
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-    save(review, baos);
-
-    FileOutputStream fos = null;
-    try
+    // XML conversion is OK, now saving it to a file
+    final IOException[] exception = new IOException[1];
+    ApplicationManager.getApplication().runWriteAction(new Runnable()
     {
-      fos = new FileOutputStream(file);
-      byte[] content = baos.toByteArray();
-      fos.write(content);
-    }
-    finally
-    {
-      if (fos != null)
+      public void run()
       {
-        fos.close();
+        try
+        {
+          final VirtualFile vParentFile = RevuVfsUtils.findFile(file.getParent());
+          if (vParentFile == null)
+          {
+            exception[0] = new FileNotFoundException("Parent directory does not exist: " + file.getParent());
+            return;
+          }
+
+          VirtualFile vFile = vParentFile.createChildData(this, file.getName());
+          VfsUtil.saveText(vFile, writer.toString());
+        }
+        catch (IOException e)
+        {
+          exception[0] = e;
+        }
       }
+    });
+
+    if (exception[0] != null)
+    {
+      throw exception[0];
     }
   }
 
-  public void save(@NotNull Review review, @NotNull OutputStream stream) throws RevuException
+  public void save(@NotNull Review review, @NotNull Writer writer) throws RevuException
   {
     checkXStream();
 
-    IndentingXMLStreamWriter writer;
+    IndentingXMLStreamWriter xmlWriter;
     try
     {
-      writer = new IndentingXMLStreamWriter(
-        XMLOutputFactory.newInstance().createXMLStreamWriter(stream, "UTF-8"));
-      writer.writeStartDocument("UTF-8", "1.0");
-      writer.setDefaultNamespace("http://plugins.intellij.net/revu");
+      xmlWriter = new IndentingXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+      xmlWriter.writeStartDocument("UTF-8", "1.0");
+      xmlWriter.setDefaultNamespace("http://plugins.intellij.net/revu");
       xstreamDataHolder.put(ReviewExternalizerXmlImpl.CONTEXT_KEY_REVIEW, null);
-      xstream.marshal(review, new XppDriver().createWriter(new OutputStreamWriter(stream, "UTF-8")), xstreamDataHolder);
+      xstream.marshal(review, new XppDriver().createWriter(writer), xstreamDataHolder);
     }
     catch (XMLStreamException e)
-    {
-      throw new RevuException("Failed to serialize review: " + review, e);
-    }
-    catch (UnsupportedEncodingException e)
     {
       throw new RevuException("Failed to serialize review: " + review, e);
     }

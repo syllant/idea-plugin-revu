@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -18,7 +19,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   IRevuUniqueNameHolderEntity<Review>
 {
   private Review extendedReview;
-  private String path;
+  private File file;
   private History history;
   private String name;
   private String goal;
@@ -55,14 +56,14 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     this.extendedReview = extendedReview;
   }
 
-  public String getPath()
+  public File getFile()
   {
-    return path;
+    return file;
   }
 
-  public void setPath(String path)
+  public void setFile(File file)
   {
-    this.path = path;
+    this.file = file;
   }
 
   public History getHistory()
@@ -261,9 +262,18 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     issueListeners.clear();
   }
 
-  public void copyFrom(@NotNull Review otherReview)
+  public void copyFromTemplate(@NotNull Review otherReview)
   {
-    dataReferential.copyFrom(otherReview.getDataReferential());
+    extendedReview = otherReview.extendedReview;
+    file = otherReview.file;
+    history = otherReview.history;
+    name = otherReview.name;
+    goal = otherReview.goal;
+    shared = otherReview.shared;
+    status = otherReview.status;
+    embedded = otherReview.embedded;
+    dataReferential = otherReview.dataReferential;
+    fileScope = otherReview.fileScope;
   }
 
   @Override
@@ -274,6 +284,8 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     DataReferential referentialClone = clone.getDataReferential().clone();
     clone.setDataReferential(referentialClone);
     referentialClone.setReview(clone);
+
+    clone.setFileScope(clone.getFileScope().clone());
 
     return clone;
   }
@@ -307,7 +319,6 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
 
     Review r = (Review) o;
     return new EqualsBuilder()
-      .appendSuper(super.equals(o))
       .append(status, r.status)
       .append(embedded, r.embedded)
       .append(shared, r.shared)
@@ -316,7 +327,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
       .append(extendedReview, r.extendedReview)
       .append(history, r.history)
       .append(issuesByFiles, r.issuesByFiles)
-      .append(path, r.path)
+      .append(file, r.file)
       .append(name, r.name)
       .append(fileScope, r.fileScope)
       .isEquals();
@@ -327,7 +338,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   {
     return new HashCodeBuilder()
       .append(extendedReview == null ? "" : extendedReview.getName())
-      .append(path)
+      .append(file)
       .append(history)
       .append(name)
       .append(goal)

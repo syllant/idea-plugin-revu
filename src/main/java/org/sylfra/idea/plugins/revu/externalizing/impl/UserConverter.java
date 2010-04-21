@@ -34,7 +34,7 @@ class UserConverter extends AbstractConverter
     }
 
     SortedSet<User.Role> roles = new TreeSet<User.Role>(user.getRoles());
-    writer.addAttribute("roles", ConverterUtils.toString(roles, true));
+    writer.addAttribute("roles", ConverterUtils.toString(roles, ",", true));
   }
 
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)

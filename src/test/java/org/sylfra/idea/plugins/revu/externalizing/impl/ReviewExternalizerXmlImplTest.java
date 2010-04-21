@@ -7,10 +7,10 @@ import org.apache.tools.ant.util.FileUtils;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.model.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -86,6 +86,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     }
     catch (RevuException e)
     {
+      e.printStackTrace();
       fail("Review loading failed");
     }
   }
@@ -97,12 +98,12 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     {
       Review sampleReview = buildSampleReview();
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      impl.save(sampleReview, baos);
-      String actual = new String(baos.toByteArray());
+      StringWriter writer = new StringWriter();
+      impl.save(sampleReview, writer);
+      String actual = writer.toString();
 
       String expected = FileUtils.readFully(new InputStreamReader(getClass().getClassLoader()
-        .getResourceAsStream("/review-test-unit.xml")));
+        .getResourceAsStream("review-test-unit.xml")));
       // XStream produces Unix line separators
       expected = expected.replaceAll("\\r\n", "\n");
 
@@ -137,7 +138,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     User user2 = new User("u2", "p2", "user2", User.Role.ADMIN, User.Role.REVIEWER);
     User user3 = new User("u3", "p3", "user3", User.Role.REVIEWER, User.Role.AUTHOR);
 
-    referential.setUsers(new HashSet<User>(Arrays.asList(user1, user2, user3)));
+    referential.setUsers(Arrays.asList(user1, user2, user3));
 
     // Priorities
     IssuePriority priority1 = new IssuePriority((byte) 1, "priority1");
@@ -164,21 +165,21 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
     issue.setFile(getVirtualFile(new File(myProject.getBaseDir().getPath(), "Test-" + i + ".java")));
     issue.setLineStart(i);
     issue.setLineEnd(i * i + 1);
-    issue.setPriority(referential.getIssuePriority("priority" + i % referential.getIssuePrioritiesByName(true).size()));
+    issue.setPriority(referential.getIssuePriority("priority" + i % (referential.getIssuePrioritiesByName(true).size() + 1)));
     issue.setStatus(IssueStatus.TO_RESOLVE);
     issue.setDesc("Test issue review " + i + ". Test issue review " + i + ".");
     issue.setSummary("Test issue review " + i + ".");
     issue.setHistory(createHistory(referential, i, i + 1));
 
-    issue.setTags(Arrays.asList(referential.getIssueTag("tag" + i % referential.getIssueTagsByName(true).size())));
+    issue.setTags(Arrays.asList(referential.getIssueTag("tag" + i % (referential.getIssueTagsByName(true).size() + 1))));
 
     return issue;
   }
 
   private History createHistory(DataReferential referential, int createdByNb, int lastUpdatedByNb)
   {
-    createdByNb = createdByNb % referential.getUsersByLogin(true).size() + 1;
-    lastUpdatedByNb = lastUpdatedByNb % referential.getUsersByLogin(true).size() + 1;
+    createdByNb = createdByNb % (referential.getUsersByLogin(true).size() + 1) + 1;
+    lastUpdatedByNb = lastUpdatedByNb % (referential.getUsersByLogin(true).size() + 1) + 1;
 
     History history = new History();
 

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -26,6 +27,8 @@ import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettings;
 import org.sylfra.idea.plugins.revu.settings.project.RevuProjectSettingsComponent;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuAppSettingsForm;
+import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
@@ -129,6 +132,18 @@ public class RevuUtils
     return user;
   }
 
+  public static boolean hasRole(@NotNull Review review, @NotNull User.Role role)
+  {
+    String login = RevuUtils.getCurrentUserLogin();
+    if (login == null)
+    {
+      return false;
+    }
+
+    User user = review.getDataReferential().getUser(login, true);
+    return (user != null) && user.hasRole(role);
+  }
+
   @NotNull
   public static User getNonNullUser(@Nullable User user)
   {
@@ -175,7 +190,7 @@ public class RevuUtils
         nextTabAction.getValue(Action.NAME));
 
       textArea.getActionMap().put(previousTabAction.getValue(Action.NAME), previousTabAction);
-      textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK, false), 
+      textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK, false),
         previousTabAction.getValue(Action.NAME));
     }
   }
@@ -208,9 +223,10 @@ public class RevuUtils
   }
 
   @NotNull
-  public static String buildReviewStatusLabel(@NotNull ReviewStatus status)
+  public static String buildReviewStatusLabel(@NotNull ReviewStatus status, boolean lowerCase)
   {
-    return RevuBundle.message("general.reviewStatus." + status.toString().toLowerCase() + ".text");
+    String label = RevuBundle.message("general.reviewStatus." + status.toString().toLowerCase() + ".text");
+    return lowerCase ? label.toLowerCase() : label;
   }
 
   @NotNull
@@ -258,7 +274,26 @@ public class RevuUtils
       return null;
     }
 
-    return project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+    Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+    User user = RevuUtils.getCurrentUser(review);
+
+    return ((user != null) && (user.hasRole(User.Role.REVIEWER))) ? review : null;
+  }
+
+  public static boolean hasRoleForReviewingReview(@NotNull Project project, @NotNull User.Role role)
+  {
+    Review review = RevuUtils.getReviewingReview(project);
+
+    if (review != null)
+    {
+      User user = RevuUtils.getCurrentUser(review);
+      if ((user != null) && (user.hasRole(role)))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @NotNull
@@ -283,5 +318,26 @@ public class RevuUtils
   public static RevuProjectSettings getProjectSettings(@NotNull Project project)
   {
     return project.getComponent(RevuProjectSettingsComponent.class).getState();
+  }
+
+  public static void editProjectSettings(@NotNull Project project, @Nullable final Review review)
+  {
+    final RevuProjectSettingsForm form = project.getComponent(RevuProjectSettingsForm.class);
+    ShowSettingsUtil.getInstance().editConfigurable(project, form, new Runnable()
+    {
+      public void run()
+      {
+        if (review != null)
+        {
+          form.selectItem(review);
+        }
+      }
+    });
+  }
+
+  public static void editAppSettings(@Nullable Project project)
+  {
+    ShowSettingsUtil.getInstance().editConfigurable(project,
+      ApplicationManager.getApplication().getComponent(RevuAppSettingsForm.class));
   }
 }

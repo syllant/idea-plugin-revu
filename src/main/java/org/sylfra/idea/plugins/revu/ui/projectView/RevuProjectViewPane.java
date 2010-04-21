@@ -48,25 +48,35 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.Alarm;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
+import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.*;
+import javax.swing.tree.DefaultTreeModel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuProjectViewPane extends AbstractProjectViewPane implements IReviewListener
+public class RevuProjectViewPane extends AbstractProjectViewPane
 {
-  private final static ReviewStatus[] VISIBLE_STATUSES
+  private final static ReviewStatus[] VISIBLE_STATUSES_ARRAY
     = {ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING};
+  private static final List<ReviewStatus> VISIBLE_STATUSES_LIST = Arrays.asList(VISIBLE_STATUSES_ARRAY);
 
   @NonNls
   public static final String ID = "Revu";
@@ -74,7 +84,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
 
   private final ProjectView myProjectView;
   private ScopeTreeViewPanel myViewPanel;
-  private final Map<Review, NamedScope> scopes;
+  private final IdentityHashMap<Review, NamedScope> scopes;
 
   public RevuProjectViewPane(Project project, ProjectView projectView)
   {
@@ -82,12 +92,20 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
     myProjectView = projectView;
     scopes = new IdentityHashMap<Review, NamedScope>();
 
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-    reviewManager.addReviewListener(this);
-    for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), VISIBLE_STATUSES))
+    installListeners();
+  }
+
+  private void installListeners()
+  {
+    ReviewManager reviewManager = myProject.getComponent(ReviewManager.class);
+    CustomReviewListener reviewListener = new CustomReviewListener();
+    reviewManager.addReviewListener(reviewListener);
+    for (Review review : reviewManager.getReviews(RevuUtils.getCurrentUserLogin(), VISIBLE_STATUSES_ARRAY))
     {
-      reviewAdded(review);
+      reviewListener.reviewAdded(review);
     }
+
+    myProject.getComponent(RevuWorkspaceSettingsComponent.class).addListener(new CustomWorkspaceSettingsListener());
   }
 
   public String getTitle()
@@ -253,36 +271,27 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
 
   public Object getData(final String dataId)
   {
+    if (RevuDataKeys.REVIEW.is(dataId))
+    {
+      return getSelectedReview();
+    }
+
     final Object data = super.getData(dataId);
     if (data != null)
     {
       return data;
     }
+
     return myViewPanel != null ? myViewPanel.getData(dataId) : null;
   }
 
-  public void reviewChanged(Review review)
+  private boolean isVisible(Review review)
   {
-    reviewAdded(review);
+    return VISIBLE_STATUSES_LIST.contains(review.getStatus()) && review.getDataReferential().getUser(
+      RevuUtils.getCurrentUserLogin(), true) != null;
   }
 
-  public void reviewAdded(Review review)
-  {
-    if (!Arrays.asList(VISIBLE_STATUSES).contains(review.getStatus()))
-    {
-      return;
-    }
-    scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-    refreshView();
-  }
-
-  public void reviewDeleted(Review review)
-  {
-    scopes.remove(review);
-    refreshView();
-  }
-
-  private void refreshView()
+  public void refreshView()
   {
     Alarm refreshProjectViewAlarm = new Alarm();
     // amortize batch scope changes
@@ -301,13 +310,27 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
     }, 10);
   }
 
+  public void refreshCurrentScope()
+  {
+    if (myTree != null)
+    {
+      ((DefaultTreeModel) myTree.getModel()).reload();
+    }
+  }
+
   private String getScopeName(Review review)
   {
     return review.getName();
   }
 
-  // See com.intellij.ide.scopeView.ScopeTreeViewPanel.MyTreeCellRenderer
+  @Nullable
+  public Review getSelectedReview()
+  {
+    String reviewName = getSubId();
+    return reviewName == null ? null : myProject.getComponent(ReviewManager.class).getReviewByName(reviewName);
+  }
 
+  // See com.intellij.ide.scopeView.ScopeTreeViewPanel.MyTreeCellRenderer
   private class CustomTreeCellRenderer extends ColoredTreeCellRenderer
   {
     private final Project project;
@@ -381,6 +404,48 @@ public class RevuProjectViewPane extends AbstractProjectViewPane implements IRev
       Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
 
       return (review == null) ? 0 : review.getIssues(psiElement.getContainingFile().getVirtualFile()).size();
+    }
+  }
+
+  private class CustomReviewListener implements IReviewListener
+  {
+    public void reviewChanged(Review review)
+    {
+      if (isVisible(review))
+      {
+        scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
+        refreshView();
+      }
+      else
+      {
+        reviewDeleted(review);
+      }
+    }
+
+    public void reviewAdded(Review review)
+    {
+      if (isVisible(review))
+      {
+        scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
+        refreshView();
+      }
+    }
+
+    public void reviewDeleted(Review review)
+    {
+      scopes.remove(review);
+      refreshView();
+    }
+  }
+
+  private class CustomWorkspaceSettingsListener implements IRevuSettingsListener<RevuWorkspaceSettings>
+  {
+    public void settingsChanged(RevuWorkspaceSettings oldSettings, RevuWorkspaceSettings newSettings)
+    {
+      if (newSettings.isFilterFilesWithIssues() != oldSettings.isFilterFilesWithIssues())
+      {
+        refreshView();
+      }
     }
   }
 }

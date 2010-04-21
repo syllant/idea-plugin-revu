@@ -65,7 +65,8 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   {
     return (review == null)
       ? RevuBundle.message("browsing.issues.allReviews.title")
-      : RevuBundle.message("browsing.issues.review.title", review.getName());
+      : RevuBundle.message("browsing.issues.review.title", review.getName(),
+          RevuUtils.buildReviewStatusLabel(review.getStatus(), true));
   }
 
   @Nullable
@@ -118,7 +119,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   @NotNull
   public String getComponentName()
   {
-    return RevuPlugin.PLUGIN_NAME + ".ToolWindowManager";
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 
   public void initComponent()

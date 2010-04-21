@@ -108,7 +108,7 @@
             </constraints>
             <properties>
               <foreground color="-16764007"/>
-              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="fileScope.noVcs.text"/>
+              <text resource-bundle="org/sylfra/idea/plugins/revu/resources/Bundle" key="fileScopeForm.noVcs.text"/>
             </properties>
           </component>
         </children>

@@ -121,7 +121,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
       {
         if (updateFormData())
         {
-          super.setSelectionInterval(index0, index1);
+          super.setSelectionInterval(index1, index1);
           updateFormUI();
         }
       }

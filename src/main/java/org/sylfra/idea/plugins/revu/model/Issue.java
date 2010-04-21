@@ -34,14 +34,14 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
   private IssuePriority priority;
   private List<IssueTag> tags;
   private IssueStatus status;
-  private List<User> recipients;
+  private List<User> assignees;
   private List<IssueNote> notes;
 
   public Issue()
   {
     history = new History();
     tags = new ArrayList<IssueTag>();
-    recipients = new ArrayList<User>();
+    assignees = new ArrayList<User>();
     notes = new ArrayList<IssueNote>();
     lineStart = -1;
     lineEnd = -1;
@@ -188,14 +188,14 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     this.status = status;
   }
 
-  public List<User> getRecipients()
+  public List<User> getAssignees()
   {
-    return recipients;
+    return assignees;
   }
 
-  public void setRecipients(List<User> recipients)
+  public void setAssignees(List<User> assignees)
   {
-    this.recipients = recipients;
+    this.assignees = assignees;
   }
 
   public List<IssueNote> getNotes()
@@ -244,7 +244,7 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     result = 31 * result + (priority != null ? priority.hashCode() : 0);
     result = 31 * result + (tags != null ? tags.hashCode() : 0);
     result = 31 * result + (status != null ? status.hashCode() : 0);
-    result = 31 * result + (recipients != null ? recipients.hashCode() : 0);
+    result = 31 * result + (assignees != null ? assignees.hashCode() : 0);
     result = 31 * result + (notes != null ? notes.hashCode() : 0);
 
     // /!\ Cyclic call with review
@@ -319,7 +319,7 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     {
       return false;
     }
-    if (recipients != null ? !recipients.equals(that.recipients) : that.recipients != null)
+    if (assignees != null ? !assignees.equals(that.assignees) : that.assignees != null)
     {
       return false;
     }
@@ -355,7 +355,7 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
       append("priority", priority).
       append("tags", tags).
       append("status", status).
-      append("recipients", recipients).
+      append("assignees", assignees).
       append("notes", notes).
       toString();
   }

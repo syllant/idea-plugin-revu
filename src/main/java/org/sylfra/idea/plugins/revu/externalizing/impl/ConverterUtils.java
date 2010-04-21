@@ -10,16 +10,21 @@ import java.util.Collection;
  */
 public class ConverterUtils
 {
-  public static String toString(Collection<?> collection, boolean toLowerCase)
+  public static String toString(Collection<?> collection, String separator, boolean toLowerCase)
   {
     StringBuilder b = new StringBuilder();
     for (Object o : collection)
     {
+      if (o == null)
+      {
+        continue;
+      }
+      
       String value = (o instanceof IRevuUniqueNameHolderEntity) ? ((IRevuUniqueNameHolderEntity) o).getName() : o.toString();
-      b.append(value).append(",");
+      b.append(value).append(separator);
     }
 
-    if (collection.size() > 0)
+    if (b.length() > 0)
     {
       b.deleteCharAt(b.length() - 1);
     }
