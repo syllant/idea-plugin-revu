@@ -28,14 +28,16 @@ import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.extensions.Extensions;
-import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vcs.FileStatus;
+import com.intellij.openapi.vcs.FileStatusManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packageDependencies.ui.PackageDependenciesNode;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -62,7 +64,6 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
@@ -310,14 +311,6 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
     }, 10);
   }
 
-  public void refreshCurrentScope()
-  {
-    if (myTree != null)
-    {
-      ((DefaultTreeModel) myTree.getModel()).reload();
-    }
-  }
-
   private String getScopeName(Review review)
   {
     return review.getName();
@@ -363,10 +356,19 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
             EditorColorsManager.getInstance().getGlobalScheme().getAttributes(CodeInsightColors.DEPRECATED_ATTRIBUTES)
               .clone();
         }
-        final PsiElement psiElement = node.getPsiElement();
-        textAttributes.setForegroundColor(
-          CopyPasteManager.getInstance().isCutElement(psiElement) ? CopyPasteManager.CUT_COLOR :
-            node.getStatus().getColor());
+
+        PsiElement psiElement = node.getPsiElement();
+        VirtualFile vFile = (psiElement == null)
+          ? null
+            : ((psiElement instanceof PsiDirectory)
+              ? ((PsiDirectory) psiElement).getVirtualFile()
+                : (psiElement.getContainingFile() == null) ? null : psiElement.getContainingFile().getVirtualFile());
+
+        String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
+        Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+
+        FileStatus fileStatus = retrieveFileStatus(review, vFile);
+        textAttributes.setForegroundColor(fileStatus.getColor());
         append(node.toString(), SimpleTextAttributes.fromTextAttributes(textAttributes));
 
         String oldToString = toString();
@@ -375,7 +377,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
           decorator.decorate(node, this);
         }
 
-        int issueCount = retrieveIssueCount(psiElement);
+        int issueCount = retrieveIssueCount(review, vFile);
         if (issueCount > 0)
         {
           append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
@@ -393,17 +395,26 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       }
     }
 
-    private int retrieveIssueCount(PsiElement psiElement)
+    private FileStatus retrieveFileStatus(Review review, VirtualFile vFile)
     {
-      if ((psiElement == null) || (psiElement.getContainingFile() == null))
+      if (review.getFileScope().getVcsAfterRev() != null)
       {
-        return 0;
+        // @TODO: handle ADDED/MODIFIED
+        return FileStatus.MODIFIED;
       }
 
-      String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
-      Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+      if (vFile == null)
+      {
+        return FileStatus.NOT_CHANGED;
+      }
 
-      return (review == null) ? 0 : review.getIssues(psiElement.getContainingFile().getVirtualFile()).size();
+      FileStatus fileStatus = FileStatusManager.getInstance(project).getStatus(vFile);
+      return (fileStatus == null) ? FileStatus.NOT_CHANGED : fileStatus;
+    }
+
+    private int retrieveIssueCount(Review review, VirtualFile vFile)
+    {
+      return ((vFile == null) || (review == null)) ? 0 : review.getIssues(vFile).size();
     }
   }
 
@@ -414,7 +425,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       if (isVisible(review))
       {
         scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-        refreshView();
+        updateFromRoot(true);
       }
       else
       {
@@ -444,7 +455,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
     {
       if (newSettings.isFilterFilesWithIssues() != oldSettings.isFilterFilesWithIssues())
       {
-        refreshView();
+        updateFromRoot(true);
       }
     }
   }

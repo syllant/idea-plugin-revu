@@ -15,6 +15,8 @@ import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.ReviewStatus;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
+import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarComponent;
 import org.sylfra.idea.plugins.revu.ui.statusbar.StatusBarMessage;
 import org.sylfra.idea.plugins.revu.utils.ReviewFileChooser;
@@ -72,10 +74,9 @@ public class CreateReviewDialog extends DialogWrapper
     fileTextField = FileChooserFactory.getInstance().createFileTextField(
       fileChooser.getDescriptor(), false, myDisposable);
     tfFile = fileTextField.getField();
-    tfFile.setText(project.getBaseDir().getPath());
   }
 
-  private void configureUI(boolean createMode)
+  private void configureUI(final boolean createMode)
   {
     bnFileChooser.addActionListener(new ActionListener()
     {
@@ -101,10 +102,11 @@ public class CreateReviewDialog extends DialogWrapper
     {
       public void textChanged(DocumentEvent event)
       {
-        setOKActionEnabled((tfName.getText().trim().length() > 0)
+        setOKActionEnabled((!createMode)
+        || ((tfName.getText().trim().length() > 0)
           && (tfFile.getText().trim().length() > 0)
           && (fileTextField.getSelectedFile() != null)
-          && (fileTextField.getSelectedFile().isDirectory()));
+          && (fileTextField.getSelectedFile().isDirectory())));
       }
     };
     tfName.getDocument().addDocumentListener(textFieldsListener);
@@ -219,10 +221,18 @@ public class CreateReviewDialog extends DialogWrapper
       reviewManager.getReviews(currentReviews, null, ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING,
         ReviewStatus._TEMPLATE));
 
+    reviews.remove(review);
     CollectionComboBoxModel cbModel = new CollectionComboBoxModel(reviews, reviews.get(0));
 
     cbReviewCopy.setModel(cbModel);
     cbReviewLink.setModel(cbModel);
+
+    String dir = RevuUtils.getWorkspaceSettings(project).getLastSelectedReviewDir();
+    if (dir == null)
+    {
+      dir = project.getBaseDir().getPath();
+    }
+    tfFile.setText(dir);
 
     super.show();
   }
@@ -278,6 +288,12 @@ public class CreateReviewDialog extends DialogWrapper
     }
 
     currentFile = file;
+
+    RevuWorkspaceSettingsComponent workspaceSettingsComponent
+      = project.getComponent(RevuWorkspaceSettingsComponent.class);
+    RevuWorkspaceSettings state = workspaceSettingsComponent.getState();
+    state.setLastSelectedReviewDir(vFile.getPath());
+    workspaceSettingsComponent.loadState(state);
 
     super.doOKAction();
   }

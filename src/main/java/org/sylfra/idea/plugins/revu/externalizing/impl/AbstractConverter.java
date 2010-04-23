@@ -22,7 +22,7 @@ import java.util.Date;
  */
 abstract class AbstractConverter implements Converter
 {
-  private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+  private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss Z");
 
   protected final Logger logger;
 

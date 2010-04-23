@@ -6,6 +6,6 @@ package org.sylfra.idea.plugins.revu.settings.project;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuProjectSettings extends AbstractReviewFilesRevuSettings
+public class RevuProjectSettings extends AbstractReviewFilesRevuSettings<RevuProjectSettings>
 {
 }

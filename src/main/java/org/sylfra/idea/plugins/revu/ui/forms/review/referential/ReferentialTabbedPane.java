@@ -9,6 +9,7 @@ import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.priority.IssuePriorityReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.tag.IssueTagReferentialForm;
 import org.sylfra.idea.plugins.revu.ui.forms.review.referential.user.UserReferentialForm;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -135,22 +136,41 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
       return new ReferentialListHolder<User>(new ArrayList<User>(), null);
     }
 
-    List<User> thisUsers = data.getUsers(false);
-    if (data.getReview().getExtendedReview() == null)
+    List<User> thisUsers = new ArrayList<User>(data.getUsers(false));
+    Review extendedReview = data.getReview().getExtendedReview();
+    if (extendedReview == null)
     {
+      // List may be empty when extended review is removed
+      if (thisUsers.isEmpty())
+      {
+        User user = RevuUtils.getCurrentUser();
+        for (User.Role role : User.Role.values())
+        {
+          user.addRole(role);
+        }
+
+        thisUsers.add(user);
+      }
       return new ReferentialListHolder<User>(thisUsers, null);
     }
 
-    List<User> extendedUsers = new ArrayList<User>(data.getReview().getExtendedReview().getDataReferential()
-      .getUsers(true));
+    List<User> extendedUsers = new ArrayList<User>(extendedReview.getDataReferential().getUsers(true));
     for (ListIterator<User> it = extendedUsers.listIterator(); it.hasNext();)
     {
-      User user = it.next();
-      if (data.getUser(user.getLogin(), false) != null)
+      User extendedUser = it.next();
+      User user = data.getUser(extendedUser.getLogin(), false);
+      if (user != null)
       {
         it.remove();
+
+        // Use display name defined in extended review
+        if (user.getDisplayName().equals(user.getLogin()))
+        {
+          user.setDisplayName(extendedUser.getDisplayName());
+        }
       }
     }
+
     return new ReferentialListHolder<User>(thisUsers, extendedUsers);
   }
 

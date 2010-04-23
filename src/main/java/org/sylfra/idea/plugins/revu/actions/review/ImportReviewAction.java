@@ -10,6 +10,8 @@ import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.ui.forms.settings.RevuProjectSettingsForm;
 import org.sylfra.idea.plugins.revu.utils.ReviewFileChooser;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVfsUtils;
 
 import java.io.File;
 
@@ -34,11 +36,12 @@ public class ImportReviewAction extends AbstractReviewSettingsAction
       fileChooser = new ReviewFileChooser(project);
     }
 
-    VirtualFile vFile = fileChooser.selectFileToOpen(null);
+    VirtualFile vFile = fileChooser.selectFileToOpen(
+      RevuVfsUtils.findFile(RevuUtils.getWorkspaceSettings(project).getLastSelectedReviewDir()));
     if (vFile != null)
     {
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      Review review = reviewManager.getReviewByPath(vFile.getPath());
+      Review review = reviewManager.getReviewByFile(new File(vFile.getPath()));
       if (review != null)
       {
         Messages.showWarningDialog(project,

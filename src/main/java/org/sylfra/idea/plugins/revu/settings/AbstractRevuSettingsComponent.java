@@ -11,7 +11,7 @@ import java.util.List;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> implements PersistentStateComponent<T>
+public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings<T>> implements PersistentStateComponent<T>
 {
   private T settings;
   protected List<IRevuSettingsListener<T>> listeners;
@@ -35,7 +35,7 @@ public abstract class AbstractRevuSettingsComponent<T extends IRevuSettings> imp
    */
   public T internalGetState()
   {
-    return settings;
+    return settings.clone();
   }
 
   /**

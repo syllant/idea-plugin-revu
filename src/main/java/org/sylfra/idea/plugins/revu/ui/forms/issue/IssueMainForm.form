@@ -104,15 +104,16 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="c9c5d" class="javax.swing.JLabel" binding="lbLocation">
+              <component id="fccef" class="javax.swing.JTextField" binding="tfLocation">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false">
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="1" use-parent-layout="false">
                     <minimum-size width="40" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <editable value="false"/>
                   <foreground color="-10066330"/>
-                  <text value="..." noi18n="true"/>
+                  <text value="file " noi18n="true"/>
                 </properties>
               </component>
               <component id="ad327" class="javax.swing.JLabel" binding="lbSync">

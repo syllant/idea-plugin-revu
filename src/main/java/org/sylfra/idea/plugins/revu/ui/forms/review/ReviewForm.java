@@ -39,7 +39,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   private ReferentialTabbedPane referentialForm;
   private JLabel lbExtends;
   private JButton bnImport;
-  private JLabel lbFile;
+  private JTextField tfFile;
   private JTextArea taGoal;
   private ComboBox cbStatus;
   private JTabbedPane tabbedPane;
@@ -66,6 +66,8 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
   {
     RevuUtils.configureTextAreaAsStandardField(taGoal);
 
+    tfFile.setBorder(BorderFactory.createEmptyBorder());
+    
     ckShare.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
@@ -227,7 +229,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     updateTabIcons(tabbedPane);
   }
 
-  protected void internalUpdateUI(Review data, boolean requestFocus)
+  protected void internalUpdateUI(@Nullable Review data, boolean requestFocus)
   {
     updateTabIcons(tabbedPane);
 
@@ -235,10 +237,12 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
 
     tfName.setText(nullData ? "" : data.getName());
     taGoal.setText(nullData ? "" : data.getGoal());
-    lbFile.setText(nullData ? "" : (data.isEmbedded()) ? "" : RevuVfsUtils.buildPresentablePath(data.getFile()));
-    lbFile.setToolTipText(lbFile.getText());
     cbStatus.setSelectedItem(nullData ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
+
+    tfFile.setText((nullData || (data.getFile() == null)) ? "" : (data.isEmbedded()) ? "" :
+      RevuVfsUtils.buildPresentablePath(data.getFile()));
+    tfFile.setToolTipText(tfFile.getText());
 
     extendedReview = nullData ? null : data.getExtendedReview();
 

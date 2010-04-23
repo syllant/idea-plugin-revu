@@ -44,8 +44,11 @@ class DocumentChangeTracker implements DocumentListener
   @NotNull
   RangeMarker addMarker(@NotNull Issue issue, boolean orphanMarker)
   {
-    RangeMarker marker = document.createRangeMarker(document.getLineStartOffset(issue.getLineStart()),
-      document.getLineEndOffset(issue.getLineEnd()));
+    int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
+    int lineEnd = (issue.getLineEnd() == -1) ? 0 : issue.getLineEnd();
+
+    RangeMarker marker = document.createRangeMarker(document.getLineStartOffset(lineStart),
+      document.getLineEndOffset(lineEnd));
 
     marker.putUserData(ORPHAN_MARKER_KEY, orphanMarker);
     markers.put(issue, marker);
@@ -107,10 +110,9 @@ class DocumentChangeTracker implements DocumentListener
     for (Map.Entry<Issue, RangeMarker> entry : markersCopy.entrySet())
     {
       Issue issue = entry.getKey();
-      RangeMarker marker = entry.getValue();
       if (issue.getLineStart() >= lineStart)
       {
-        updateIssue(issue, marker);
+        updateIssue(issue, entry.getValue());
       }
     }
   }

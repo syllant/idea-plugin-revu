@@ -176,6 +176,22 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
   {
   }
 
+  @Override
+  public void reset()
+  {
+    super.reset();
+
+    // Change extended reviews so the point to clones
+    for (Review review : originalItemsMap.keySet())
+    {
+      Review extendedReview = review.getExtendedReview();
+      if (extendedReview != null)
+      {
+        review.setExtendedReview(retrieveCloneItem(extendedReview));
+      }
+    }
+  }
+
   /**
    * {@inheritDoc}
    */

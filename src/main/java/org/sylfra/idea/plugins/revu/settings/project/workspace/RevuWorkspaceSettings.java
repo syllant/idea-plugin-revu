@@ -15,7 +15,7 @@ import java.util.List;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
+public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings<RevuWorkspaceSettings>
 {
   private boolean autoScrollToSource;
   // Saved as String because IDEA don't store settings if attribute is a int with 0 value
@@ -23,6 +23,7 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   private List<String> browsingColNames;
   private boolean filterFilesWithIssues;
   private String reviewingReviewName;
+  private String lastSelectedReviewDir;
 
   public RevuWorkspaceSettings()
   {
@@ -77,6 +78,16 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
     this.filterFilesWithIssues = filterFilesWithIssues;
   }
 
+  public String getLastSelectedReviewDir()
+  {
+    return lastSelectedReviewDir;
+  }
+
+  public void setLastSelectedReviewDir(String lastSelectedReviewDir)
+  {
+    this.lastSelectedReviewDir = lastSelectedReviewDir;
+  }
+
   @Nullable
   public String getReviewingReviewName()
   {
@@ -86,5 +97,14 @@ public class RevuWorkspaceSettings extends AbstractReviewFilesRevuSettings
   public void setReviewingReviewName(@Nullable String reviewingReviewName)
   {
     this.reviewingReviewName = reviewingReviewName;
+  }
+
+  @Override
+  public RevuWorkspaceSettings clone()
+  {
+    RevuWorkspaceSettings result = (RevuWorkspaceSettings) super.clone();
+    result.browsingColNames = new ArrayList<String>(browsingColNames);
+    
+    return result;
   }
 }

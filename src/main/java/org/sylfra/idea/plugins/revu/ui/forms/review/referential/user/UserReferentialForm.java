@@ -39,7 +39,7 @@ public class UserReferentialForm extends AbstractReferentialForm<User>
     boolean adminFound;
 
     Review enclosingReview = getEnclosingReview(data);
-    if ((data != null) || (enclosingReview == null) || (enclosingReview.isEmbedded()))
+    if ((data == null) || (enclosingReview == null) || (enclosingReview.isEmbedded()))
     {
       adminFound = true;
     }

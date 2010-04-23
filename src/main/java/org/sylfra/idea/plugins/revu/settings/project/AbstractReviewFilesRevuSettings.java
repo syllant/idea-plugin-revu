@@ -9,7 +9,7 @@ import java.util.List;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class AbstractReviewFilesRevuSettings implements IRevuSettings
+public class AbstractReviewFilesRevuSettings<T extends AbstractReviewFilesRevuSettings> implements IRevuSettings<T>
 {
   protected List<String> reviewFiles;
 
@@ -26,5 +26,21 @@ public class AbstractReviewFilesRevuSettings implements IRevuSettings
   public void setReviewFiles(List<String> reviewFiles)
   {
     this.reviewFiles = reviewFiles;
+  }
+
+  @Override
+  public T clone()
+  {
+    T result = null;
+    try
+    {
+      result = (T) super.clone();
+      result.reviewFiles = new ArrayList<String>(reviewFiles);
+    }
+    catch (CloneNotSupportedException ignored)
+    {
+    }
+
+    return result;
   }
 }

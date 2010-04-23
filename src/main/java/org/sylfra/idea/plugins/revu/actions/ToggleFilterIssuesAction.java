@@ -1,13 +1,11 @@
 package org.sylfra.idea.plugins.revu.actions;
 
-import com.intellij.ide.projectView.ProjectView;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
@@ -27,8 +25,6 @@ public class ToggleFilterIssuesAction extends ToggleAction
       RevuWorkspaceSettings workspaceSettings = workspaceSettingsComponent.getState();
       workspaceSettings.setFilterFilesWithIssues(!workspaceSettings.isFilterFilesWithIssues());
       workspaceSettingsComponent.loadState(workspaceSettings);
-
-      ((RevuProjectViewPane) ProjectView.getInstance(project).getCurrentProjectViewPane()).refreshCurrentScope();
     }
   }
 

@@ -138,17 +138,16 @@
                     </constraints>
                     <properties/>
                   </component>
-                  <component id="f6aef" class="javax.swing.JLabel" binding="lbFile">
+                  <component id="3a71f" class="javax.swing.JTextField" binding="tfFile">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="5" fill="0" indent="0" use-parent-layout="false">
                         <minimum-size width="50" height="-1"/>
                       </grid>
                     </constraints>
                     <properties>
-                      <horizontalTextPosition value="10"/>
-                      <text value="file" noi18n="true"/>
-                      <verticalAlignment value="1"/>
-                      <verticalTextPosition value="1"/>
+                      <editable value="false"/>
+                      <horizontalAlignment value="4"/>
+                      <text value="file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file file " noi18n="true"/>
                     </properties>
                   </component>
                   <component id="799a" class="javax.swing.JLabel">

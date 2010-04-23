@@ -128,8 +128,8 @@ public class RevuVfsUtils
   }
 
   @Nullable
-  public static VirtualFile findFile(@NotNull String filePath)
+  public static VirtualFile findFile(@Nullable String filePath)
   {
-    return LocalFileSystem.getInstance().findFileByPath(filePath);
+    return (filePath == null) ? null : LocalFileSystem.getInstance().findFileByPath(filePath);
   }
 }

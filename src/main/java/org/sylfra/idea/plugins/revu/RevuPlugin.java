@@ -2,7 +2,6 @@ package org.sylfra.idea.plugins.revu;
 
 import com.intellij.javaee.ExternalResourceManager;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NonNls;
@@ -18,11 +17,8 @@ import org.jetbrains.annotations.NotNull;
 public class RevuPlugin implements ProjectComponent
 {
   public static final String PLUGIN_NAME = "reVu";
-  public static final String PLUGIN_ID = "org.sylfra.idea.plugins.revu";
 
-  private static final Logger LOGGER = Logger.getInstance(RevuPlugin.class.getName());
-
-  private Project project;
+  private final Project project;
 
   public RevuPlugin(Project project)
   {

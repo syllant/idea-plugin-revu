@@ -69,9 +69,9 @@ public class ReviewManager implements ProjectComponent
   }
 
   @Nullable
-  public Review getReviewByPath(@NotNull String path)
+  public Review getReviewByFile(@NotNull File file)
   {
-    return reviewsByFiles.get(path);
+    return reviewsByFiles.get(file);
   }
 
   @Nullable
@@ -535,6 +535,7 @@ public class ReviewManager implements ProjectComponent
 
     metaReview.lastSaved = System.currentTimeMillis();
     fireReviewSaveSucceeded(review);
+    fireReviewChanged(review);
   }
 
   public void saveChanges(@NotNull Review review)
@@ -745,7 +746,7 @@ public class ReviewManager implements ProjectComponent
         {
           VirtualFile vFile = event.getFile();
 
-          Review review = reviewManager.getReviewByPath(vFile.getPath());
+          Review review = reviewManager.getReviewByFile(new File(vFile.getPath()));
           if ((review != null)
             && (vFile.getTimeStamp() > reviewManager.getLastSavedTStamp(review))
             && (!reviewManager.isSaving(review)))
@@ -756,6 +757,7 @@ public class ReviewManager implements ProjectComponent
               Messages.getWarningIcon()) == DialogWrapper.OK_EXIT_CODE)
             {
               reviewManager.load(review, false);
+              reviewManager.fireReviewChanged(review);
             }
           }
         }
@@ -764,7 +766,7 @@ public class ReviewManager implements ProjectComponent
         public void fileDeleted(VirtualFileEvent event)
         {
           VirtualFile vFile = event.getFile();
-          Review review = reviewManager.getReviewByPath(vFile.getPath());
+          Review review = reviewManager.getReviewByFile(new File(vFile.getPath()));
           if (review != null)
           {
             reviewManager.removeReview(review);
@@ -805,7 +807,7 @@ public class ReviewManager implements ProjectComponent
 
     private void pathChanged(VirtualFile vFile, String oldPath)
     {
-      Review review = reviewManager.getReviewByPath(oldPath);
+      Review review = reviewManager.getReviewByFile(new File(oldPath));
       if (review != null)
       {
         reviewManager.reviewFileChanged(review, vFile);

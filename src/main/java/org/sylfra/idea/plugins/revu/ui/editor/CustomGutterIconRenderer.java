@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.model.Issue;
+import org.sylfra.idea.plugins.revu.model.IssueStatus;
 
 import javax.swing.*;
 import java.text.DateFormat;
@@ -25,7 +26,7 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   private boolean fullySynchronized;
   private final Integer lineStart;
   private final Map<Issue, RangeMarker> issues;
-  private RevuEditorHandler revuEditorHandler;
+  private final RevuEditorHandler revuEditorHandler;
 
   public CustomGutterIconRenderer(RevuEditorHandler revuEditorHandler, Integer lineStart)
   {
@@ -95,11 +96,32 @@ class CustomGutterIconRenderer extends GutterIconRenderer
       return new ImageIcon();
     }
 
-    return RevuIconProvider.getIcon((count == 1)
-      ? (fullySynchronized
-        ? RevuIconProvider.IconRef.GUTTER_ISSUE : RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED)
-      : (fullySynchronized
-        ? RevuIconProvider.IconRef.GUTTER_ISSUES : RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED));
+    if (count == 1)
+    {
+      IssueStatus status = issues.keySet().iterator().next().getStatus();
+
+      boolean resolved = (status.equals(IssueStatus.RESOLVED) || status.equals(IssueStatus.CLOSED));
+      return RevuIconProvider.getIcon(fullySynchronized
+        ? (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_RESOLVED
+          : RevuIconProvider.IconRef.GUTTER_ISSUE)
+        : (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED
+          : RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED_RESOLVED));
+    }
+
+    boolean allResolved = true;
+    for (Issue issue : issues.keySet())
+    {
+      if ((!issue.getStatus().equals(IssueStatus.RESOLVED)) && (!issue.getStatus().equals(IssueStatus.CLOSED)))
+      {
+        allResolved = false;
+      }
+    }
+
+    return RevuIconProvider.getIcon(fullySynchronized
+      ? (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_RESOLVED
+        : RevuIconProvider.IconRef.GUTTER_ISSUES)
+      : (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED
+        : RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED_RESOLVED));
   }
 
   @Override
@@ -172,31 +194,36 @@ class CustomGutterIconRenderer extends GutterIconRenderer
       @Override
       public void actionPerformed(final AnActionEvent e)
       {
-        DataContext dataContextProxy = new DataContext()
-        {
-          public Object getData(@NonNls String dataId)
-          {
-            if (RevuDataKeys.ISSUE.is(dataId))
-            {
-              return issue;
-            }
-            return e.getDataContext().getData(dataId);
-          }
-        };
-        AnActionEvent eventProxy = new AnActionEvent(e.getInputEvent(), dataContextProxy, e.getPlace(),
-          e.getPresentation(), e.getActionManager(), e.getModifiers());
-        templateAction.actionPerformed(eventProxy);
+        templateAction.actionPerformed(createActionEventProxy(e, issue));
       }
 
       @Override
       public void update(AnActionEvent e)
       {
-        templateAction.update(e);
+        templateAction.update(createActionEventProxy(e, issue));
       }
     };
     actionProxy.copyFrom(templateAction);
 
     return actionProxy;
+  }
+
+  private AnActionEvent createActionEventProxy(final AnActionEvent e, final Issue issue)
+  {
+    DataContext dataContextProxy = new DataContext()
+    {
+      public Object getData(@NonNls String dataId)
+      {
+        if (RevuDataKeys.ISSUE.is(dataId))
+        {
+          return issue;
+        }
+        return e.getDataContext().getData(dataId);
+      }
+    };
+    AnActionEvent eventProxy = new AnActionEvent(e.getInputEvent(), dataContextProxy, e.getPlace(),
+      e.getPresentation(), e.getActionManager(), e.getModifiers());
+    return eventProxy;
   }
 
   @Override

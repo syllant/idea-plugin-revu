@@ -6,7 +6,7 @@ import org.sylfra.idea.plugins.revu.settings.project.AbstractReviewFilesRevuSett
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public abstract class AbstractReviewFilesRevuSettingsComponent<T extends AbstractReviewFilesRevuSettings>
+public abstract class AbstractReviewFilesRevuSettingsComponent<T extends AbstractReviewFilesRevuSettings<T>>
   extends AbstractRevuSettingsComponent<T>
 {
 }

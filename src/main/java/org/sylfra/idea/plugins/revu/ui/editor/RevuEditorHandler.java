@@ -116,11 +116,6 @@ public class RevuEditorHandler implements ProjectComponent
 
   private RangeMarker addMarker(@Nullable Editor editor, @NotNull Issue issue, boolean orphanMarker)
   {
-    if (issue.getLineStart() == -1)
-    {
-      return null;
-    }
-
     if (!RevuUtils.isActive(issue.getReview()))
     {
       return null;
@@ -173,12 +168,19 @@ public class RevuEditorHandler implements ProjectComponent
         HighlighterTargetArea.LINES_IN_RANGE);
     editorHighlighters.put(issue, highlighter);
 
+    // Issue on while file are displayed on first line
+    int lineStart = issue.getLineStart();
+    if (lineStart == -1)
+    {
+      lineStart = 0;
+    }
+
     // Gutter renderer, only one renderer for same line start
-    CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
+    CustomGutterIconRenderer renderer = editorRenderers.get(lineStart);
     if (renderer == null)
     {
-      renderer = new CustomGutterIconRenderer(this, issue.getLineStart());
-      editorRenderers.put(issue.getLineStart(), renderer);
+      renderer = new CustomGutterIconRenderer(this, lineStart);
+      editorRenderers.put(lineStart, renderer);
 
       // Only set gutter icon for first highligther with same line start
       highlighter.setGutterIconRenderer(renderer);
@@ -208,7 +210,8 @@ public class RevuEditorHandler implements ProjectComponent
           editor.getMarkupModel().removeHighlighter(highlighter);
 
           Map<Integer, CustomGutterIconRenderer> editorRenderers = renderers.get(editor);
-          CustomGutterIconRenderer renderer = editorRenderers.get(issue.getLineStart());
+          int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
+          CustomGutterIconRenderer renderer = editorRenderers.get(lineStart);
           if (renderer != null)
           {
             renderer.removeIssue(issue);
@@ -227,7 +230,6 @@ public class RevuEditorHandler implements ProjectComponent
       }
     }
   }
-
 
   public boolean isSynchronized(@NotNull Issue issue, boolean checkEvenIfEditorNotAvailable)
   {

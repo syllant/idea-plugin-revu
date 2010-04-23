@@ -3,6 +3,7 @@ package org.sylfra.idea.plugins.revu.model;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.*;
 
@@ -108,8 +109,29 @@ public class DataReferential extends AbstractRevuEntity<DataReferential>
   @NotNull
   public List<User> getUsers(boolean useLink)
   {
-    return getListUsingLinkedReferential(usersByLogin, ((review.getExtendedReview() == null)
-      ? null : review.getExtendedReview().getDataReferential().getUsers(true)), useLink);
+    Map<String, User> result;
+    if ((review.getExtendedReview() == null) || (!useLink))
+    {
+      result = usersByLogin;
+    }
+    else
+    {
+      Map<String, User> linkedUsers = review.getExtendedReview().getDataReferential().getUsersByLogin(true);
+      result = new HashMap<String, User>(linkedUsers);
+      result.putAll(usersByLogin);
+
+      // Overwrite display name of current user: if display name was defined in extended review, let's use it
+      String currentLogin = RevuUtils.getCurrentUserLogin();
+      User user = usersByLogin.get(currentLogin);
+      User linkedUser = linkedUsers.get(currentLogin);
+
+      if ((user != null) && (linkedUser != null) && (user.getDisplayName().equals(currentLogin)))
+      {
+        user.setDisplayName(linkedUser.getDisplayName());
+      }
+    }
+
+    return Collections.unmodifiableList(new ArrayList<User>(result.values()));
   }
 
   public void setUsers(@NotNull Collection<User> users)

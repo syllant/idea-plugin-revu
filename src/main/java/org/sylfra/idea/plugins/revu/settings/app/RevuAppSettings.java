@@ -14,7 +14,7 @@ import java.util.Map;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class RevuAppSettings implements IRevuSettings
+public class RevuAppSettings implements IRevuSettings<RevuAppSettings>
 {
   private String login;
   private String password;
@@ -82,5 +82,21 @@ public class RevuAppSettings implements IRevuSettings
   public void setTableSelectionForegroundColor(String tableSelectionForegroundColor)
   {
     this.tableSelectionForegroundColor = tableSelectionForegroundColor;
+  }
+
+  @Override
+  public RevuAppSettings clone()
+  {
+    RevuAppSettings result = null;
+    try
+    {
+      result = (RevuAppSettings) super.clone();
+      result.issueStatusColors = new HashMap<IssueStatus, String>(issueStatusColors);
+    }
+    catch (CloneNotSupportedException ignored)
+    {
+    }
+
+    return result;
   }
 }

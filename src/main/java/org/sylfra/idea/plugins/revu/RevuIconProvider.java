@@ -25,9 +25,13 @@ public abstract class RevuIconProvider
   {
     DESYNCHRONIZED("desynchronized"),
     GUTTER_ISSUE("gutterIssue"),
+    GUTTER_ISSUE_RESOLVED("gutterIssueResolved"),
     GUTTER_ISSUE_DESYNCHRONIZED("gutterIssueDesynchronized"),
+    GUTTER_ISSUE_DESYNCHRONIZED_RESOLVED("gutterIssueDesynchronizedResolved"),
     GUTTER_ISSUES("gutterIssues"),
+    GUTTER_ISSUES_RESOLVED("gutterIssuesResolved"),
     GUTTER_ISSUES_DESYNCHRONIZED("gutterIssuesDesynchronized"),
+    GUTTER_ISSUES_DESYNCHRONIZED_RESOLVED("gutterIssuesDesynchronizedResolved"),
     EDIT_CONFIG("editConfig"),
     EDIT_MULTI_CHOOSER("editMultiChooser"),
     FIELD_ERROR("fieldError"),

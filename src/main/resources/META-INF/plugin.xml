@@ -17,13 +17,12 @@
   <change-notes><![CDATA[
 <html>
   <ul>
-    <li>New: File scope management
-    <li>New: Reviewing mode, with annotations
+    <li>New: Reviewing mode, with custom VCS annotations
+    <li>New: File scope management shows now selected files to review
     <li>New: New main menu
-    <li>New: Detect external changes on review files
-    <li>New: color management for issue statuses
-    <li>New: lots of miscellaneous hints to improve usability
-    <li>Fix: lots of miscellaneous fixes
+    <li>New: Color management for issue statuses
+    <li>New: Lots of miscellaneous hints to improve usability
+    <li>Fix: *Lots of miscellaneous fixes*
   </ul>
 </html>
 ]]></change-notes>

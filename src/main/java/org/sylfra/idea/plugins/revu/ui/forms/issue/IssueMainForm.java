@@ -37,7 +37,7 @@ public class IssueMainForm extends AbstractIssueForm
   private JTextArea taDesc;
   private ComboBox cbPriority;
   private JTextArea taSummary;
-  private JLabel lbLocation;
+  private JTextField tfLocation;
   private ComboBox cbReview;
   private JRadioButton rbLocationFile;
   private JRadioButton rbLocationGlobal;
@@ -81,6 +81,8 @@ public class IssueMainForm extends AbstractIssueForm
   private void configureUI()
   {
     RevuUtils.configureTextAreaAsStandardField(taDesc, taSummary);
+
+    tfLocation.setBorder(BorderFactory.createEmptyBorder());
 
     ((CardLayout) pnReview.getLayout()).show(pnReview, createMode ? "combo" : "label");
 
@@ -332,39 +334,42 @@ public class IssueMainForm extends AbstractIssueForm
     if (locationType == null)
     {
       rbLocationGlobal.setSelected(true);
-      lbLocation.setText("");
+      tfLocation.setText("");
     }
-
-    String filePath;
-    String locationPath;
-    switch (locationType)
+    else
     {
-      case GLOBAL:
-        rbLocationGlobal.setSelected(true);
-        locationPath = RevuBundle.message("issueForm.main.location.global.text");
-        break;
+      String filePath;
+      String locationPath;
+      switch (locationType)
+      {
+        case GLOBAL:
+          rbLocationGlobal.setSelected(true);
+          locationPath = RevuBundle.message("issueForm.main.location.globalPath.text");
+          break;
 
-      case FILE:
-        rbLocationFile.setSelected(true);
-        filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
-        locationPath = (currentIssue.getVcsRev() == null)
-          ? filePath
-          : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
-          currentIssue.getVcsRev());
-        break;
+        case FILE:
+          rbLocationFile.setSelected(true);
+          filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
+          locationPath = (currentIssue.getVcsRev() == null)
+            ? filePath
+            : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
+            currentIssue.getVcsRev());
+          break;
 
-      default:
-        rbLocationLineRange.setSelected(true);
-        filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
-        String filePathWithVcsRev = (currentIssue.getVcsRev() == null)
-          ? filePath
-          : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
-          currentIssue.getVcsRev());
-        locationPath = RevuBundle.message("issueForm.main.location.range.path.text",
-          filePathWithVcsRev, (currentIssue.getLineStart() + 1), (currentIssue.getLineEnd() + 1));
+        default:
+          rbLocationLineRange.setSelected(true);
+          filePath = RevuVfsUtils.buildRelativePath(project, currentIssue.getFile());
+          String filePathWithVcsRev = (currentIssue.getVcsRev() == null)
+            ? filePath
+            : RevuBundle.message("issueForm.main.location.pathWithVcsRev.text", filePath,
+            currentIssue.getVcsRev());
+          locationPath = RevuBundle.message("issueForm.main.location.range.path.text",
+            filePathWithVcsRev, (currentIssue.getLineStart() + 1), (currentIssue.getLineEnd() + 1));
+      }
+
+      tfLocation.setText(locationPath);
+      tfLocation.setToolTipText(locationPath);
     }
-
-    lbLocation.setText(locationPath);
   }
 
   private static class ReviewComboBoxModel extends AbstractListModel implements IReviewListener, ComboBoxModel

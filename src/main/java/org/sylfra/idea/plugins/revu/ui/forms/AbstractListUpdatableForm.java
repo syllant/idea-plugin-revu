@@ -33,7 +33,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
   protected JLabel lbMessageWholePane;
   protected JLabel lbMessageMainPane;
   protected F mainForm;
-  private final IdentityHashMap<E, E> originalItemsMap;
+  protected final IdentityHashMap<E, E> originalItemsMap;
   private JPanel mainPane;
 
   public AbstractListUpdatableForm(@NotNull Project project)
@@ -142,6 +142,7 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
 
     model.add(index, item);
 
+    list.clearSelection();
     list.setSelectedValue(item, true);
   }
 
@@ -288,6 +289,19 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
     {
       list.setSelectedIndex(0);
     }
+  }
+
+  protected E retrieveCloneItem(@NotNull E item)
+  {
+    for (Map.Entry<E, E> entry : originalItemsMap.entrySet())
+    {
+      if (entry.getValue().equals(item))
+      {
+        return entry.getKey();
+      }
+    }
+
+    return null;
   }
 
   public void selectItem(@NotNull E item)
