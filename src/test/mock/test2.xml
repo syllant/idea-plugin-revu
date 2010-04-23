@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<review xmlns="http://plugins.intellij.net/revu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/revu/ns/revu_1_0.xsd" name="test2" status="reviewing" shared="false">
+  <history createdBy="[unknown]" lastUpdatedBy="[unknown]" createdOn="2008-12-15T08:51:20" lastUpdatedOn="2008-12-15T08:51:35"/>
+  <goal></goal>
+  <referential>
+    <priorities>
+      <priority order="0" name="cosmetic"/>
+      <priority order="1" name="minor"/>
+      <priority order="2" name="normal"/>
+      <priority order="3" name="major"/>
+      <priority order="4" name="critical"/>
+    </priorities>
+    <tags>
+      <tag name="correctness"/>
+      <tag name="cosmetic"/>
+      <tag name="documentation"/>
+      <tag name="duplication"/>
+      <tag name="maintenability"/>
+      <tag name="optimization"/>
+      <tag name="portability"/>
+      <tag name="question"/>
+      <tag name="standard"/>
+    </tags>
+    <users>
+      <user displayName="rplant" login="rplant" password="b2c0ae0596bf1da319306db275fbe6b1" roles="admin"/>
+    </users>
+  </referential>
+  <issues>
+    <issue filePath="src/ClassA.java" summary="aaaa" lineStart="8" lineEnd="8" hash="-2109830624" status="to_resolve">
+      <history createdBy="rplant" lastUpdatedBy="rplant" createdOn="2008-12-15T08:52:11" lastUpdatedOn="2008-12-15T08:52:11"/>
+    </issue>
+  </issues>
+</review>
