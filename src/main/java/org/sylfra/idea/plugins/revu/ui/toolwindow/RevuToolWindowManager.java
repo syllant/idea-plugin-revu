@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui;
+package org.sylfra.idea.plugins.revu.ui.toolwindow;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
@@ -39,12 +39,12 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     contentsByReviews = new IdentityHashMap<Review, Content>();
   }
 
-  private IssueBrowsingPane addReviewTab(@Nullable Review review)
+  private IssueBrowsingPane addReviewTab(@NotNull Review review)
   {
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
     IssueBrowsingPane issueBrowsingPane = new IssueBrowsingPane(project, review);
-    Content content = contentFactory.createContent(issueBrowsingPane.getContentPane(), getTabTitle(review), true);
+    Content content = contentFactory.createContent(issueBrowsingPane.getContentPane(), buildTableTitle(review), true);
     content.putUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY, issueBrowsingPane);
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
@@ -52,21 +52,19 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     return issueBrowsingPane;
   }
 
-  private void removeReviewTab(@Nullable Review review)
+  private String buildTableTitle(Review review)
+  {
+    return RevuBundle.message("browsing.issues.review.title", review.getName(),
+      RevuUtils.buildReviewStatusLabel(review.getStatus(), true));
+  }
+
+  private void removeReviewTab(@NotNull Review review)
   {
     Content content = contentsByReviews.remove(review);
     if (content != null)
     {
       toolwindow.getContentManager().removeContent(content, true);
     }
-  }
-
-  private String getTabTitle(Review review)
-  {
-    return (review == null)
-      ? RevuBundle.message("browsing.issues.allReviews.title")
-      : RevuBundle.message("browsing.issues.review.title", review.getName(),
-          RevuUtils.buildReviewStatusLabel(review.getStatus(), true));
   }
 
   @Nullable
@@ -83,7 +81,8 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       .registerToolWindow(RevuPlugin.PLUGIN_NAME, true, ToolWindowAnchor.BOTTOM);
     toolwindow.setIcon(RevuIconProvider.getIcon(RevuIconProvider.IconRef.REVU));
 
-    toolwindow.getContentManager().addContentManagerListener(new ContentManagerAdapter() {
+    toolwindow.getContentManager().addContentManagerListener(new ContentManagerAdapter()
+    {
       @Override
       public void selectionChanged(ContentManagerEvent event)
       {
@@ -94,9 +93,6 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
         }
       }
     });
-
-    // Add 'All reviews' tab
-    addReviewTab(null);
 
     project.getComponent(ReviewManager.class).addReviewListener(this);
   }
@@ -150,7 +146,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
       }
       else
       {
-        content.setDisplayName(getTabTitle(review));
+        content.setDisplayName(buildTableTitle(review));
         // @TODO how to refresh tab title ?
         IssueBrowsingPane pane = content.getUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY);
         if (pane != null)

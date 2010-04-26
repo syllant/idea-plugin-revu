@@ -17,12 +17,8 @@
   <change-notes><![CDATA[
 <html>
   <ul>
-    <li>New: Reviewing mode, with custom VCS annotations
-    <li>New: File scope management shows now selected files to review
-    <li>New: New main menu
-    <li>New: Color management for issue statuses
-    <li>New: Lots of miscellaneous hints to improve usability
-    <li>Fix: *Lots of miscellaneous fixes*
+    <li>New: tree view instead of table view
+    <li>New: filtering and grouping features to help navigating betweens issues
   </ul>
 </html>
 ]]></change-notes>
@@ -72,7 +68,7 @@
       </implementation-class>
     </component>
     <component>
-      <implementation-class>org.sylfra.idea.plugins.revu.ui.RevuToolWindowManager
+      <implementation-class>org.sylfra.idea.plugins.revu.ui.toolwindow.RevuToolWindowManager
       </implementation-class>
     </component>
     <component>
@@ -144,20 +140,6 @@
             text="Export Review"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/exportReview.png"/>
 
-    <action id="revu.SplitReviewBrowsingFormHorizontally"
-            class="org.sylfra.idea.plugins.revu.actions.toolwindow.SplitReviewBrowsingFormHorizontallyAction"
-            text="Split Horizontally"
-            icon="/actions/splitHorizontally.png"/>
-    <action id="revu.SplitReviewBrowsingFormVertically"
-            class="org.sylfra.idea.plugins.revu.actions.toolwindow.SplitReviewBrowsingFormVerticallyAction"
-            text="Split Vertically"
-            icon="/actions/splitVertically.png"/>
-
-    <action id="revu.SelectColumns"
-            class="org.sylfra.idea.plugins.revu.ui.browsingtable.SelectColumnsAction"
-            text="Select Visible Columns"
-            icon="/org/sylfra/idea/plugins/revu/resources/icons/selectColumns.png"/>
-
     <!-- Issue -->
     <action id="revu.CreateIssue"
             class="org.sylfra.idea.plugins.revu.actions.issue.CreateIssueAction"
@@ -173,6 +155,22 @@
             class="org.sylfra.idea.plugins.revu.actions.issue.RemoveIssueAction"
             text="Remove Issue"
             icon="/general/remove.png"/>
+
+    <!-- IssueTree-->
+    <action id="revu.FilteringIssueTree"
+            class="org.sylfra.idea.plugins.revu.actions.issuetree.FilteringIssueTreeAction"
+            text="Filtering issue tree"/>
+    <action id="revu.GroupingIssueTree"
+            class="org.sylfra.idea.plugins.revu.actions.issuetree.GroupingIssueTreeAction"
+            text="Grouping issue tree"/>
+    <action id="revu.ExpandIssueTree"
+            class="org.sylfra.idea.plugins.revu.actions.issuetree.ExpandIssueTreeAction"
+            text="Expand All"
+            icon="/actions/expandall.png"/>
+    <action id="revu.CollapseIssueTree"
+            class="org.sylfra.idea.plugins.revu.actions.issuetree.CollapseIssueTreeAction"
+            text="Collapse All"
+            icon="/actions/collapseall.png"/>
 
     <!-- Source -->
     <action id="revu.JumpToSource"
@@ -236,26 +234,8 @@
     </group>
 
     <!-- Tool window -->
-    <group id="revu.toolWindow.review.layout" popup="true" icon="/debugger/restoreLayout.png">
-      <reference ref="revu.SplitReviewBrowsingFormHorizontally"/>
-      <reference ref="revu.SplitReviewBrowsingFormVertically"/>
-    </group>
-
-    <group id="revu.toolWindow.allReviews" popup="true">
+    <group id="revu.toolWindow" popup="true">
       <reference ref="revu.settings"/>
-      <separator/>
-      <reference ref="PreviousOccurence"/>
-      <reference ref="NextOccurence"/>
-      <separator/>
-      <reference ref="revu.SelectColumns"/>
-      <separator/>
-      <reference ref="revu.JumpToSource"/>
-      <reference ref="revu.AutoscrollToSource"/>
-      <separator/>
-      <reference ref="revu.toolWindow.review.layout"/>
-    </group>
-
-    <group id="revu.toolWindow.review" popup="true">
       <reference ref="revu.ShowFileScope"/>
       <separator/>
       <reference ref="revu.ShowReviewEditForm"/>
@@ -268,10 +248,16 @@
       <reference ref="revu.JumpToSource"/>
       <reference ref="revu.AutoscrollToSource"/>
       <separator/>
-      <reference ref="revu.toolWindow.review.layout"/>
     </group>
 
-    <group id="revu.issueTable.popup" popup="true">
+    <group id="revu.issueBrowsingPane" popup="true">
+      <reference ref="revu.FilteringIssueTree"/>
+      <reference ref="revu.GroupingIssueTree"/>
+      <reference ref="revu.ExpandIssueTree"/>
+      <reference ref="revu.CollapseIssueTree"/>
+    </group>
+
+    <group id="revu.issueTree.popup" popup="true">
       <reference ref="revu.JumpToSource"/>
       <separator/>
       <reference ref="revu.CreateIssue"/>

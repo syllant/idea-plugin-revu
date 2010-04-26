@@ -11,7 +11,6 @@ import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.model.User;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -28,7 +27,7 @@ import java.util.Date;
  */
 public class IssuePane extends AbstractIssueForm
 {
-  private final IssueTable issueTable;
+  private final JComponent targetActionComponent;
   private final boolean inDialog;
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
@@ -46,10 +45,10 @@ public class IssuePane extends AbstractIssueForm
   private JPanel pnToolbar;
   private Issue currentIssue;
 
-  public IssuePane(@NotNull Project project, IssueTable issueTable, boolean inDialog)
+  public IssuePane(@NotNull Project project, JComponent targetActionComponent, boolean inDialog)
   {
     super(project);
-    this.issueTable = issueTable;
+    this.targetActionComponent = targetActionComponent;
     this.inDialog = inDialog;
 
     configureUI();
@@ -66,7 +65,7 @@ public class IssuePane extends AbstractIssueForm
 
     ActionToolbar actionToolbar = ActionManager.getInstance()
       .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
-    actionToolbar.setTargetComponent(issueTable);
+    actionToolbar.setTargetComponent(targetActionComponent);
     toolbar = actionToolbar.getComponent();
   }
 

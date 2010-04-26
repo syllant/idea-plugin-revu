@@ -7,9 +7,8 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
-import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.model.Issue;
-import org.sylfra.idea.plugins.revu.model.IssueStatus;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import java.text.DateFormat;
@@ -98,30 +97,10 @@ class CustomGutterIconRenderer extends GutterIconRenderer
 
     if (count == 1)
     {
-      IssueStatus status = issues.keySet().iterator().next().getStatus();
-
-      boolean resolved = (status.equals(IssueStatus.RESOLVED) || status.equals(IssueStatus.CLOSED));
-      return RevuIconProvider.getIcon(fullySynchronized
-        ? (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_RESOLVED
-          : RevuIconProvider.IconRef.GUTTER_ISSUE)
-        : (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED
-          : RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED_RESOLVED));
+      return RevuUtils.findIcon(issues.keySet().iterator().next(), fullySynchronized);
     }
 
-    boolean allResolved = true;
-    for (Issue issue : issues.keySet())
-    {
-      if ((!issue.getStatus().equals(IssueStatus.RESOLVED)) && (!issue.getStatus().equals(IssueStatus.CLOSED)))
-      {
-        allResolved = false;
-      }
-    }
-
-    return RevuIconProvider.getIcon(fullySynchronized
-      ? (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_RESOLVED
-        : RevuIconProvider.IconRef.GUTTER_ISSUES)
-      : (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED
-        : RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED_RESOLVED));
+    return RevuUtils.findIcon(issues.keySet(), fullySynchronized);
   }
 
   @Override

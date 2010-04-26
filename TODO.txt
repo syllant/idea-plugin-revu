@@ -1,4 +1,7 @@
-- project view pane reloaded after issued added
+- compare with issuetable (no getData in tree)
+- refresh button
+- data event in tree
+- speed search does not highlight node
 - wiki
 
 - compare with action
@@ -8,8 +11,6 @@
 - change location -> remove marker
 - minimum size of forms
 - create review from changes
-- display issues in tree instead of table
-  -> grouped by files/packages/modules
 
 - fill user table from SCM committers in current project
 

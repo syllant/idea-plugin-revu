@@ -1,4 +1,4 @@
-package org.sylfra.idea.plugins.revu.ui;
+package org.sylfra.idea.plugins.revu.ui.toolwindow;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -8,36 +8,40 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.TableUtil;
+import com.intellij.openapi.ui.Splitter;
+import com.intellij.ui.TreeSpeedSearch;
+import com.intellij.util.containers.Convertor;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
-import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.ReviewStatus;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTableModel;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTableSearchBar;
+import org.sylfra.idea.plugins.revu.ui.CustomAutoScrollToSourceHandler;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssuePane;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTree;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTreeModel;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.filters.IIssueTreeFilter;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.filters.IIssueTreeFilterListener;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.impl.PriorityIssueTreeGrouper;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.EventObject;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -48,16 +52,20 @@ public class IssueBrowsingPane implements Disposable
   private JPanel contentPane;
   private final Project project;
   private final Review review;
-  private IssueTable issueTable;
   private JComponent tbMain;
   private IssuePane issuePane;
   private JSplitPane splitPane;
   private JLabel lbMessage;
   private JComponent fullTextFilterComponent;
   private JLabel lbCount;
+  private IssueTree issueTree;
+  private JPanel pnIssuePaneContainer;
+  private JComponent toolbar;
+  private Splitter splitFilter;
   private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
   private MessageClickHandler messageClickHandler;
   private IIssueListener issueListener;
+  private IIssueTreeFilterListener issueTreeFilterListener;
 
   public IssueBrowsingPane(@NotNull Project project, @Nullable Review review)
   {
@@ -72,70 +80,85 @@ public class IssueBrowsingPane implements Disposable
     checkRowSelected();
   }
 
+  public Review getReview()
+  {
+    return review;
+  }
+
   private void createUIComponents()
   {
-    final List<Issue> issues = retrieveIssues();
-
-    issueTable = new IssueTable(project, issues, review);
-    issueTable.setSelectionModel(new DefaultListSelectionModel()
+    issueTree = new IssueTree(project, review, new PriorityIssueTreeGrouper());
+    issueTree.setSelectionModel(new DefaultTreeSelectionModel()
     {
       @Override
-      public void setSelectionInterval(int index0, int index1)
+      public void setSelectionPaths(TreePath[] pPaths)
       {
         if (saveIfModified())
         {
-          super.setSelectionInterval(index0, index1);
+          super.setSelectionPaths(pPaths);
           updateUI(false);
         }
       }
     });
-    issueTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    issueTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+    TreeUtil.expandAll(issueTree);
 
-    IssueTableModel tableModel = (IssueTableModel) issueTable.getListTableModel();
-    tableModel.addTableModelListener(new TableModelListener()
-    {
-      public void tableChanged(final TableModelEvent e)
-      {
-        if (e.getType() == TableModelEvent.DELETE)
-        {
-          issueTable.getSelectionModel().clearSelection();
-          checkMessageInsteadOfPane();
-          SwingUtilities.invokeLater(new Runnable()
-          {
-            public void run()
-            {
-              checkRowSelected();
-            }
-          });
-        }
-        else if (e.getType() == TableModelEvent.INSERT)
-        {
-          SwingUtilities.invokeLater(new Runnable()
-          {
-            public void run()
-            {
-              issueTable.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
-              TableUtil.scrollSelectionToVisible(issueTable);
-              checkMessageInsteadOfPane();
-            }
-          });
-        }
-      }
-    });
+    ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueBrowsingPane");
 
-    issuePane = new IssuePane(project, issueTable, false);
+    toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
+    //@todo
+//    IssueTableModel tableModel = (IssueTableModel) issueTree.getListTableModel();
+//    tableModel.addTableModelListener(new TableModelListener()
+//    {
+//      public void tableChanged(final TableModelEvent e)
+//      {
+//        if (e.getType() == TableModelEvent.DELETE)
+//        {
+//          issueTree.getSelectionModel().clearSelection();
+//          checkMessageInsteadOfPane();
+//          SwingUtilities.invokeLater(new Runnable()
+//          {
+//            public void run()
+//            {
+//              checkRowSelected();
+//            }
+//          });
+//        }
+//        else if (e.getType() == TableModelEvent.INSERT)
+//        {
+//          SwingUtilities.invokeLater(new Runnable()
+//          {
+//            public void run()
+//            {
+//              issueTree.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
+//              TableUtil.scrollSelectionToVisible(issueTree);
+//              checkMessageInsteadOfPane();
+//            }
+//          });
+//        }
+//      }
+//    });
+
+    issuePane = new IssuePane(project, issueTree, false);
 
     RevuWorkspaceSettingsComponent workspaceSettingsComponent = project.getComponent(
       RevuWorkspaceSettingsComponent.class);
 
     CustomAutoScrollToSourceHandler autoScrollToSourceHandler
       = new CustomAutoScrollToSourceHandler(workspaceSettingsComponent.getState());
-    autoScrollToSourceHandler.install(issueTable);
+    autoScrollToSourceHandler.install(issueTree);
 
-    tbMain = createToolbar((review == null) ? "revu.toolWindow.allReviews" : "revu.toolWindow.review").getComponent();
+    tbMain = createToolbar("revu.toolWindow").getComponent();
 
-    new IssueTableSearchBar(issueTable);
-    fullTextFilterComponent = issueTable.buildFilterComponent();
+    new TreeSpeedSearch(issueTree, new Convertor<TreePath, String>()
+    {
+      public String convert(TreePath o)
+      {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) o.getLastPathComponent();
+        return node.getUserObject().toString();
+      }
+    });
+    fullTextFilterComponent = issueTree.buildFilterComponent();
   }
 
   private void configureUI()
@@ -145,40 +168,44 @@ public class IssueBrowsingPane implements Disposable
     lbMessage.setIconTextGap(20);
     messageClickHandler = new MessageClickHandler(project);
     lbMessage.addMouseListener(messageClickHandler);
-
-    RevuWorkspaceSettings workspaceSettings = RevuUtils.getWorkspaceSettings(project);
-    String orientation = workspaceSettings.getToolWindowSplitOrientation();
-    if (orientation != null)
-    {
-      splitPane.setOrientation(Integer.parseInt(orientation));
-    }
+    
+    splitFilter.setFirstComponent(null);
+    splitFilter.setSecondComponent(new JScrollPane(issueTree));
   }
 
-  public IssueTable getIssueTable()
+  public IssueTree getIssueTree()
   {
-    return issueTable;
+    return issueTree;
   }
 
   @Nullable
   public Review getSelectedReview()
   {
-    Issue issue = issueTable.getSelectedObject();
+    Issue issue = issueTree.getSelectedIssue();
 
     return (issue == null) ? null : issue.getReview();
   }
 
   private void checkRowSelected()
   {
-    if ((issueTable.getRowCount() > 0) && (issueTable.getSelectedRow() == -1))
+    if ((issueTree.getRowCount() > 0) && (issueTree.getSelectionPath() == null))
     {
-      issueTable.getSelectionModel().setSelectionInterval(0, 0);
-      updateUI(false);
+//      @todo
+//      issueTree.getSelectionModel().setSelectionInterval(0, 0);
+//      updateUI(false);
     }
   }
 
   private void installListeners()
   {
-    ReviewManager reviewManager = project.getComponent(ReviewManager.class);
+    issueTreeFilterListener = new IIssueTreeFilterListener()
+    {
+      public void valueChanged(@NotNull EventObject event, @NotNull Object value)
+      {
+        IssueTreeModel treeModel = issueTree.getIssueTreeModel();
+        treeModel.filter(value);
+      }
+    };
 
     // Issues
     issueListener = new IIssueListener()
@@ -186,13 +213,13 @@ public class IssueBrowsingPane implements Disposable
       public void issueAdded(Issue issue)
       {
         updateMessageCount();
-        issueTable.getIssueTableModel().issueAdded(issue);
+        issueTree.getIssueTreeModel().issueAdded(issue);
       }
 
       public void issueDeleted(Issue issue)
       {
         updateMessageCount();
-        issueTable.getIssueTableModel().issueDeleted(issue);
+        issueTree.getIssueTreeModel().issueDeleted(issue);
       }
 
       public void issueUpdated(final Issue issue)
@@ -204,61 +231,16 @@ public class IssueBrowsingPane implements Disposable
         }
 
         // Compare by identity since item content has changed
-        if (issue == issueTable.getSelectedObject())
+        if (issue == issueTree.getSelectedIssue())
         {
           issuePane.updateUI(issue.getReview(), issue, false);
         }
 
-        issueTable.getIssueTableModel().issueUpdated(issue);
+        issueTree.getIssueTreeModel().issueUpdated(issue);
       }
     };
 
-    if (review == null)
-    {
-      for (Review review : reviewManager.getReviews(null, ReviewStatus.REVIEWING, ReviewStatus.FIXING))
-      {
-        review.addIssueListener(issueListener);
-      }
-
-      reviewManager.addReviewListener(new IReviewListener()
-      {
-        public void reviewChanged(Review review)
-        {
-          if (RevuUtils.isActive(review))
-          {
-            if (!review.hasIssueListener(issueListener))
-            {
-              review.addIssueListener(issueListener);
-            }
-          }
-          else
-          {
-            review.removeIssueListener(issueListener);
-          }
-
-          checkMessageInsteadOfPane();
-          updateIssues();
-        }
-
-        public void reviewAdded(Review review)
-        {
-          review.addIssueListener(issueListener);
-          checkMessageInsteadOfPane();
-          updateIssues();
-        }
-
-        public void reviewDeleted(Review review)
-        {
-          review.removeIssueListener(issueListener);
-          checkMessageInsteadOfPane();
-          updateIssues();
-        }
-      });
-    }
-    else
-    {
-      review.addIssueListener(issueListener);
-    }
+    review.addIssueListener(issueListener);
 
     // App Settings
     appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
@@ -273,14 +255,6 @@ public class IssueBrowsingPane implements Disposable
     appSettingsComponent.addListener(appSettingsListener);
   }
 
-  private void updateIssues()
-  {
-    issueTable.getListTableModel().setItems(retrieveIssues());
-    checkRowSelected();
-    checkMessageInsteadOfPane();
-    updateMessageCount();
-  }
-
   public JPanel getContentPane()
   {
     return contentPane;
@@ -293,7 +267,7 @@ public class IssueBrowsingPane implements Disposable
 
   public boolean saveIfModified()
   {
-    Issue current = issueTable.getSelectedObject();
+    Issue current = issueTree.getSelectedIssue();
 
     if (current == null)
     {
@@ -317,18 +291,22 @@ public class IssueBrowsingPane implements Disposable
 
   public void updateUI(boolean requestFocus)
   {
-    checkRowSelected();
     updateMessageCount();
-    Issue current = issueTable.getSelectedObject();
-    if (current != null)
+    Issue current = issueTree.getSelectedIssue();
+    if (current == null)
     {
+      ((CardLayout) pnIssuePaneContainer.getLayout()).show(pnIssuePaneContainer, "message");
+    }
+    else
+    {
+      ((CardLayout) pnIssuePaneContainer.getLayout()).show(pnIssuePaneContainer, "issuePane");
       issuePane.updateUI(current.getReview(), current, requestFocus);
     }
   }
 
   private void updateMessageCount()
   {
-    lbCount.setText(RevuBundle.message("browsing.count.text", issueTable.getListTableModel().getRowCount()));
+    lbCount.setText(RevuBundle.message("browsing.count.text", issueTree.getIssueTreeModel().getIssueCount()));
   }
 
   public void updateReview()
@@ -360,7 +338,7 @@ public class IssueBrowsingPane implements Disposable
       else
       {
         // No issue
-        if (issueTable.getRowCount() == 0)
+        if (issueTree.getRowCount() == 0)
         {
           message = RevuBundle.message((review == null)
             ? "browsing.issues.noIssueForAll.text" : "browsing.issues.noIssueForThis.text");
@@ -381,27 +359,6 @@ public class IssueBrowsingPane implements Disposable
     }
   }
 
-  private List<Issue> retrieveIssues()
-  {
-    final List<Issue> issues;
-
-    if (review == null)
-    {
-      issues = new ArrayList<Issue>();
-      ReviewManager reviewManager = project.getComponent(ReviewManager.class);
-      for (Review review : reviewManager.getReviews(null, true))
-      {
-        issues.addAll(review.getIssues());
-      }
-    }
-    else
-    {
-      issues = review.getIssues();
-    }
-
-    return issues;
-  }
-
   private ActionToolbar createToolbar(@NotNull String toolbarId)
   {
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction(toolbarId);
@@ -413,7 +370,7 @@ public class IssueBrowsingPane implements Disposable
   {
     ActionToolbar actionToolbar = ActionManager.getInstance()
       .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false);
-    actionToolbar.setTargetComponent(issueTable);
+    actionToolbar.setTargetComponent(issueTree);
     return actionToolbar;
   }
 
@@ -427,9 +384,31 @@ public class IssueBrowsingPane implements Disposable
     for (Review review : reviews)
     {
       review.removeIssueListener(issueListener);
-      // @TODO IssueTableModel should do it by itslef
-      review.removeIssueListener((IIssueListener) issueTable.getListTableModel());
+      // @TODO IssueTreeModel should do it by itslef
+      review.removeIssueListener(issueTree.getIssueTreeModel());
     }
+  }
+
+  public void showFilter(@Nullable IIssueTreeFilter issueTreeFilter)
+  {
+    IssueTreeModel treeModel = issueTree.getIssueTreeModel();
+    if (treeModel.getIssueTreeFilter() != null)
+    {
+      treeModel.getIssueTreeFilter().removeListener(issueTreeFilterListener);
+    }
+
+    treeModel.setIssueTreeFilter(issueTreeFilter);
+    if (issueTreeFilter == null)
+    {
+      splitFilter.setFirstComponent(null);
+      treeModel.filter(null);
+    }
+    else
+    {
+      issueTreeFilter.addListener(issueTreeFilterListener);
+      splitFilter.setFirstComponent(issueTreeFilter.buildUI());
+    }
+    splitFilter.validate();
   }
 
   private static class MessageClickHandler extends MouseAdapter

@@ -3,7 +3,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://plugins.intellij.net/revu http://plugins.intellij.net/revu/ns/revu_1_0.xsd"
         name="[Default]" status="_template" shared="true">
-  <history createdBy="[default]" lastUpdatedBy="[default]" createdOn="2008-01-01T00:00:00" lastUpdatedOn="2008-01-01T00:00:00"/>
+  <history createdBy="[default]" lastUpdatedBy="[default]" createdOn="2010-01-01 00:00:00 +0000" lastUpdatedOn="2010-01-01 00:00:00 +0000"/>
   <goal><![CDATA[Default review provided as a template to extends / copy.
 
 You may use this template when you don't want customize tags or priorities defined by default.

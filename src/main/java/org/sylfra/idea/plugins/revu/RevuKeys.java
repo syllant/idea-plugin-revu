@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu;
 
 import com.intellij.openapi.util.Key;
-import org.sylfra.idea.plugins.revu.ui.IssueBrowsingPane;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.IssueBrowsingPane;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>

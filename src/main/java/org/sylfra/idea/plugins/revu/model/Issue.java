@@ -47,6 +47,7 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     lineEnd = -1;
   }
 
+  @Nullable
   public VirtualFile getFile()
   {
     return file;

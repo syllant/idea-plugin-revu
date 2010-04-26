@@ -11,17 +11,16 @@ import com.intellij.pom.Navigatable;
 import com.intellij.util.Alarm;
 import com.intellij.util.OpenSourceUtil;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
-import org.sylfra.idea.plugins.revu.ui.browsingtable.IssueTable;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTree;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Note: Should have used {@link com.intellij.ui.AutoScrollToSourceHandler}, but this class does not support tables
+ * Note: Should have used {@link com.intellij.ui.AutoScrollToSourceHandler}, but this class does not support issueTrees
  *
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
@@ -36,10 +35,10 @@ public final class CustomAutoScrollToSourceHandler
     this.revuWorkspaceSettings = revuWorkspaceSettings;
   }
 
-  public void install(final IssueTable table)
+  public void install(final IssueTree issueTree)
   {
     autoScrollAlarm = new Alarm();
-    table.addMouseListener(new MouseAdapter()
+    issueTree.addMouseListener(new MouseAdapter()
     {
       public void mouseClicked(MouseEvent e)
       {
@@ -48,20 +47,18 @@ public final class CustomAutoScrollToSourceHandler
           return;
         }
         final Object source = e.getSource();
-        final int index = table.rowAtPoint(
-          SwingUtilities.convertPoint(source instanceof Component ? (Component) source : null,
-            e.getPoint(), table));
-        if (index >= 0 && index < table.getModel().getRowCount())
+        final int index = issueTree.getRowForLocation(e.getX(), e.getY());
+        if (index >= 0 && index < issueTree.getIssueTreeModel().getIssueCount())
         {
-          onMouseClicked(table);
+          onMouseClicked(issueTree);
         }
       }
     });
-    table.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+    issueTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener()
     {
-      public void valueChanged(ListSelectionEvent e)
+      public void valueChanged(TreeSelectionEvent e)
       {
-        onSelectionChanged(table);
+        onSelectionChanged(issueTree);
       }
     });
   }
@@ -145,13 +142,13 @@ public final class CustomAutoScrollToSourceHandler
         return;
       }
     }
-    Navigatable[] navigatables = PlatformDataKeys.NAVIGATABLE_ARRAY.getData(dataContext);
-    if (navigatables != null)
+    Navigatable[] navigaissueTrees = PlatformDataKeys.NAVIGATABLE_ARRAY.getData(dataContext);
+    if (navigaissueTrees != null)
     {
-      for (Navigatable navigatable : navigatables)
+      for (Navigatable navigaissueTree : navigaissueTrees)
       {
         // we are not going to open modal dialog during autoscrolling
-        if (!navigatable.canNavigateToSource())
+        if (!navigaissueTree.canNavigateToSource())
         {
           return;
         }

@@ -1,5 +1,7 @@
 package org.sylfra.idea.plugins.revu.utils;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
@@ -18,6 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
@@ -47,6 +50,12 @@ import java.util.List;
  */
 public class RevuUtils
 {
+  @Nullable
+  public static Project getProject()
+  {
+    return DataKeys.PROJECT.getData(DataManager.getInstance().getDataContext());
+  }
+
   @Nullable
   public static PsiFile getPsiFile(@NotNull Project project, @NotNull Issue issue)
   {
@@ -339,5 +348,37 @@ public class RevuUtils
   {
     ShowSettingsUtil.getInstance().editConfigurable(project,
       ApplicationManager.getApplication().getComponent(RevuAppSettingsForm.class));
+  }
+
+  @NotNull
+  public static Icon findIcon(@NotNull Collection<Issue> issues, boolean fullySynchronized)
+  {
+    boolean allResolved = true;
+    for (Issue issue : issues)
+    {
+      if ((!issue.getStatus().equals(IssueStatus.RESOLVED)) && (!issue.getStatus().equals(IssueStatus.CLOSED)))
+      {
+        allResolved = false;
+      }
+    }
+
+    return RevuIconProvider.getIcon(fullySynchronized
+      ? (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_RESOLVED
+        : RevuIconProvider.IconRef.GUTTER_ISSUES)
+      : (allResolved ? RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED
+        : RevuIconProvider.IconRef.GUTTER_ISSUES_DESYNCHRONIZED_RESOLVED));
+  }
+
+  @NotNull
+  public static Icon findIcon(@NotNull Issue issue, boolean fullySynchronized)
+  {
+    IssueStatus status = issue.getStatus();
+
+    boolean resolved = (status.equals(IssueStatus.RESOLVED) || status.equals(IssueStatus.CLOSED));
+    return RevuIconProvider.getIcon(fullySynchronized
+      ? (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_RESOLVED
+        : RevuIconProvider.IconRef.GUTTER_ISSUE)
+      : (resolved ? RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED
+        : RevuIconProvider.IconRef.GUTTER_ISSUE_DESYNCHRONIZED_RESOLVED));
   }
 }
