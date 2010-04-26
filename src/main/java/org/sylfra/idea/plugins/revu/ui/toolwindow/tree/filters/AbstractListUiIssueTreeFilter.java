@@ -71,7 +71,6 @@ public abstract class AbstractListUiIssueTreeFilter<T> extends AbstractIssueTree
       contentPane = new JScrollPane(jList);
     }
 
-    // @todo update review changes
     final List<Object> items = retrieveItemsForReview();
     jList.setModel(new AbstractListModel()
     {

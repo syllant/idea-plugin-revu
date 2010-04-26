@@ -60,11 +60,17 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
       @Override
       public void treeStructureChanged(TreeModelEvent e)
       {
+        final Issue issue = getSelectedIssue();
         SwingUtilities.invokeLater(new Runnable()
         {
           public void run()
           {
             expandAll();
+            if (issue != null)
+            {
+              // @todo: selection problem (renderer)
+              selectIssue(issue);
+            }
           }
         });
       }

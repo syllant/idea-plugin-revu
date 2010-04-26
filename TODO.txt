@@ -1,12 +1,9 @@
-- compare with issuetable (no getData in tree)
-- refresh button
-- data event in tree
-- speed search does not highlight node
-- wiki
+- keep tree selection after rebuild
+- wiki (tree view)
 
 - compare with action
 - colors in scope: modified, added
-- add assignees tab in create issue dialog (/!\ depends on selectd review in mainForm)
+- add assignees tab in create issue dialog (/!\ depends on selected review in mainForm)
 - show changes in gutter in reviewing mode
 - change location -> remove marker
 - minimum size of forms

@@ -116,7 +116,7 @@ public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
     }
 
     this.issues = newIssues;
-    setRoot(treeBuilder.build(grouper, review.getIssues()));
+    setRoot(treeBuilder.build(grouper, newIssues));
   }
 
   private List<Issue> applyPlainTextFilter(List<Issue> issues)

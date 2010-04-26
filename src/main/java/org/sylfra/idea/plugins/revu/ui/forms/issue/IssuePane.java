@@ -96,6 +96,7 @@ public class IssuePane extends AbstractIssueForm
         currentIssue.setStatus(status);
         updateData(currentIssue);
         updateUI(currentIssue.getReview(), currentIssue, true);
+        currentIssue.getReview().fireIssueUpdated(currentIssue);
       }
     };
   }

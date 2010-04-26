@@ -22,7 +22,6 @@ import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
-import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.CustomAutoScrollToSourceHandler;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssuePane;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTree;
@@ -106,47 +105,10 @@ public class IssueBrowsingPane implements Disposable
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueBrowsingPane");
 
     toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
-    //@todo
-//    IssueTableModel tableModel = (IssueTableModel) issueTree.getListTableModel();
-//    tableModel.addTableModelListener(new TableModelListener()
-//    {
-//      public void tableChanged(final TableModelEvent e)
-//      {
-//        if (e.getType() == TableModelEvent.DELETE)
-//        {
-//          issueTree.getSelectionModel().clearSelection();
-//          checkMessageInsteadOfPane();
-//          SwingUtilities.invokeLater(new Runnable()
-//          {
-//            public void run()
-//            {
-//              checkRowSelected();
-//            }
-//          });
-//        }
-//        else if (e.getType() == TableModelEvent.INSERT)
-//        {
-//          SwingUtilities.invokeLater(new Runnable()
-//          {
-//            public void run()
-//            {
-//              issueTree.getSelectionModel().setSelectionInterval(e.getFirstRow(), e.getFirstRow());
-//              TableUtil.scrollSelectionToVisible(issueTree);
-//              checkMessageInsteadOfPane();
-//            }
-//          });
-//        }
-//      }
-//    });
 
     issuePane = new IssuePane(project, issueTree, false);
 
-    RevuWorkspaceSettingsComponent workspaceSettingsComponent = project.getComponent(
-      RevuWorkspaceSettingsComponent.class);
-
-    CustomAutoScrollToSourceHandler autoScrollToSourceHandler
-      = new CustomAutoScrollToSourceHandler(workspaceSettingsComponent.getState());
-    autoScrollToSourceHandler.install(issueTree);
+    new CustomAutoScrollToSourceHandler(project).install(issueTree);
 
     tbMain = createToolbar("revu.toolWindow").getComponent();
 
@@ -190,9 +152,8 @@ public class IssueBrowsingPane implements Disposable
   {
     if ((issueTree.getRowCount() > 0) && (issueTree.getSelectionPath() == null))
     {
-//      @todo
-//      issueTree.getSelectionModel().setSelectionInterval(0, 0);
-//      updateUI(false);
+      issueTree.setSelectionRow(1);
+      updateUI(false);
     }
   }
 
@@ -200,7 +161,7 @@ public class IssueBrowsingPane implements Disposable
   {
     issueTreeFilterListener = new IIssueTreeFilterListener()
     {
-      public void valueChanged(@NotNull EventObject event, @NotNull Object value)
+      public void valueChanged(@NotNull EventObject event, @Nullable Object value)
       {
         IssueTreeModel treeModel = issueTree.getIssueTreeModel();
         treeModel.filter(value);
@@ -212,14 +173,14 @@ public class IssueBrowsingPane implements Disposable
     {
       public void issueAdded(Issue issue)
       {
+        checkMessageInsteadOfPane();
         updateMessageCount();
-        issueTree.getIssueTreeModel().issueAdded(issue);
       }
 
       public void issueDeleted(Issue issue)
       {
+        checkMessageInsteadOfPane();
         updateMessageCount();
-        issueTree.getIssueTreeModel().issueDeleted(issue);
       }
 
       public void issueUpdated(final Issue issue)
@@ -235,8 +196,6 @@ public class IssueBrowsingPane implements Disposable
         {
           issuePane.updateUI(issue.getReview(), issue, false);
         }
-
-        issueTree.getIssueTreeModel().issueUpdated(issue);
       }
     };
 
