@@ -1,5 +1,4 @@
-- keep tree selection after rebuild
-- wiki (tree view)
+- save split positions
 
 - compare with action
 - colors in scope: modified, added

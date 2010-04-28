@@ -10,6 +10,5 @@
     * New: Lots of miscellaneous hints to improve usability
     * Fix: *lots of miscellaneous fixes*
 
-
   * *1.0* (12/16/2008)
     * Initial release

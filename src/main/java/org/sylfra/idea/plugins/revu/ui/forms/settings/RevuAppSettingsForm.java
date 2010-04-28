@@ -41,8 +41,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
   private JPanel pnStatusResolvedColor;
   private JPanel pnStatusClosedColor;
   private JPanel pnStatusReopenedColor;
-  private JPanel pnSelectionBackgroundColor;
-  private JPanel pnSelectionForegroundColor;
   private Map<IssueStatus, JPanel> pnIssueStatusColors;
   private String password;
 
@@ -102,11 +100,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       panel.addMouseListener(colorMouseListener);
       panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     }
-
-    pnSelectionBackgroundColor.addMouseListener(colorMouseListener);
-    pnSelectionBackgroundColor.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-    pnSelectionForegroundColor.addMouseListener(colorMouseListener);
-    pnSelectionForegroundColor.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
   }
 
   /**
@@ -191,18 +184,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       }
     }
 
-    if (!appSettings.getTableSelectionBackgroundColor().equals(
-      RevuUtils.getHex(pnSelectionBackgroundColor.getBackground())))
-    {
-      return true;
-    }
-
-    if (!appSettings.getTableSelectionForegroundColor().equals(
-      RevuUtils.getHex(pnSelectionForegroundColor.getBackground())))
-    {
-      return true;
-    }
-
     return false;
   }
 
@@ -224,9 +205,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       appSettings.getIssueStatusColors().put(entry.getKey(), RevuUtils.getHex(entry.getValue().getBackground()));
     }
 
-    appSettings.setTableSelectionBackgroundColor(RevuUtils.getHex(pnSelectionBackgroundColor.getBackground()));
-    appSettings.setTableSelectionForegroundColor(RevuUtils.getHex(pnSelectionForegroundColor.getBackground()));
-
     ServiceManager.getService(RevuAppSettingsComponent.class).loadState(appSettings);
   }
 
@@ -243,9 +221,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     {
       entry.getValue().setBackground(Color.decode(appSettings.getIssueStatusColors().get(entry.getKey())));
     }
-
-    pnSelectionBackgroundColor.setBackground(Color.decode(appSettings.getTableSelectionBackgroundColor()));
-    pnSelectionForegroundColor.setBackground(Color.decode(appSettings.getTableSelectionForegroundColor()));
   }
 
   private RevuAppSettings retrieveAppSettings()

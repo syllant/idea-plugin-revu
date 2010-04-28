@@ -1,10 +1,7 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -12,9 +9,11 @@ import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
@@ -29,7 +28,6 @@ import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTreeModel;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.filters.IIssueTreeFilter;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.filters.IIssueTreeFilterListener;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.impl.PriorityIssueTreeGrouper;
-import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,8 +35,6 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.EventObject;
 
@@ -46,7 +42,7 @@ import java.util.EventObject;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class IssueBrowsingPane implements Disposable
+public class IssueBrowsingPane implements Disposable, DataProvider
 {
   private JPanel contentPane;
   private final Project project;
@@ -62,7 +58,6 @@ public class IssueBrowsingPane implements Disposable
   private JComponent toolbar;
   private Splitter splitFilter;
   private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
-  private MessageClickHandler messageClickHandler;
   private IIssueListener issueListener;
   private IIssueTreeFilterListener issueTreeFilterListener;
 
@@ -75,7 +70,6 @@ public class IssueBrowsingPane implements Disposable
 
     installListeners();
 
-    checkMessageInsteadOfPane();
     checkRowSelected();
   }
 
@@ -102,15 +96,15 @@ public class IssueBrowsingPane implements Disposable
     issueTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     TreeUtil.expandAll(issueTree);
 
-    ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueBrowsingPane");
+    // Top toolbar
+    toolbar = createToolbar("revu.issueBrowsingPane", true).getComponent();
 
-    toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
+    // Left toolbar
+    tbMain = createToolbar("revu.toolWindow", false).getComponent();
 
     issuePane = new IssuePane(project, issueTree, false);
 
     new CustomAutoScrollToSourceHandler(project).install(issueTree);
-
-    tbMain = createToolbar("revu.toolWindow").getComponent();
 
     new TreeSpeedSearch(issueTree, new Convertor<TreePath, String>()
     {
@@ -128,9 +122,7 @@ public class IssueBrowsingPane implements Disposable
     // Later this label might display distinct message depending on app settings
     lbMessage.setIcon(Messages.getInformationIcon());
     lbMessage.setIconTextGap(20);
-    messageClickHandler = new MessageClickHandler(project);
-    lbMessage.addMouseListener(messageClickHandler);
-    
+
     splitFilter.setFirstComponent(null);
     splitFilter.setSecondComponent(new JScrollPane(issueTree));
   }
@@ -173,13 +165,11 @@ public class IssueBrowsingPane implements Disposable
     {
       public void issueAdded(Issue issue)
       {
-        checkMessageInsteadOfPane();
         updateMessageCount();
       }
 
       public void issueDeleted(Issue issue)
       {
-        checkMessageInsteadOfPane();
         updateMessageCount();
       }
 
@@ -200,18 +190,6 @@ public class IssueBrowsingPane implements Disposable
     };
 
     review.addIssueListener(issueListener);
-
-    // App Settings
-    appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
-    {
-      public void settingsChanged(RevuAppSettings oldSettings, RevuAppSettings newSettings)
-      {
-        checkMessageInsteadOfPane();
-      }
-    };
-    RevuAppSettingsComponent appSettingsComponent =
-      ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
-    appSettingsComponent.addListener(appSettingsListener);
   }
 
   public JPanel getContentPane()
@@ -273,63 +251,14 @@ public class IssueBrowsingPane implements Disposable
     updateUI(false);
   }
 
-  private void checkMessageInsteadOfPane()
-  {
-    String message = null;
-
-    // Login set
-    RevuAppSettings appSettings = RevuUtils.getAppSettings();
-
-    if ((appSettings.getLogin() == null) || (appSettings.getLogin().trim().length() == 0))
-    {
-      message = RevuBundle.message("general.form.noLogin.text");
-      messageClickHandler.setType(MessageClickHandler.Type.NO_LOGIN);
-    }
-    else
-    {
-      // No review
-      Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews(null, true);
-      if (reviews.isEmpty())
-      {
-        message = RevuBundle.message("browsing.issues.noReview.text");
-        messageClickHandler.setType(MessageClickHandler.Type.NO_REVIEW);
-      }
-      else
-      {
-        // No issue
-        if (issueTree.getRowCount() == 0)
-        {
-          message = RevuBundle.message((review == null)
-            ? "browsing.issues.noIssueForAll.text" : "browsing.issues.noIssueForThis.text");
-          messageClickHandler.setType(MessageClickHandler.Type.NO_ISSUE);
-        }
-      }
-    }
-
-    CardLayout cardLayout = (CardLayout) contentPane.getLayout();
-    if (message != null)
-    {
-      lbMessage.setText(message);
-      cardLayout.show(contentPane, "label");
-    }
-    else
-    {
-      cardLayout.show(contentPane, "form");
-    }
-  }
-
-  private ActionToolbar createToolbar(@NotNull String toolbarId)
+  private ActionToolbar createToolbar(@NotNull String toolbarId, boolean horizontal)
   {
     ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction(toolbarId);
 
-    return createToolbar(actionGroup);
-  }
-
-  private ActionToolbar createToolbar(@NotNull ActionGroup actionGroup)
-  {
     ActionToolbar actionToolbar = ActionManager.getInstance()
-      .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false);
+      .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, horizontal);
     actionToolbar.setTargetComponent(issueTree);
+
     return actionToolbar;
   }
 
@@ -370,44 +299,13 @@ public class IssueBrowsingPane implements Disposable
     splitFilter.validate();
   }
 
-  private static class MessageClickHandler extends MouseAdapter
+  public Object getData(@NonNls String dataId)
   {
-    enum Type
+    if (RevuDataKeys.REVIEW.is(dataId))
     {
-      NO_LOGIN,
-      NO_REVIEW,
-      NO_ISSUE
+      return review;
     }
 
-    private final Project project;
-    private Type type;
-
-    public MessageClickHandler(Project project)
-    {
-      this.project = project;
-    }
-
-    public void setType(Type type)
-    {
-      this.type = type;
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e)
-    {
-      switch (type)
-      {
-        case NO_LOGIN:
-          RevuUtils.editAppSettings(project);
-          break;
-
-        case NO_REVIEW:
-          RevuUtils.editProjectSettings(project, null);
-          break;
-
-        case NO_ISSUE:
-          break;
-      }
-    }
+    return null;
   }
 }

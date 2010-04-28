@@ -3,10 +3,12 @@ package org.sylfra.idea.plugins.revu.ui.toolwindow.tree;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.xml.util.ColorIconCache;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuBundle;
+import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.IIssueTreeGrouper;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.INamedGroup;
@@ -117,16 +119,14 @@ public class IssueTreeBuilder
 
       myName = issue.getSummary();
 
-      myClosedIcon = RevuUtils.findIcon(issue, true);
+      myClosedIcon = new LayeredIcon(new ColorIconCache.ColorIcon(16, RevuUtils.getIssueStatusColor(issue.getStatus())),
+        RevuIconProvider.getIcon(RevuIconProvider.IconRef.GUTTER_ISSUE));
     }
 
     @NotNull
     protected PresentationData createPresentation()
     {
       PresentationData presentation = new PresentationData();
-
-      presentation.addText("     ", new SimpleTextAttributes(RevuUtils.getIssueStatusColor(issue.getStatus()),
-        UIUtil.getTextInactiveTextColor(), null, SimpleTextAttributes.STYLE_PLAIN));
 
       presentation.addText(" " + issue.getSummary(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 

@@ -163,7 +163,7 @@ public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
         NodeDescriptor nodeDescriptor = (NodeDescriptor) node.getUserObject();
         if (issue.equals(nodeDescriptor.getElement()))
         {
-          return new TreePath(new Object[] {group, node});
+          return new TreePath(node.getPath());
         }
       }
     }

@@ -78,6 +78,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   private final static ReviewStatus[] VISIBLE_STATUSES_ARRAY
     = {ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING};
   private static final List<ReviewStatus> VISIBLE_STATUSES_LIST = Arrays.asList(VISIBLE_STATUSES_ARRAY);
+  private static final NamedScope EMPTY_SCOPE = new NamedScope("", new EmptyPackageSet());
 
   @NonNls
   public static final String ID = "Revu";
@@ -175,15 +176,22 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   public ActionCallback updateFromRoot(boolean restoreExpandedPaths)
   {
-    for (NamedScope namedScope : scopes.values())
+    if (scopes.isEmpty())
     {
-      if (namedScope.getName().equals(getSubId()))
+      myViewPanel.selectScope(EMPTY_SCOPE);
+    }
+    else
+    {
+      for (NamedScope namedScope : scopes.values())
       {
-        myViewPanel.selectScope(namedScope);
-        break;
+        if (namedScope.getName().equals(getSubId()))
+        {
+          myViewPanel.selectScope(namedScope);
+          break;
+        }
       }
     }
-
+    
     return new ActionCallback.Done();
   }
 
@@ -365,6 +373,10 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
                 : (psiElement.getContainingFile() == null) ? null : psiElement.getContainingFile().getVirtualFile());
 
         String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
+        if (reviewName == null)
+        {
+          return;
+        }
         Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
 
         FileStatus fileStatus = retrieveFileStatus(review, vFile);
@@ -459,4 +471,26 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       }
     }
   }
-}
+
+  private final static class EmptyPackageSet implements PackageSet
+  {
+    public boolean contains(PsiFile file, NamedScopesHolder holder)
+    {
+      return false;
+    }
+
+    public PackageSet createCopy()
+    {
+      return null;
+    }
+
+    public String getText()
+    {
+      return "?";
+    }
+
+    public int getNodePriority()
+    {
+      return 0;
+    }
+  }}
