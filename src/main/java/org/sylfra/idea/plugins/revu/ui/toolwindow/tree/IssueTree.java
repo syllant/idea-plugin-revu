@@ -9,8 +9,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.FilterComponent;
 import com.intellij.ui.PopupHandler;
+import com.intellij.ui.TreeToolTipHandler;
 import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.EditSourceOnDoubleClickHandler;
+import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.tree.TreeModelAdapter;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
@@ -46,6 +49,12 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
     setModel(new IssueTreeModel(project, review, issueTreeGrouper));
     setRootVisible(false);
     setShowsRootHandles(true);
+
+    UIUtil.setLineStyleAngled(this);
+    TreeToolTipHandler.install(this);
+    TreeUtil.installActions(this);
+    EditSourceOnDoubleClickHandler.install(this);
+
     installListeners();
   }
 
@@ -60,11 +69,16 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
       @Override
       public void treeStructureChanged(TreeModelEvent e)
       {
+        final Issue issue = getSelectedIssue();
         SwingUtilities.invokeLater(new Runnable()
         {
           public void run()
           {
             expandAll();
+            if (issue != null)
+            {
+              selectIssue(issue);
+            }
           }
         });
       }

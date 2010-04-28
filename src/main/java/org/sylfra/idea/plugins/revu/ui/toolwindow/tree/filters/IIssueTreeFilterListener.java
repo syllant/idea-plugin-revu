@@ -1,6 +1,7 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow.tree.filters;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EventObject;
 
@@ -10,5 +11,5 @@ import java.util.EventObject;
  */
 public interface IIssueTreeFilterListener<T>
 {
-  public void valueChanged(@NotNull EventObject event, @NotNull Object value);
+  public void valueChanged(@NotNull EventObject event, @Nullable Object value);
 }
