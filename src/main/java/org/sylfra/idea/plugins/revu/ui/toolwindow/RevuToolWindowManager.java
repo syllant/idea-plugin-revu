@@ -1,7 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -18,8 +20,14 @@ import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.IReviewListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
+import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
+import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -31,12 +39,24 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 {
   private ToolWindow toolwindow;
   private final Project project;
+  private final JLabel lbMessage;
   private final Map<Review, Content> contentsByReviews;
+  private final MessageClickHandler messageClickHandler;
+  private Content messageContent;
+  private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
 
   public RevuToolWindowManager(Project project)
   {
     this.project = project;
     contentsByReviews = new IdentityHashMap<Review, Content>();
+    messageClickHandler = new MessageClickHandler(project);
+
+    lbMessage = new JLabel("", SwingConstants.CENTER);
+    lbMessage.setIcon(IconLoader.getIcon("/general/informationDialog.png"));
+    lbMessage.setIconTextGap(20);
+    lbMessage.addMouseListener(messageClickHandler);
+
+    messageContent = ContentFactory.SERVICE.getInstance().createContent(lbMessage, RevuPlugin.PLUGIN_NAME, true);
   }
 
   private IssueBrowsingPane addReviewTab(@NotNull Review review)
@@ -49,13 +69,9 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
 
-    return issueBrowsingPane;
-  }
+    checkMessagePane();
 
-  private String buildTableTitle(Review review)
-  {
-    return RevuBundle.message("browsing.issues.review.title", review.getName(),
-      RevuUtils.buildReviewStatusLabel(review.getStatus(), true));
+    return issueBrowsingPane;
   }
 
   private void removeReviewTab(@NotNull Review review)
@@ -65,6 +81,14 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     {
       toolwindow.getContentManager().removeContent(content, true);
     }
+
+    checkMessagePane();
+  }
+
+  private String buildTableTitle(Review review)
+  {
+    return RevuBundle.message("browsing.issues.review.title", review.getName(),
+      RevuUtils.buildReviewStatusLabel(review.getStatus(), true));
   }
 
   @Nullable
@@ -95,6 +119,8 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     });
 
     project.getComponent(ReviewManager.class).addReviewListener(this);
+
+    checkMessagePane();
   }
 
   public void projectClosed()
@@ -120,10 +146,25 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void initComponent()
   {
+    appSettingsListener = new IRevuSettingsListener<RevuAppSettings>()
+    {
+      public void settingsChanged(RevuAppSettings oldSettings, RevuAppSettings newSettings)
+      {
+        checkMessagePane();
+      }
+    };
+    RevuAppSettingsComponent appSettingsComponent =
+      ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
+    appSettingsComponent.addListener(appSettingsListener);
   }
 
   public void disposeComponent()
   {
+    messageContent.dispose();
+
+    RevuAppSettingsComponent appSettingsComponent =
+      ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class);
+    appSettingsComponent.removeListener(appSettingsListener);
   }
 
   public ToolWindow getToolwindow()
@@ -133,7 +174,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void reviewChanged(Review review)
   {
-    if (!RevuUtils.isActive(review))
+    if (!RevuUtils.isActiveForCurrentUser(review))
     {
       removeReviewTab(review);
     }
@@ -159,7 +200,7 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
 
   public void reviewAdded(Review review)
   {
-    if (RevuUtils.isActive(review))
+    if (RevuUtils.isActiveForCurrentUser(review))
     {
       addReviewTab(review);
     }
@@ -168,5 +209,75 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
   public void reviewDeleted(Review review)
   {
     removeReviewTab(review);
+  }
+
+  private void checkMessagePane()
+  {
+    String message = null;
+
+    // Login set
+    RevuAppSettings appSettings = RevuUtils.getAppSettings();
+
+    if ((appSettings.getLogin() == null) || (appSettings.getLogin().trim().length() == 0))
+    {
+      message = RevuBundle.message("general.form.noLogin.text");
+      messageClickHandler.setType(MessageClickHandler.Type.NO_LOGIN);
+    }
+    else
+    {
+      // No review
+      if (contentsByReviews.isEmpty())
+      {
+        message = RevuBundle.message("browsing.issues.noReview.text");
+        messageClickHandler.setType(MessageClickHandler.Type.NO_REVIEW);
+      }
+    }
+
+    if (message == null)
+    {
+      toolwindow.getContentManager().removeContent(messageContent, false);
+    }
+    else
+    {
+      lbMessage.setText(message);
+      toolwindow.getContentManager().addContent(messageContent);
+    }
+  }
+
+  private static class MessageClickHandler extends MouseAdapter
+  {
+    enum Type
+    {
+      NO_LOGIN,
+      NO_REVIEW
+    }
+
+    private final Project project;
+    private Type type;
+
+    public MessageClickHandler(Project project)
+    {
+      this.project = project;
+    }
+
+    public void setType(Type type)
+    {
+      this.type = type;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+      switch (type)
+      {
+        case NO_LOGIN:
+          RevuUtils.editAppSettings(project);
+          break;
+
+        case NO_REVIEW:
+          RevuUtils.editProjectSettings(project, null);
+          break;
+      }
+    }
   }
 }

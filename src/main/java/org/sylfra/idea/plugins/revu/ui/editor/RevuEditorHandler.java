@@ -116,7 +116,7 @@ public class RevuEditorHandler implements ProjectComponent
 
   private RangeMarker addMarker(@Nullable Editor editor, @NotNull Issue issue, boolean orphanMarker)
   {
-    if (!RevuUtils.isActive(issue.getReview()))
+    if (!RevuUtils.isActiveForCurrentUser(issue.getReview()))
     {
       return null;
     }
@@ -289,6 +289,17 @@ public class RevuEditorHandler implements ProjectComponent
     return fragment.toString().hashCode();
   }
 
+  private boolean hasLocationChanged(Issue issue, RangeMarker marker)
+  {
+    Document document = marker.getDocument();
+
+    int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
+    int lineEnd = (issue.getLineEnd() == -1) ? 0 : issue.getLineEnd();
+
+    return (marker.getStartOffset() != document.getLineStartOffset(lineStart)) 
+      || (marker.getEndOffset() != document.getLineEndOffset(lineEnd));
+  }
+
   private class CustomEditorFactoryListener implements EditorFactoryListener
   {
     public void editorCreated(EditorFactoryEvent event)
@@ -374,7 +385,7 @@ public class RevuEditorHandler implements ProjectComponent
       }
 
       boolean invalidMarker = !marker.isValid();
-      if (invalidMarker || (documentChangeTracker.isOrphanMarker(marker)))
+      if (invalidMarker || (documentChangeTracker.isOrphanMarker(marker)) || hasLocationChanged(issue, marker))
       {
         removeMarker(issue);
         addMarker(null, issue, invalidMarker);

@@ -1,8 +1,17 @@
-2.0
-    <li>New: File scope management
-    <li>New: Reviewing mode, with annotations
-    <li>New: New main menu
-    <li>New: Detect external changes on review files
-    <li>New: color management for issue statuses
-    <li>New: lots of miscellaneous hints to improve usability
-    <li>Fix: lots of miscellaneous fixes
+  * *2.0-SNAPSHOT-3* (04/28/2010)
+    * Miscellaneous bug fixes and improvements
+
+  * *2.0-SNAPSHOT-2* (04/26/2010)
+    * New: tree view instead of table view
+    * New: filtering and grouping features to help navigating betweens issues
+
+  * *2.0-SNAPSHOT-1* (04/23/2010)
+    * New: Reviewing mode, with custom VCS annotations
+    * New: File scope management shows now selected files to review
+    * New: New main menu
+    * New: Color management for issue statuses
+    * New: Lots of miscellaneous hints to improve usability
+    * Fix: *lots of miscellaneous fixes*
+
+  * *1.0* (12/16/2008)
+    * Initial release

@@ -4,10 +4,13 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Issue;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.IssueBrowsingPane;
+import org.sylfra.idea.plugins.revu.ui.toolwindow.RevuToolWindowManager;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
@@ -223,6 +226,18 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         if (editor != null)
         {
           editor.getCaretModel().moveToOffset(editor.getDocument().getLineStartOffset(lineStart));
+        }
+
+        // Could also be managed through a listener...
+        Project project = e.getData(DataKeys.PROJECT);
+        if (project != null)
+        {
+          IssueBrowsingPane browsingPane =
+            project.getComponent(RevuToolWindowManager.class).getSelectedReviewBrowsingForm();
+          if ((browsingPane != null) && (browsingPane.getContentPane().isShowing()))
+          {
+            browsingPane.getIssueTree().selectIssue(issues.keySet().iterator().next());
+          }
         }
       }
     };

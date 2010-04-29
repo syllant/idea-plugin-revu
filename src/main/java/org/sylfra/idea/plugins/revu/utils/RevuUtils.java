@@ -260,6 +260,12 @@ public class RevuUtils
     return ((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING));
   }
 
+  public static boolean isActiveForCurrentUser(@NotNull Review review)
+  {
+    return (((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING))
+      && (review.getDataReferential().getUser(getCurrentUserLogin(), true) != null));
+  }
+
   @NotNull
   public static String getHex(@NotNull Color color)
   {
