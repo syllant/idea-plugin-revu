@@ -150,7 +150,7 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
     boolean isHabilited = isHabilitedToEditReview(data, user);
 
     RevuUtils.setWriteAccess(isHabilited, scopeEditorPanel.getPanel());
-    RevuUtils.setWriteAccess(isHabilited && isProjectUnderVcs(), ckVcsBeforeRev, ckVcsBeforeRev);
+    RevuUtils.setWriteAccess(isHabilited && isProjectUnderVcs(), ckVcsBeforeRev, ckVcsAfterRev);
     RevuUtils.setWriteAccess(isHabilited && ckVcsBeforeRev.isEnabled() && ckVcsBeforeRev.isSelected(),
       tfVcsBeforeRev, bnVcsBeforeRev);
     RevuUtils.setWriteAccess(isHabilited && ckVcsAfterRev.isEnabled() && ckVcsAfterRev.isSelected(),

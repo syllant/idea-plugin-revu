@@ -240,8 +240,9 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     cbStatus.setSelectedItem(nullData ? ReviewStatus.DRAFT : data.getStatus());
     ckShare.setSelected((data != null) && data.isShared());
 
+    // Add space at the begining to avoid truncation
     tfFile.setText((nullData || (data.getFile() == null)) ? "" : (data.isEmbedded()) ? "" :
-      RevuVfsUtils.buildPresentablePath(data.getFile()));
+      " " + RevuVfsUtils.buildPresentablePath(data.getFile()));
     tfFile.setToolTipText(tfFile.getText());
 
     extendedReview = nullData ? null : data.getExtendedReview();

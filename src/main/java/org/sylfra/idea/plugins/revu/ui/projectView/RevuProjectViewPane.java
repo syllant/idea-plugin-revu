@@ -300,7 +300,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       RevuUtils.getCurrentUserLogin(), true) != null;
   }
 
-  public void refreshView()
+  public void rebuildPane()
   {
     Alarm refreshProjectViewAlarm = new Alarm();
     // amortize batch scope changes
@@ -377,10 +377,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         {
           return;
         }
-        Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
 
-        FileStatus fileStatus = retrieveFileStatus(review, vFile);
-        textAttributes.setForegroundColor(fileStatus.getColor());
+        Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+        if (review != null)
+        {
+          FileStatus fileStatus = retrieveFileStatus(review, vFile);
+          textAttributes.setForegroundColor(fileStatus.getColor());
+        }
+
         append(node.toString(), SimpleTextAttributes.fromTextAttributes(textAttributes));
 
         String oldToString = toString();
@@ -389,11 +393,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
           decorator.decorate(node, this);
         }
 
-        int issueCount = retrieveIssueCount(review, vFile);
-        if (issueCount > 0)
+        if (review != null)
         {
-          append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
-            SimpleTextAttributes.GRAY_ATTRIBUTES);
+          int issueCount = retrieveIssueCount(review, vFile);
+          if (issueCount > 0)
+          {
+            append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
+              SimpleTextAttributes.GRAY_ATTRIBUTES);
+          }
         }
 
         if (toString().equals(oldToString))
@@ -437,12 +444,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       if (isVisible(review))
       {
         scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-        updateFromRoot(true);
       }
       else
       {
-        reviewDeleted(review);
+        scopes.remove(review);
       }
+
+      // @TODO refresh only current tree
+      rebuildPane();
     }
 
     public void reviewAdded(Review review)
@@ -450,14 +459,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       if (isVisible(review))
       {
         scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-        refreshView();
+        rebuildPane();
       }
     }
 
     public void reviewDeleted(Review review)
     {
       scopes.remove(review);
-      refreshView();
+      rebuildPane();
     }
   }
 

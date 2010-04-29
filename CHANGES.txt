@@ -1,3 +1,6 @@
+  * *2.0-SNAPSHOT-3* (04/28/2010)
+    * Miscellaneous bug fixes and improvements
+
   * *2.0-SNAPSHOT-2* (04/26/2010)
     * New: tree view instead of table view
     * New: filtering and grouping features to help navigating betweens issues

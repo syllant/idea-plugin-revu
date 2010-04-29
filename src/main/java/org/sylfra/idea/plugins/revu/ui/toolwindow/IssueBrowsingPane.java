@@ -2,7 +2,6 @@ package org.sylfra.idea.plugins.revu.ui.toolwindow;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.Splitter;
@@ -18,9 +17,6 @@ import org.sylfra.idea.plugins.revu.business.IIssueListener;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.settings.IRevuSettingsListener;
-import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
-import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
 import org.sylfra.idea.plugins.revu.ui.CustomAutoScrollToSourceHandler;
 import org.sylfra.idea.plugins.revu.ui.forms.issue.IssuePane;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTree;
@@ -57,7 +53,6 @@ public class IssueBrowsingPane implements Disposable, DataProvider
   private JPanel pnIssuePaneContainer;
   private JComponent toolbar;
   private Splitter splitFilter;
-  private IRevuSettingsListener<RevuAppSettings> appSettingsListener;
   private IIssueListener issueListener;
   private IIssueTreeFilterListener issueTreeFilterListener;
 
@@ -265,8 +260,6 @@ public class IssueBrowsingPane implements Disposable, DataProvider
   public void dispose()
   {
     issuePane.dispose();
-    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class)
-      .removeListener(appSettingsListener);
 
     Collection<Review> reviews = project.getComponent(ReviewManager.class).getReviews();
     for (Review review : reviews)

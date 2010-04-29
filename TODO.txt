@@ -1,29 +1,22 @@
-- save split positions
+- create item from intention
 
+Next:
+- create review from changes
 - compare with action
 - colors in scope: modified, added
 - add assignees tab in create issue dialog (/!\ depends on selected review in mainForm)
-- show changes in gutter in reviewing mode
-- change location -> remove marker
-- minimum size of forms
-- create review from changes
-
-- fill user table from SCM committers in current project
-
 - warning when shared review files are not under VCS -> intention to add in VCS !
-- keep last dir used for creating reviews
 - active in diff
-- navigation popup in gutter
-- assign files
-  - from VCS changes
 - multi-locations in a issue
-- option to show/hide 'all reviews' tool window
-- review config : required fields, ...
+- navigation popup in gutter
 - detailed history
+
+
+Big ones:
+- show changes in gutter in reviewing mode
+- fill user table from SCM committers in current project
 - review merge UI
-- export CSV
-- create item from intention
-- review XML inspections
+- CSV export
 
 
 Known bugs:
