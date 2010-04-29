@@ -80,7 +80,6 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <projectViewPane implementation="org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane"/>
-    <errorHandler implementation="nu.studer.idea.errorreporting.PluginErrorReportSubmitter"/>
   </extensions>
 
   <actions>

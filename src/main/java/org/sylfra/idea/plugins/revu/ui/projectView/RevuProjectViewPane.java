@@ -451,7 +451,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       }
 
       // @TODO refresh only current tree
-      rebuildPane();
+      updateFromRoot(true);
     }
 
     public void reviewAdded(Review review)
