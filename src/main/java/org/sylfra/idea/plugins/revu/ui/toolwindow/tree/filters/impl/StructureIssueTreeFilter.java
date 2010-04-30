@@ -66,6 +66,8 @@ public class StructureIssueTreeFilter extends AbstractIssueTreeFilter<NodeDescri
 
     ((DefaultTreeModel) tree.getModel()).setRoot(treeBuilder.buildRoot(getReview()));
 
+    tree.setSelectionRow(0);
+
     return contentPane;
   }
 

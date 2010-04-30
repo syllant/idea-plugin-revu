@@ -45,15 +45,15 @@ public class PrepareCreateReviewAction extends AbstractReviewSettingsAction
         // may happen under Mac OSX 10.5
         location = null;
       }
+    }
 
-      if (location != null)
-      {
-        popup.showInScreenCoordinates(component, location);
-      }
-      else
-      {
-        popup.showInBestPositionFor(e.getDataContext());
-      }
+    if (location != null)
+    {
+      popup.showInScreenCoordinates(component, location);
+    }
+    else
+    {
+      popup.showInBestPositionFor(e.getDataContext());
     }
   }
 

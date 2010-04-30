@@ -85,6 +85,11 @@ public abstract class AbstractListUiIssueTreeFilter<T> extends AbstractIssueTree
       }
     });
 
+    if (!items.isEmpty())
+    {
+      jList.setSelectedIndex(0);
+    }
+
     return contentPane;
   }
 

@@ -289,7 +289,9 @@ public class IssueBrowsingPane implements Disposable, DataProvider
       issueTreeFilter.addListener(issueTreeFilterListener);
       splitFilter.setFirstComponent(issueTreeFilter.buildUI());
     }
+
     splitFilter.validate();
+    splitFilter.repaint();
   }
 
   public Object getData(@NonNls String dataId)

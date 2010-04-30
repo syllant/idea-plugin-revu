@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.actions.UpdatePasswordActionListener;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
@@ -36,13 +35,11 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 {
   private JPanel contentPane;
   private JTextField tfLogin;
-  private JButton bnUpdatePassword;
   private JPanel pnStatusToResolveColor;
   private JPanel pnStatusResolvedColor;
   private JPanel pnStatusClosedColor;
   private JPanel pnStatusReopenedColor;
   private Map<IssueStatus, JPanel> pnIssueStatusColors;
-  private String password;
 
   public RevuAppSettingsForm()
   {
@@ -57,16 +54,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 
   private void installListeners()
   {
-    UpdatePasswordActionListener updatePasswordActionListener = new UpdatePasswordActionListener(
-      new UpdatePasswordActionListener.IPasswordReceiver()
-      {
-        public void setPassword(@Nullable String password)
-        {
-          RevuAppSettingsForm.this.password = RevuUtils.z(password, null);
-        }
-      });
-    bnUpdatePassword.addActionListener(updatePasswordActionListener);
-
     MouseListener colorMouseListener = new MouseAdapter()
     {
       @Override
@@ -169,8 +156,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
   {
     RevuAppSettings appSettings = retrieveAppSettings();
 
-    if ((!tfLogin.getText().equals(appSettings.getLogin()))
-      || (!RevuUtils.z(password, null).equals(appSettings.getPassword())))
+    if (!tfLogin.getText().equals(appSettings.getLogin()))
     {
       return true;
     }
@@ -195,10 +181,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     RevuAppSettings appSettings = retrieveAppSettings();
 
     appSettings.setLogin(tfLogin.getText());
-    if (password != null)
-    {
-      appSettings.setPassword(RevuUtils.z(password, null));
-    }
 
     for (Map.Entry<IssueStatus, JPanel> entry : pnIssueStatusColors.entrySet())
     {
