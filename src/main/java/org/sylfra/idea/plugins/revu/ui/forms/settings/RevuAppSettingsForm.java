@@ -44,16 +44,12 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
   public RevuAppSettingsForm()
   {
     pnIssueStatusColors = new HashMap<IssueStatus, JPanel>(IssueStatus.values().length);
-
-    installListeners();
-  }
-
-  private void createUIComponents()
-  {
     pnIssueStatusColors.put(IssueStatus.TO_RESOLVE, pnStatusToResolveColor);
     pnIssueStatusColors.put(IssueStatus.RESOLVED, pnStatusResolvedColor);
     pnIssueStatusColors.put(IssueStatus.CLOSED, pnStatusClosedColor);
     pnIssueStatusColors.put(IssueStatus.REOPENED, pnStatusReopenedColor);
+
+    installListeners();
   }
 
   private void installListeners()
