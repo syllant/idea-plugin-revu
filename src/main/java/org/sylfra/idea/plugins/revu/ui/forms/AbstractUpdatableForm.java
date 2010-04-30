@@ -154,7 +154,10 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
 
   protected boolean checkEquals(Object o1, Object o2)
   {
-    return ((o1 == o2) || ((o1 != null) && (o1.equals(o2))));
+    return ((o1 == o2)
+      || ((o1 != null) && (o1.equals(o2)))
+      || ((o2 == null) && ("".equals(o1)))
+      || ((o1 == null) && ("".equals(o2))));
   }
 
   public final void updateUI(Review enclosingReview, @Nullable T data, boolean requestFocus)

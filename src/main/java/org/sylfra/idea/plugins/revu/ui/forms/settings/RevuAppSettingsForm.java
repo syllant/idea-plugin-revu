@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
-import org.sylfra.idea.plugins.revu.actions.UpdatePasswordActionListener;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettingsComponent;
@@ -36,39 +35,29 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 {
   private JPanel contentPane;
   private JTextField tfLogin;
-  private JButton bnUpdatePassword;
   private JPanel pnStatusToResolveColor;
   private JPanel pnStatusResolvedColor;
   private JPanel pnStatusClosedColor;
   private JPanel pnStatusReopenedColor;
-  private JPanel pnSelectionBackgroundColor;
-  private JPanel pnSelectionForegroundColor;
   private Map<IssueStatus, JPanel> pnIssueStatusColors;
-  private String password;
 
   public RevuAppSettingsForm()
   {
     pnIssueStatusColors = new HashMap<IssueStatus, JPanel>(IssueStatus.values().length);
-    pnIssueStatusColors.put(IssueStatus.TO_RESOLVE, pnStatusToResolveColor);
-    pnIssueStatusColors.put(IssueStatus.RESOLVED, pnStatusResolvedColor);
-    pnIssueStatusColors.put(IssueStatus.CLOSED, pnStatusClosedColor);
-    pnIssueStatusColors.put(IssueStatus.REOPENED, pnStatusReopenedColor);
 
     installListeners();
   }
 
+  private void createUIComponents()
+  {
+    pnIssueStatusColors.put(IssueStatus.TO_RESOLVE, pnStatusToResolveColor);
+    pnIssueStatusColors.put(IssueStatus.RESOLVED, pnStatusResolvedColor);
+    pnIssueStatusColors.put(IssueStatus.CLOSED, pnStatusClosedColor);
+    pnIssueStatusColors.put(IssueStatus.REOPENED, pnStatusReopenedColor);
+  }
+
   private void installListeners()
   {
-    UpdatePasswordActionListener updatePasswordActionListener = new UpdatePasswordActionListener(
-      new UpdatePasswordActionListener.IPasswordReceiver()
-      {
-        public void setPassword(@Nullable String password)
-        {
-          RevuAppSettingsForm.this.password = RevuUtils.z(password, null);
-        }
-      });
-    bnUpdatePassword.addActionListener(updatePasswordActionListener);
-
     MouseListener colorMouseListener = new MouseAdapter()
     {
       @Override
@@ -97,16 +86,12 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
         }
       }
     };
+
     for (JPanel panel : pnIssueStatusColors.values())
     {
       panel.addMouseListener(colorMouseListener);
       panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     }
-
-    pnSelectionBackgroundColor.addMouseListener(colorMouseListener);
-    pnSelectionBackgroundColor.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-    pnSelectionForegroundColor.addMouseListener(colorMouseListener);
-    pnSelectionForegroundColor.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
   }
 
   /**
@@ -176,8 +161,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
   {
     RevuAppSettings appSettings = retrieveAppSettings();
 
-    if ((!tfLogin.getText().equals(appSettings.getLogin()))
-      || (!RevuUtils.z(password, null).equals(appSettings.getPassword())))
+    if (!tfLogin.getText().equals(appSettings.getLogin()))
     {
       return true;
     }
@@ -191,18 +175,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       }
     }
 
-    if (!appSettings.getTableSelectionBackgroundColor().equals(
-      RevuUtils.getHex(pnSelectionBackgroundColor.getBackground())))
-    {
-      return true;
-    }
-
-    if (!appSettings.getTableSelectionForegroundColor().equals(
-      RevuUtils.getHex(pnSelectionForegroundColor.getBackground())))
-    {
-      return true;
-    }
-
     return false;
   }
 
@@ -214,18 +186,11 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     RevuAppSettings appSettings = retrieveAppSettings();
 
     appSettings.setLogin(tfLogin.getText());
-    if (password != null)
-    {
-      appSettings.setPassword(RevuUtils.z(password, null));
-    }
 
     for (Map.Entry<IssueStatus, JPanel> entry : pnIssueStatusColors.entrySet())
     {
       appSettings.getIssueStatusColors().put(entry.getKey(), RevuUtils.getHex(entry.getValue().getBackground()));
     }
-
-    appSettings.setTableSelectionBackgroundColor(RevuUtils.getHex(pnSelectionBackgroundColor.getBackground()));
-    appSettings.setTableSelectionForegroundColor(RevuUtils.getHex(pnSelectionForegroundColor.getBackground()));
 
     ServiceManager.getService(RevuAppSettingsComponent.class).loadState(appSettings);
   }
@@ -243,9 +208,6 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
     {
       entry.getValue().setBackground(Color.decode(appSettings.getIssueStatusColors().get(entry.getKey())));
     }
-
-    pnSelectionBackgroundColor.setBackground(Color.decode(appSettings.getTableSelectionBackgroundColor()));
-    pnSelectionForegroundColor.setBackground(Color.decode(appSettings.getTableSelectionForegroundColor()));
   }
 
   private RevuAppSettings retrieveAppSettings()

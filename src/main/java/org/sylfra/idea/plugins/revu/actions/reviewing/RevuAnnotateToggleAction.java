@@ -35,6 +35,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
+import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,7 +76,9 @@ public class RevuAnnotateToggleAction extends ToggleAction
       e.getPresentation().setText(RevuBundle.message("reviewing.annotate.review.text", review.getName()));
 
       VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
-      e.getPresentation().setEnabled((vFile != null) && fileScopeManager.belongsToScope(project, review, vFile));
+      e.getPresentation().setEnabled((vFile != null)
+        && RevuVcsUtils.isUnderVcs(project, vFile)
+        && fileScopeManager.belongsToScope(project, review, vFile));
     }
   }
 

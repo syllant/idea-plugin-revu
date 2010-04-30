@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.IssueStatus;
 import org.sylfra.idea.plugins.revu.model.Review;
@@ -96,6 +97,7 @@ public class IssuePane extends AbstractIssueForm
         currentIssue.setStatus(status);
         updateData(currentIssue);
         updateUI(currentIssue.getReview(), currentIssue, true);
+        currentIssue.getReview().fireIssueUpdated(currentIssue);
       }
     };
   }
@@ -134,6 +136,11 @@ public class IssuePane extends AbstractIssueForm
     assigneesForm.updateUI(enclosingReview, data, requestFocus);
     notesForm.updateUI(enclosingReview, data, requestFocus);
     historyForm.updateUI(enclosingReview, data, requestFocus);
+
+    tabbedPane.setTitleAt(1,
+      RevuBundle.message("issueForm.assignees.title", (data == null) ? 0 : data.getAssignees().size()));
+    tabbedPane.setTitleAt(2,
+      RevuBundle.message("issueForm.notes.title", (data == null) ? 0 : data.getNotes().size()));
 
     if (SwingUtilities.isDescendingFrom(previewForm.getContentPane(), tabbedPane.getSelectedComponent()))
     {

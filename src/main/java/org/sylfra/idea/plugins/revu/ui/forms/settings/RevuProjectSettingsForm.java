@@ -234,7 +234,6 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
       if (originalReview == null)
       {
         originalReview = editedReview;
-        reviewManager.addReview(originalReview);
       }
       else
       {

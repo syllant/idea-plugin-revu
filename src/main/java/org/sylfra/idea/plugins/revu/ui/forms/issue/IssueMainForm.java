@@ -210,9 +210,24 @@ public class IssueMainForm extends AbstractIssueForm
       ReviewComboBoxModel reviewComboBoxModel = (ReviewComboBoxModel) cbReview.getModel();
       reviewComboBoxModel.updateReviews();
 
-      Review defaultReview = ((data == null) || (data.getReview() == null))
-        ? RevuUtils.getReviewingReview(project)
-        : data.getReview();
+      Review defaultReview;
+      if ((data == null) || (data.getReview() == null))
+      {
+        defaultReview = RevuUtils.getReviewingReview(project);
+
+        // No reviewing review, see if there is only one review
+        if (defaultReview == null)
+        {
+          if (reviewComboBoxModel.getSize() == 2)
+          {
+            defaultReview = (Review) reviewComboBoxModel.getElementAt(1);
+          }
+        }
+      }
+      else
+      {
+        defaultReview = data.getReview();
+      }
 
       cbReview.setSelectedItem(defaultReview);
     }
@@ -433,7 +448,7 @@ public class IssueMainForm extends AbstractIssueForm
 
     public void reviewAdded(Review review)
     {
-      if (!RevuUtils.isActive(review))
+      if (!RevuUtils.isActiveForCurrentUser(review))
       {
         return;
       }
@@ -450,14 +465,14 @@ public class IssueMainForm extends AbstractIssueForm
       int index = reviews.indexOf(review);
       if (index == -1)
       {
-        if (RevuUtils.isActive(review))
+        if (RevuUtils.isActiveForCurrentUser(review))
         {
           reviewAdded(review);
         }
       }
       else
       {
-        if (!RevuUtils.isActive(review))
+        if (!RevuUtils.isActiveForCurrentUser(review))
         {
           reviewDeleted(review);
         }

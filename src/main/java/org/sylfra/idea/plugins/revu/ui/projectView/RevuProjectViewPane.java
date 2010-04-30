@@ -78,6 +78,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   private final static ReviewStatus[] VISIBLE_STATUSES_ARRAY
     = {ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING};
   private static final List<ReviewStatus> VISIBLE_STATUSES_LIST = Arrays.asList(VISIBLE_STATUSES_ARRAY);
+  private static final NamedScope EMPTY_SCOPE = new NamedScope("", new EmptyPackageSet());
 
   @NonNls
   public static final String ID = "Revu";
@@ -175,15 +176,22 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   public ActionCallback updateFromRoot(boolean restoreExpandedPaths)
   {
-    for (NamedScope namedScope : scopes.values())
+    if (scopes.isEmpty())
     {
-      if (namedScope.getName().equals(getSubId()))
+      myViewPanel.selectScope(EMPTY_SCOPE);
+    }
+    else
+    {
+      for (NamedScope namedScope : scopes.values())
       {
-        myViewPanel.selectScope(namedScope);
-        break;
+        if (namedScope.getName().equals(getSubId()))
+        {
+          myViewPanel.selectScope(namedScope);
+          break;
+        }
       }
     }
-
+    
     return new ActionCallback.Done();
   }
 
@@ -292,7 +300,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       RevuUtils.getCurrentUserLogin(), true) != null;
   }
 
-  public void refreshView()
+  public void rebuildPane()
   {
     Alarm refreshProjectViewAlarm = new Alarm();
     // amortize batch scope changes
@@ -365,10 +373,18 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
                 : (psiElement.getContainingFile() == null) ? null : psiElement.getContainingFile().getVirtualFile());
 
         String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
-        Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+        if (reviewName == null)
+        {
+          return;
+        }
 
-        FileStatus fileStatus = retrieveFileStatus(review, vFile);
-        textAttributes.setForegroundColor(fileStatus.getColor());
+        Review review = project.getComponent(ReviewManager.class).getReviewByName(reviewName);
+        if (review != null)
+        {
+          FileStatus fileStatus = retrieveFileStatus(review, vFile);
+          textAttributes.setForegroundColor(fileStatus.getColor());
+        }
+
         append(node.toString(), SimpleTextAttributes.fromTextAttributes(textAttributes));
 
         String oldToString = toString();
@@ -377,11 +393,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
           decorator.decorate(node, this);
         }
 
-        int issueCount = retrieveIssueCount(review, vFile);
-        if (issueCount > 0)
+        if (review != null)
         {
-          append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
-            SimpleTextAttributes.GRAY_ATTRIBUTES);
+          int issueCount = retrieveIssueCount(review, vFile);
+          if (issueCount > 0)
+          {
+            append(" [" + RevuBundle.message("projectView.issueCount.text", issueCount) + "]",
+              SimpleTextAttributes.GRAY_ATTRIBUTES);
+          }
         }
 
         if (toString().equals(oldToString))
@@ -425,12 +444,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       if (isVisible(review))
       {
         scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-        updateFromRoot(true);
       }
       else
       {
-        reviewDeleted(review);
+        scopes.remove(review);
       }
+
+      // @TODO refresh only current tree
+      updateFromRoot(true);
     }
 
     public void reviewAdded(Review review)
@@ -438,14 +459,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       if (isVisible(review))
       {
         scopes.put(review, new NamedScope(getScopeName(review), new RevuPackageSet(myProject, review)));
-        refreshView();
+        rebuildPane();
       }
     }
 
     public void reviewDeleted(Review review)
     {
       scopes.remove(review);
-      refreshView();
+      rebuildPane();
     }
   }
 
@@ -459,4 +480,26 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       }
     }
   }
-}
+
+  private final static class EmptyPackageSet implements PackageSet
+  {
+    public boolean contains(PsiFile file, NamedScopesHolder holder)
+    {
+      return false;
+    }
+
+    public PackageSet createCopy()
+    {
+      return null;
+    }
+
+    public String getText()
+    {
+      return "?";
+    }
+
+    public int getNodePriority()
+    {
+      return 0;
+    }
+  }}

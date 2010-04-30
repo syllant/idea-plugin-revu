@@ -16,9 +16,23 @@
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.0</b> (04/30/2010)
   <ul>
-    <li>New: tree view instead of table view
-    <li>New: filtering and grouping features to help navigating betweens issues
+    <li>New: Reviewing mode, with custom VCS annotations
+    <li>New: File scope management with selected files to review
+    <li>New: Tree view instead of table view
+    <li>New: Filtering and grouping features to help navigating betweens issues
+    <li>New: Creation of review from VCS changes
+    <li>New: New main menu
+    <li>New: Active in diff mode
+    <li>New: Color management for issue statuses
+    <li>New: Lots of miscellaneous hints to improve usability
+    <li>Fix: lots of miscellaneous fixes, minor, major and critical!
+  </ul>
+
+  <b>1.0</b> (12/16/2008)
+  <ul>
+    <li>Initial release
   </ul>
 </html>
 ]]></change-notes>
@@ -81,7 +95,6 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <projectViewPane implementation="org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane"/>
-    <errorHandler implementation="nu.studer.idea.errorreporting.PluginErrorReportSubmitter"/>
   </extensions>
 
   <actions>
@@ -99,7 +112,10 @@
     <!-- Reviewing process -->
     <action id="revu.Annotate"
             class="org.sylfra.idea.plugins.revu.actions.reviewing.RevuAnnotateToggleAction"
-            text="Annotate for &amp;Review ''{0}''"/>
+            text="Annotate for review"/>
+    <action id="revu.CompareWith"
+            class="org.sylfra.idea.plugins.revu.actions.reviewing.CompareWithAction"
+            text="Compare for review"/>
     <action id="revu.StopReviewing"
             class="org.sylfra.idea.plugins.revu.actions.reviewing.StopReviewAction"
             text="St&amp;op Reviewing ''{0}''"/>
@@ -110,11 +126,6 @@
             text="Show only files with at last one issue"
             icon="/org/sylfra/idea/plugins/revu/resources/icons/gutterIssue.png"/>
 
-    <!-- Review -->
-    <action id="revu.ShowReviewEditForm"
-            class="org.sylfra.idea.plugins.revu.actions.ShowProjectSettingsAction"
-            text="Edit Review"
-            icon="/actions/editSource.png"/>
     <action id="revu.ShowFileScope"
             class="org.sylfra.idea.plugins.revu.actions.review.ShowFileScopeAction"
             text="Show Files in Scope"
@@ -127,6 +138,10 @@
             class="org.sylfra.idea.plugins.revu.actions.review.PrepareCreateReviewAction"
             text="Create Review"
             icon="/general/add.png"/>
+    <action id="revu.CreateReviewFromChangeList"
+            class="org.sylfra.idea.plugins.revu.actions.review.PrepareCreateReviewFromChangeListAction"
+            text="Create Review from Changes"
+            icon="/org/sylfra/idea/plugins/revu/resources/icons/addReviewFromChanges.png"/>
     <action id="revu.RemoveReview"
             class="org.sylfra.idea.plugins.revu.actions.review.RemoveReviewAction"
             text="Delete Review"
@@ -206,12 +221,18 @@
            class="org.sylfra.idea.plugins.revu.actions.reviewing.CreateReviewActionGroup">
     </group>
 
+    <group id="revu.committedchanges">
+      <reference ref="revu.CreateReviewFromChangeList"/>
+      <add-to-group group-id="CommittedChangesToolbar" anchor="after" relative-to-action="CommittedChanges.Revert"/>
+    </group>
+
     <group id="revu.reviewing.main" text="reVu" popup="true">
       <reference ref="revu.reviewing.create"/>
       <separator/>
       <reference ref="revu.reviewing.reviewsToStart"/>
       <reference ref="revu.StopReviewing"/>
       <reference ref="revu.Annotate"/>
+      <reference ref="revu.CompareWith"/>
       <separator/>
       <reference ref="revu.CreateIssue"/>
       <separator/>
@@ -223,6 +244,7 @@
       <separator/>
       <reference ref="revu.CreateIssue"/>
       <reference ref="revu.Annotate"/>
+      <reference ref="revu.CompareWith"/>
       <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       <add-to-group group-id="AnalyzeMenu" anchor="last"/>
     </group>
@@ -235,10 +257,10 @@
 
     <!-- Tool window -->
     <group id="revu.toolWindow" popup="true">
-      <reference ref="revu.settings"/>
-      <reference ref="revu.ShowFileScope"/>
+      <reference ref="revu.ShowProjectSettings"/>
+      <reference ref="revu.ShowAppSettings"/>
       <separator/>
-      <reference ref="revu.ShowReviewEditForm"/>
+      <reference ref="revu.ShowFileScope"/>
       <separator/>
       <reference ref="revu.RemoveIssue"/>
       <separator/>

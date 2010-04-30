@@ -1,34 +1,27 @@
-- compare with issuetable (no getData in tree)
-- refresh button
-- data event in tree
-- speed search does not highlight node
-- wiki
+WIKI:
+- compare with
 
-- compare with action
-- colors in scope: modified, added
-- add assignees tab in create issue dialog (/!\ depends on selectd review in mainForm)
-- show changes in gutter in reviewing mode
-- change location -> remove marker
-- minimum size of forms
 - create review from changes
-
-- fill user table from SCM committers in current project
-
-- warning when shared review files are not under VCS -> intention to add in VCS !
-- keep last dir used for creating reviews
 - active in diff
-- navigation popup in gutter
-- assign files
-  - from VCS changes
-- multi-locations in a issue
-- option to show/hide 'all reviews' tool window
-- review config : required fields, ...
-- detailed history
-- review merge UI
-- export CSV
-- create item from intention
-- review XML inspections
 
+Next:
+- delete review -> delete file (checkbox)
+- add assignees tab in create issue dialog (/!\ depends on selected review in mainForm)
+- warning when shared review files are not under VCS -> intention to add in VCS !
+- multi-locations in a issue
+- navigation popup in gutter
+- detailed history
+
+Big ones:
+- action to compute diff changed from review
+  -> keep all in cache to allow more features
+     - colors in scope: modified, added
+     - improve compare with (disabled if revision does not exist)
+- show changes in gutter in reviewing mode
+- fill user table from SCM committers in current project
+- review merge UI
+- CSV export
+- create item from intention /!\ No hook to add options to existing intentions (com.intellij.codeInsight.daemon.impl.HighlightInfo.IntentionActionDescriptor.getOptions)
 
 Known bugs:
 - some combo boxes are not selectable using keyboard (e.g. : priorities in "Issue Edit Form") ?

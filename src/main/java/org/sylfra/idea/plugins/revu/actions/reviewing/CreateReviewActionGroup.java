@@ -15,8 +15,8 @@ public class CreateReviewActionGroup extends DefaultActionGroup
   {
     if (getChildrenCount() == 0)
     {
-      add(new CreateReviewAction(false));
-      add(new CreateReviewAction(true));
+      add(new CreateReviewAction(false, null));
+      add(new CreateReviewAction(true, null));
     }
   }
 }

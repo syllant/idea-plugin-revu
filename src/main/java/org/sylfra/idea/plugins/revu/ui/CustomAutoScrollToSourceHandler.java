@@ -6,12 +6,13 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.util.Alarm;
 import com.intellij.util.OpenSourceUtil;
-import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.IssueTree;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -27,12 +28,12 @@ import java.awt.event.MouseEvent;
  */
 public final class CustomAutoScrollToSourceHandler
 {
-  private RevuWorkspaceSettings revuWorkspaceSettings;
   private Alarm autoScrollAlarm;
+  private final Project project;
 
-  public CustomAutoScrollToSourceHandler(RevuWorkspaceSettings revuWorkspaceSettings)
+  public CustomAutoScrollToSourceHandler(Project project)
   {
-    this.revuWorkspaceSettings = revuWorkspaceSettings;
+    this.project = project;
   }
 
   public void install(final IssueTree issueTree)
@@ -88,7 +89,7 @@ public final class CustomAutoScrollToSourceHandler
 
   private boolean isAutoScrollMode()
   {
-    return revuWorkspaceSettings.isAutoScrollToSource();
+    return RevuUtils.getWorkspaceSettings(project).isAutoScrollToSource();
   }
 
   private void onSelectionChanged(final Component component)

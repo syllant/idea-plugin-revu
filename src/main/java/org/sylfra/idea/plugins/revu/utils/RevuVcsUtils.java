@@ -9,6 +9,7 @@ import com.intellij.openapi.vcs.changes.committed.CommittedChangesTableModel;
 import com.intellij.openapi.vcs.diff.DiffProvider;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsUtil;
 import org.jetbrains.annotations.NotNull;
@@ -129,9 +130,22 @@ public class RevuVcsUtils
     assert (provider != null);
 
     List<CommittedChangeList> changes = new ArrayList<CommittedChangeList>();
-    VirtualFile[] vFiles = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
-    for (VirtualFile vFile : vFiles)
+    List<VcsDirectoryMapping> mappings = ProjectLevelVcsManager.getInstance(project).getDirectoryMappings(vcs);
+    for (VcsDirectoryMapping mapping : mappings)
     {
+      VirtualFile vFile;
+      if (mapping.isDefaultMapping())
+      {
+        vFile = project.getBaseDir();
+      }
+      else
+      {
+        vFile = LocalFileSystem.getInstance().findFileByPath(mapping.getDirectory());
+        if (vFile == null)
+        {
+          vFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(mapping.getDirectory());
+        }
+      }
       changes.addAll(retrieveChanges(vFile, provider));
     }
 

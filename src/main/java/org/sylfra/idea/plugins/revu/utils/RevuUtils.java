@@ -1,6 +1,7 @@
 package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -84,6 +85,25 @@ public class RevuUtils
         {
           result.add(editor);
         }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Retrieve virtual file from data context, by checking also current editor (in diff dialog)
+   */
+  @Nullable
+  public static VirtualFile getVirtualFile(AnActionEvent e)
+  {
+    VirtualFile result = e.getData(DataKeys.VIRTUAL_FILE);
+    if (result == null)
+    {
+      Editor editor = e.getData(DataKeys.EDITOR);
+      if (editor != null)
+      {
+        result = FileDocumentManager.getInstance().getFile(editor.getDocument());
       }
     }
 
@@ -258,6 +278,12 @@ public class RevuUtils
   public static boolean isActive(@NotNull Review review)
   {
     return ((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING));
+  }
+
+  public static boolean isActiveForCurrentUser(@NotNull Review review)
+  {
+    return (((review.getStatus() == ReviewStatus.FIXING) || (review.getStatus() == ReviewStatus.REVIEWING))
+      && (review.getDataReferential().getUser(getCurrentUserLogin(), true) != null));
   }
 
   @NotNull

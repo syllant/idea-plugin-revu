@@ -66,6 +66,8 @@ public class StructureIssueTreeFilter extends AbstractIssueTreeFilter<NodeDescri
 
     ((DefaultTreeModel) tree.getModel()).setRoot(treeBuilder.buildRoot(getReview()));
 
+    tree.setSelectionRow(0);
+
     return contentPane;
   }
 
@@ -158,18 +160,18 @@ public class StructureIssueTreeFilter extends AbstractIssueTreeFilter<NodeDescri
         return null;
       }
 
+      DefaultMutableTreeNode node = fileNodesCache.get(vFile);
+      if (node != null)
+      {
+        return node;
+      }
+
       Module module = moduleRoots.get(vFile);
 
       Project project = RevuUtils.getProject();
       DefaultMutableTreeNode parentNode;
       if (module == null)
       {
-        DefaultMutableTreeNode node = fileNodesCache.get(vFile);
-        if (node != null)
-        {
-          return node;
-        }
-
         parentNode = addNode(rootNode, vFile.getParent());
 
         if (parentNode == null)
@@ -196,7 +198,7 @@ public class StructureIssueTreeFilter extends AbstractIssueTreeFilter<NodeDescri
       NodeDescriptor nodeDescriptor = new CustomFileNodeDescriptor(project,
         (NodeDescriptor) parentNode.getUserObject(), vFile);
 
-      DefaultMutableTreeNode node = new DefaultMutableTreeNode(nodeDescriptor);
+      node = new DefaultMutableTreeNode(nodeDescriptor);
       parentNode.insert(node, findIndex(parentNode, nodeDescriptor));
 
       fileNodesCache.put(vFile, node);
