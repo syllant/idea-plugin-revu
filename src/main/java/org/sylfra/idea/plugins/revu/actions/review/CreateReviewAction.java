@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
@@ -28,8 +29,9 @@ import java.util.List;
 public class CreateReviewAction extends AbstractReviewSettingsAction
 {
   private final boolean shared;
+  private final CommittedChangeList fromChangeList;
 
-  public CreateReviewAction(boolean shared)
+  public CreateReviewAction(boolean shared, CommittedChangeList fromChangeList)
   {
     super(RevuBundle.message("projectSettings.review.addReview." + (shared ? "shared" : "local") + ".title"),
       RevuBundle.message("projectSettings.review.addReview." + (shared ? "shared" : "local") + ".tip"),
@@ -37,6 +39,7 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
         : RevuIconProvider.IconRef.REVIEW_LOCAL));
 
     this.shared = shared;
+    this.fromChangeList = fromChangeList;
   }
 
   public void actionPerformed(AnActionEvent e)
@@ -125,6 +128,11 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
     history.setLastUpdatedOn(now);
     review.setHistory(history);
 
+    if (fromChangeList != null)
+    {
+      review.getFileScope().setVcsAfterRev(String.valueOf(fromChangeList.getNumber()));
+    }
+    
     form.addItem(review);
   }
 }

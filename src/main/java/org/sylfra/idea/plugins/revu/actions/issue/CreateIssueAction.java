@@ -30,7 +30,7 @@ public class CreateIssueAction extends AbstractIssueAction
   {
     Project project = e.getData(DataKeys.PROJECT);
     Editor editor = e.getData(DataKeys.EDITOR);
-    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+    VirtualFile vFile = RevuUtils.getVirtualFile(e);
 
     if ((project == null) || (vFile == null))
     {
@@ -89,7 +89,7 @@ public class CreateIssueAction extends AbstractIssueAction
   {
     boolean enabled = false;
     Project project = e.getData(DataKeys.PROJECT);
-    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+    VirtualFile vFile = RevuUtils.getVirtualFile(e);
 
     if ((project != null) && (vFile != null))
     {

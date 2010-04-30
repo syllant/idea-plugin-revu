@@ -42,6 +42,7 @@ public class ReviewManager implements ProjectComponent
 {
   private static final Logger LOGGER = Logger.getInstance(ReviewManager.class.getName());
   private static final Map<File, String> EMBEDDED_REVIEWS = new HashMap<File, String>(1);
+
   static
   {
     EMBEDDED_REVIEWS.put(new File("[default]"), "/org/sylfra/idea/plugins/revu/resources/defaultReviewTemplate.xml");
@@ -100,7 +101,7 @@ public class ReviewManager implements ProjectComponent
   @NotNull
   public Collection<Review> getReviews(@Nullable String userLogin, boolean active)
   {
-    return getReviews(userLogin, (active ? new ReviewStatus[] {ReviewStatus.REVIEWING, ReviewStatus.FIXING} : null));
+    return getReviews(userLogin, (active ? new ReviewStatus[]{ReviewStatus.REVIEWING, ReviewStatus.FIXING} : null));
   }
 
   @NotNull
@@ -512,16 +513,24 @@ public class ReviewManager implements ProjectComponent
 
     IReviewExternalizer reviewExternalizer = project.getComponent(IReviewExternalizer.class);
 
+    boolean newReview;
     MetaReview metaReview = metaReviews.get(review);
     if (metaReview == null)
     {
+      reviewsByFiles.put(review.getFile(), review);
+      reviewsByNames.put(review.getName(), review);
+
       metaReview = new MetaReview(review, -1, true);
       metaReviews.put(review, metaReview);
+
+      newReview = true;
     }
     else
     {
       metaReview.isSaving = true;
       metaReview.updateReviewHashcode();
+
+      newReview = false;
     }
 
     try
@@ -535,14 +544,22 @@ public class ReviewManager implements ProjectComponent
 
     metaReview.lastSaved = System.currentTimeMillis();
     fireReviewSaveSucceeded(review);
-    fireReviewChanged(review);
+
+    if (newReview)
+    {
+      fireReviewAdded(review);
+    }
+    else
+    {
+      fireReviewChanged(review);
+    }
   }
 
   public void saveChanges(@NotNull Review review)
   {
     try
     {
-     save(review);
+      save(review);
     }
     catch (Exception exception)
     {
@@ -556,7 +573,7 @@ public class ReviewManager implements ProjectComponent
 
       return;
     }
-    
+
     fireReviewChanged(review);
   }
 
@@ -655,7 +672,8 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewLoadFailed(Exception exception, File file)
   {
-    List<IReviewExternalizationListener> copy = new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
+    List<IReviewExternalizationListener> copy =
+      new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
     for (IReviewExternalizationListener listener : copy)
     {
       listener.loadFailed(file, exception);
@@ -664,7 +682,8 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewLoadSucceeded(Review review)
   {
-    List<IReviewExternalizationListener> copy = new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
+    List<IReviewExternalizationListener> copy =
+      new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
     for (IReviewExternalizationListener listener : copy)
     {
       listener.loadSucceeded(review);
@@ -673,7 +692,8 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewSaveSucceeded(Review review)
   {
-    List<IReviewExternalizationListener> copy = new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
+    List<IReviewExternalizationListener> copy =
+      new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
     for (IReviewExternalizationListener listener : copy)
     {
       listener.saveSucceeded(review);
@@ -682,7 +702,8 @@ public class ReviewManager implements ProjectComponent
 
   private void fireReviewSavedFailed(Review review, Exception exception)
   {
-    List<IReviewExternalizationListener> copy = new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
+    List<IReviewExternalizationListener> copy =
+      new ArrayList<IReviewExternalizationListener>(reviewExternalizationListeners);
     for (IReviewExternalizationListener listener : copy)
     {
       listener.saveFailed(review, exception);
@@ -723,7 +744,7 @@ public class ReviewManager implements ProjectComponent
   }
 
   /**
- * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
+   * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
    * @version $Id$
    */
   public static class RevuFileListener implements Disposable
@@ -791,7 +812,8 @@ public class ReviewManager implements ProjectComponent
         }
       };
 
-      fileDocumentManagerListener = new FileDocumentManagerAdapter() {
+      fileDocumentManagerListener = new FileDocumentManagerAdapter()
+      {
         @Override
         public void beforeAllDocumentsSaving()
         {
