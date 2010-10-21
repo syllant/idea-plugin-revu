@@ -68,7 +68,7 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
       {
         boolean mayBrowseChangeLists = RevuVcsUtils.mayBrowseChangeLists(project);
         tfVcsBeforeRev.setEditable(ckVcsBeforeRev.isEnabled() && ckVcsBeforeRev.isSelected());
-        bnVcsBeforeRev.setEnabled(tfVcsBeforeRev.isEnabled() && mayBrowseChangeLists);
+        bnVcsBeforeRev.setEnabled(tfVcsBeforeRev.isEditable() && mayBrowseChangeLists);
       }
     });
     ckVcsAfterRev.addActionListener(new ActionListener()
@@ -77,7 +77,7 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
       {
         boolean mayBrowseChangeLists = RevuVcsUtils.mayBrowseChangeLists(project);
         tfVcsAfterRev.setEditable(ckVcsAfterRev.isEnabled() && ckVcsAfterRev.isSelected());
-        bnVcsAfterRev.setEnabled(tfVcsAfterRev.isEnabled() && mayBrowseChangeLists);
+        bnVcsAfterRev.setEnabled(tfVcsAfterRev.isEditable() && mayBrowseChangeLists);
       }
     });
 

@@ -1,3 +1,6 @@
+  * *2.0.1* (10/21/2010)
+    * Wrong assertion related to VCS in some cases
+
   * *2.0* (04/30/2010)
     * New: Reviewing mode, with custom VCS annotations
     * New: File scope management shows now selected files to review

@@ -16,6 +16,11 @@
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.0.1</b> (10/21/2010)
+  <ul>
+    <li>Fix: Wrong assertion related to VCS in some cases
+  </ul>
+
   <b>2.0</b> (04/30/2010)
   <ul>
     <li>New: Reviewing mode, with custom VCS annotations

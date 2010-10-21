@@ -109,6 +109,14 @@ public class RevuVcsUtils
       return false;
     }
 
+    // @TODO handle case where projet has several VCS roots
+    // Here, I use the first VCS connection
+    AbstractVcs vcs = vcss[0];
+    if ((vcs == null) || (vcs.getCommittedChangesProvider() == null))
+    {
+      return false;
+    }
+
     FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(vFile);
 
     return AbstractVcs.fileInVcsByFileStatus(project, filePath);
@@ -124,7 +132,10 @@ public class RevuVcsUtils
     // @TODO handle case where projet has several VCS roots
     // Here, I use the first VCS connection
     AbstractVcs vcs = vcss[0];
-    assert ((vcs != null) && (vcs.getCommittedChangesProvider() != null));
+    if ((vcs == null) || (vcs.getCommittedChangesProvider() == null))
+    {
+      return null;
+    }
 
     CommittedChangesProvider provider = vcs.getCommittedChangesProvider();
     assert (provider != null);
