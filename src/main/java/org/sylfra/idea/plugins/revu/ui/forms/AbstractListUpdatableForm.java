@@ -223,6 +223,11 @@ public abstract class AbstractListUpdatableForm<E extends IRevuUniqueNameHolderE
 
     // Current edited item
     E selectedValue = (E) list.getSelectedValue();
+    if (selectedValue == null)
+    {
+      return false;
+    }
+    
     if (mainForm.isModified(selectedValue))
     {
       return true;
