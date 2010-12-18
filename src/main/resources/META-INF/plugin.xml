@@ -19,8 +19,8 @@
   <b>2.5</b> (12/18/2010)
   <ul>
     <li>New: Support for Idea X
-    <li>Fix: "Scanning packages" performance issue with some slow VCS connections (<a href="http://http://code.google.com/p/idea-revu/issues/detail?id=11">Issue 11</a>)
-    <li>[Dev]: Drop Maven build (use IDEA artifacts instead)
+    <li>Fix: "Scanning packages" performance issue with some slow VCS connections (<a href="http://code.google.com/p/idea-revu/issues/detail?id=11">Issue #11</a>)
+    <li>[Dev]: Dropped Maven build (use IDEA artifacts instead)
   </ul>
 
   <b>2.0.1</b> (10/21/2010)
