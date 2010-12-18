@@ -94,7 +94,10 @@ public abstract class MultiChooserPanel<NestedData, Item extends IMultiChooserIt
     DefaultActionGroup actionGroup = new DefaultActionGroup();
     actionGroup.add(editAction);
     toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true).getComponent();
-    label.setLabelFor(toolbar.getComponent(0));
+    if (toolbar.getComponentCount() > 0)
+    {
+      label.setLabelFor(toolbar.getComponent(0));
+    }
 
     add(toolbar);
 

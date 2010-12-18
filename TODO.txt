@@ -11,8 +11,9 @@ Next:
 - multi-locations in a issue
 - navigation popup in gutter
 - detailed history
+- Idea X deprecations
 
-Big ones:
+Epics:
 - action to compute diff changed from review
   -> keep all in cache to allow more features
      - colors in scope: modified, added

@@ -467,6 +467,11 @@ public abstract class AbstractReferentialForm<T extends IRevuEntity<T>>
     @Override
     public TableCellRenderer getCustomizedRenderer(final Item item, final TableCellRenderer renderer)
     {
+      if (renderer == null)
+      {
+        return null;
+      }
+      
       return new TableCellRenderer()
       {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,

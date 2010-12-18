@@ -113,7 +113,13 @@ class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
     return AnnotationSource.LOCAL.getColor();
   }
 
-  public List<AnAction> getPopupActions(final Editor editor)
+  // For Idea 9 compatibility
+  public List<AnAction> getPopupActions(Editor editor)
+  {
+    return Collections.emptyList();
+  }
+
+  public List<AnAction> getPopupActions(int line, Editor editor)
   {
     return Collections.emptyList();
   }

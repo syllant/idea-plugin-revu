@@ -9,13 +9,20 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>${pom.version}</version>
+  <version>2.5</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.5</b> (12/18/2010)
+  <ul>
+    <li>New: Support for Idea X
+    <li>Fix: "Scanning packages" performance issue with some slow VCS connections (<a href="http://http://code.google.com/p/idea-revu/issues/detail?id=11">Issue 11</a>)
+    <li>[Dev]: Drop Maven build (use IDEA artifacts instead)
+  </ul>
+
   <b>2.0.1</b> (10/21/2010)
   <ul>
     <li>Fix: Wrong assertion related to VCS in some cases
@@ -41,7 +48,7 @@
   </ul>
 </html>
 ]]></change-notes>
-  <idea-version since-build="9000"/>
+  <idea-version since-build="90.10000"/>
   <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 
   <application-components>

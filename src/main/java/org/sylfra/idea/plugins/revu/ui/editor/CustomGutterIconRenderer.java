@@ -209,12 +209,6 @@ class CustomGutterIconRenderer extends GutterIconRenderer
   }
 
   @Override
-  public boolean isNavigateAction()
-  {
-    return true;
-  }
-
-  @Override
   public AnAction getClickAction()
   {
     return new AnAction()
@@ -241,5 +235,55 @@ class CustomGutterIconRenderer extends GutterIconRenderer
         }
       }
     };
+  }
+
+  @Override
+  public boolean isNavigateAction()
+  {
+    return true;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o)
+    {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass())
+    {
+      return false;
+    }
+
+    CustomGutterIconRenderer that = (CustomGutterIconRenderer) o;
+
+    if (fullySynchronized != that.fullySynchronized)
+    {
+      return false;
+    }
+    if (!issues.equals(that.issues))
+    {
+      return false;
+    }
+    if (!lineStart.equals(that.lineStart))
+    {
+      return false;
+    }
+    if (!revuEditorHandler.equals(that.revuEditorHandler))
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = (fullySynchronized ? 1 : 0);
+    result = 31 * result + lineStart.hashCode();
+    result = 31 * result + issues.hashCode();
+    result = 31 * result + revuEditorHandler.hashCode();
+    return result;
   }
 }

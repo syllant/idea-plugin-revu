@@ -1,6 +1,5 @@
 package org.sylfra.idea.plugins.revu.actions.issue;
 
-import com.intellij.history.Clock;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.editor.Document;
@@ -65,7 +64,7 @@ public class CreateIssueAction extends AbstractIssueAction
 
       if (RevuVcsUtils.fileIsModifiedFromVcs(project, vFile))
       {
-        issue.setLocalRev(String.valueOf(Clock.getCurrentTimestamp()));
+        issue.setLocalRev(String.valueOf(System.currentTimeMillis()));
       }
 
       if (issue.getFile() != null)

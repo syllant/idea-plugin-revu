@@ -49,8 +49,17 @@ public class FileScopeManager implements ApplicationComponent
   public boolean belongsToScope(@NotNull Project project, @NotNull FileScope fileScope, @Nullable PackageSet packageSet,
     @NotNull VirtualFile vFile)
   {
-    return matchFrom(project, fileScope, vFile, RevuVcsUtils.getVcsRevisionNumber(project, vFile))
-      && matchPathPattern(project, packageSet, vFile);
+    return matchFrom(project, fileScope, vFile) && matchPathPattern(project, packageSet, vFile);
+  }
+
+  public boolean matchFrom(Project project, FileScope fileScope, VirtualFile vFile)
+  {
+    if ((fileScope.getVcsBeforeRev() == null) && (fileScope.getVcsAfterRev() == null))
+    {
+      return true;
+    }
+
+    return matchFrom(project, fileScope, vFile, RevuVcsUtils.getVcsRevisionNumber(project, vFile));
   }
 
   public boolean matchFrom(Project project, FileScope fileScope, VirtualFile vFile, VcsRevisionNumber rev)

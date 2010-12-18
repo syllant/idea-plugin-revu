@@ -1,9 +1,9 @@
 package org.sylfra.idea.plugins.revu.externalizing.impl;
 
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.IdeaTestCase;
-import org.apache.tools.ant.util.FileUtils;
 import org.sylfra.idea.plugins.revu.RevuException;
 import org.sylfra.idea.plugins.revu.model.*;
 
@@ -102,7 +102,7 @@ public class ReviewExternalizerXmlImplTest extends IdeaTestCase
       impl.save(sampleReview, writer);
       String actual = writer.toString();
 
-      String expected = FileUtils.readFully(new InputStreamReader(getClass().getClassLoader()
+      String expected = FileUtil.loadTextAndClose(new InputStreamReader(getClass().getClassLoader()
         .getResourceAsStream("review-test-unit.xml")));
       // XStream produces Unix line separators
       expected = expected.replaceAll("\\r\n", "\n");

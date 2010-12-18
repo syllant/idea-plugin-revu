@@ -191,7 +191,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         }
       }
     }
-    
+
     return new ActionCallback.Done();
   }
 
