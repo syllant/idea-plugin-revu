@@ -15,8 +15,7 @@ public abstract class AbstractIssueTreeGrouper<T extends Comparable<T>>
 {
   public SortedMap<AbstractIssueTreeGrouper.DefaultNamedGroup, SortedSet<Issue>> group(List<Issue> issues)
   {
-    SortedMap<AbstractIssueTreeGrouper.DefaultNamedGroup, SortedSet<Issue>> result
-      = new TreeMap<AbstractIssueTreeGrouper.DefaultNamedGroup, SortedSet<Issue>>();
+    SortedMap<AbstractIssueTreeGrouper.DefaultNamedGroup, SortedSet<Issue>> result = new TreeMap<AbstractIssueTreeGrouper.DefaultNamedGroup, SortedSet<Issue>>();
     for (Issue issue : issues)
     {
       List<AbstractIssueTreeGrouper.DefaultNamedGroup> groups = findGroups(issue);
@@ -43,7 +42,10 @@ public abstract class AbstractIssueTreeGrouper<T extends Comparable<T>>
     {
       public int compare(Issue o1, Issue o2)
       {
-        return o1.getSummary().compareToIgnoreCase(o2.getSummary());
+        int summaryComparaison = o1.getSummary().compareToIgnoreCase(o2.getSummary());
+        return (summaryComparaison == 0)
+          ? o1.getHistory().getCreatedOn().compareTo(o2.getHistory().getCreatedOn())
+          : summaryComparaison;
       }
     };
   }

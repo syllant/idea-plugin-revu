@@ -38,7 +38,7 @@ public class RevuPlugin implements ProjectComponent
     {
       public void run()
       {
-        addSchemaResource("1.0");
+        addSchemaResource("1_0");
       }
     });
   }

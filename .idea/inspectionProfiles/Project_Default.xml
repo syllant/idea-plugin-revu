@@ -56,6 +56,7 @@
       <option name="REPORT_NOT_ANNOTATED_GETTER" value="true" />
       <option name="REPORT_NOT_ANNOTATED_SETTER_PARAMETER" value="true" />
       <option name="REPORT_ANNOTATION_NOT_PROPAGATED_TO_OVERRIDERS" value="true" />
+      <option name="REPORT_NULLS_PASSED_TO_NON_ANNOTATED_METHOD" value="true" />
     </inspection_tool>
     <inspection_tool class="RequiredAttributes" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myAdditionalRequiredHtmlAttributes" value="alt,action" />
