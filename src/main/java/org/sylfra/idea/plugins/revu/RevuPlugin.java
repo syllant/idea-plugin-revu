@@ -2,10 +2,11 @@ package org.sylfra.idea.plugins.revu;
 
 import com.intellij.javaee.ExternalResourceManager;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 /**
  * The main application component available as a singleton and providing convenient methods
@@ -17,13 +18,6 @@ import org.jetbrains.annotations.NotNull;
 public class RevuPlugin implements ProjectComponent
 {
   public static final String PLUGIN_NAME = "reVu";
-
-  private final Project project;
-
-  public RevuPlugin(Project project)
-  {
-    this.project = project;
-  }
 
   /**
    * {@inheritDoc}
@@ -44,12 +38,19 @@ public class RevuPlugin implements ProjectComponent
     {
       public void run()
       {
-        ExternalResourceManager.getInstance().addResource(
-          "http://plugins.intellij.net/revu/ns/revu_1_0.xsd",
-          "/org/sylfra/idea/plugins/revu/resources/schemas/revu_1_0.xsd");
+        addSchemaResource("1.0");
       }
     });
-}
+  }
+  
+  private void addSchemaResource(String version)
+  {
+    File file = new File(
+      getClass().getResource("/org/sylfra/idea/plugins/revu/resources/schemas/revu_" + version + ".xsd").getFile());
+    ExternalResourceManager.getInstance().addResource(
+      "http://plugins.intellij.net/revu/ns/revu_" + version + ".xsd",
+      file.getAbsolutePath());
+  }
 
   /**
    * {@inheritDoc}
