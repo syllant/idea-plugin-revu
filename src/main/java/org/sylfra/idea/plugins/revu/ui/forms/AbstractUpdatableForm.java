@@ -16,6 +16,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -239,5 +240,11 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
   {
     void uiUpdated(Review enclosingReview, @Nullable T data);
     void dataUpdated(@NotNull T data);
+  }
+
+  public static interface UpdatableEntityListListener<T>
+  {
+    void entityAdded(List<T> items, @NotNull T item);
+    void entityDeleted(List<T> items, @NotNull T item);
   }
 }

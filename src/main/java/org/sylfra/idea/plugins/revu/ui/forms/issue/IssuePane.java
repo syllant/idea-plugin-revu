@@ -8,10 +8,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
-import org.sylfra.idea.plugins.revu.model.Issue;
-import org.sylfra.idea.plugins.revu.model.IssueStatus;
-import org.sylfra.idea.plugins.revu.model.Review;
-import org.sylfra.idea.plugins.revu.model.User;
+import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.ui.forms.HistoryForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
@@ -21,6 +18,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -83,6 +81,31 @@ public class IssuePane extends AbstractIssueForm
       }
     });
 
+    notesForm.addUpdatableEntityListListener(new UpdatableEntityListListener<IssueNote>()
+    {
+      public void entityAdded(List<IssueNote> items, @NotNull IssueNote item)
+      {
+        tabbedPane.setTitleAt(2, RevuBundle.message("issueForm.notes.title", items.size()));
+      }
+
+      public void entityDeleted(List<IssueNote> items, @NotNull IssueNote item)
+      {
+        tabbedPane.setTitleAt(2, RevuBundle.message("issueForm.notes.title", items.size()));
+      }
+    });
+
+    assigneesForm.addUpdatableEntityListListener(new UpdatableEntityListListener<User>()
+    {
+      public void entityAdded(List<User> items, @NotNull User item)
+      {
+        tabbedPane.setTitleAt(1, RevuBundle.message("issueForm.assignees.title", items.size()));
+      }
+
+      public void entityDeleted(List<User> items, @NotNull User item)
+      {
+        tabbedPane.setTitleAt(1, RevuBundle.message("issueForm.assignees.title", items.size()));
+      }
+    });
     bnResolve.addActionListener(createStatusListener(IssueStatus.RESOLVED));
     bnClose.addActionListener(createStatusListener(IssueStatus.CLOSED));
     bnReopen.addActionListener(createStatusListener(IssueStatus.REOPENED));

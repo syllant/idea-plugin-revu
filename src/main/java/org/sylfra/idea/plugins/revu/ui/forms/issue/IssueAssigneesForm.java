@@ -10,7 +10,9 @@ import org.sylfra.idea.plugins.revu.model.User;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -20,10 +22,13 @@ public class IssueAssigneesForm extends AbstractIssueForm
 {
   private JPanel contentPane;
   private ElementsChooser<User> elementsChooser;
+  private List<UpdatableEntityListListener<User>> updatableEntityListListeners;
 
   public IssueAssigneesForm(@NotNull Project project)
   {
     super(project);
+
+    updatableEntityListListeners = new ArrayList<UpdatableEntityListListener<User>>();
   }
 
   private void createUIComponents()
@@ -37,6 +42,23 @@ public class IssueAssigneesForm extends AbstractIssueForm
       }
     };
     elementsChooser.setColorUnmarkedElements(false);
+    elementsChooser.addElementsMarkListener(new ElementsChooser.ElementsMarkListener<User>()
+    {
+      public void elementMarkChanged(User element, boolean isMarked)
+      {
+        for (UpdatableEntityListListener<User> updatableEntityListListener : updatableEntityListListeners)
+        {
+          if (isMarked)
+          {
+            updatableEntityListListener.entityAdded(elementsChooser.getMarkedElements(), element);
+          }
+          else
+          {
+            updatableEntityListListener.entityDeleted(elementsChooser.getMarkedElements(), element);
+          }
+        }
+      }
+    });
   }
 
   public JComponent getPreferredFocusedComponent()
@@ -79,5 +101,10 @@ public class IssueAssigneesForm extends AbstractIssueForm
   protected void internalUpdateData(@NotNull Issue data)
   {
     data.setAssignees(elementsChooser.getMarkedElements());
+  }
+
+  public void addUpdatableEntityListListener(UpdatableEntityListListener<User> listener)
+  {
+    updatableEntityListListeners.add(listener);
   }
 }

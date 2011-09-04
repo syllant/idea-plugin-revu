@@ -42,10 +42,12 @@ public class IssueNotesForm extends AbstractIssueForm
   private TableView<IssueNote> notesTable;
   private JLabel lbCount;
   private NotesTableModel notesTableModel;
+  private List<UpdatableEntityListListener<IssueNote>> updatableEntityListListeners;
 
   public IssueNotesForm(@NotNull Project project)
   {
     super(project);
+    updatableEntityListListeners = new ArrayList<UpdatableEntityListListener<IssueNote>>();
     installListeners();
   }
 
@@ -120,6 +122,11 @@ public class IssueNotesForm extends AbstractIssueForm
     notes.add(note);
     notesTableModel.setItems(notes);
 
+    for (UpdatableEntityListListener<IssueNote> updatableEntityListListener : updatableEntityListListeners)
+    {
+      updatableEntityListListener.entityAdded(notesTableModel.getItems(), note);
+    }
+
     SwingUtilities.invokeLater(new Runnable()
     {
       public void run()
@@ -145,6 +152,11 @@ public class IssueNotesForm extends AbstractIssueForm
     List<IssueNote> notes = new ArrayList<IssueNote>(notesTableModel.getItems());
     notes.remove(note);
     notesTableModel.setItems(notes);
+
+    for (UpdatableEntityListListener<IssueNote> updatableEntityListListener : updatableEntityListListeners)
+    {
+      updatableEntityListListener.entityDeleted(notesTableModel.getItems(), note);
+    }
   }
 
   private boolean isLastNote(IssueNote note)
@@ -230,6 +242,11 @@ public class IssueNotesForm extends AbstractIssueForm
     User user = RevuUtils.getCurrentUser(enclosingReview);
     return ((currentIssue != null) && (user != null) && (IssueStatus.CLOSED != currentIssue.getStatus())
       && ((note.getHistory().getCreatedBy().equals(user)) || (user.hasRole(User.Role.ADMIN))));
+  }
+
+  public void addUpdatableEntityListListener(UpdatableEntityListListener<IssueNote> listener)
+  {
+    updatableEntityListListeners.add(listener);
   }
 
   private class NotesTableModel extends ListTableModel<IssueNote>

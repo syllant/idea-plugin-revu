@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.5</version>
+  <version>2.6</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="http://idea-revu.googlecode.com/">Sylvain FRANCOIS
@@ -18,9 +18,9 @@
 <html>
   <b>2.5</b> (12/18/2010)
   <ul>
-    <li>New: Support for Idea X
-    <li>Fix: "Scanning packages" performance issue with some slow VCS connections (<a href="http://code.google.com/p/idea-revu/issues/detail?id=11">Issue #11</a>)
-    <li>[Dev]: Dropped Maven build (use IDEA artifacts instead)
+    <li>Fix (<a href="http://code.google.com/p/idea-revu/issues/detail?id=16">Issue 16</a>): XSD schema registration did not work anymore
+    <li>Fix (<a href="http://code.google.com/p/idea-revu/issues/detail?id=17">Issue 17</a>): display of issues with same summary
+    <li>Fix (<a href="http://code.google.com/p/idea-revu/issues/detail?id=19">Issue 19</a>): titles of Noted & Assignees tabs are now refreshed after changes
   </ul>
 
   <b>2.0.1</b> (10/21/2010)
