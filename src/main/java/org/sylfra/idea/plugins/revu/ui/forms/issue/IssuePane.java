@@ -60,12 +60,19 @@ public class IssuePane extends AbstractIssueForm
     notesForm = new IssueNotesForm(project);
     previewForm = new IssuePreviewForm(project);
 
-    ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueForm.toolbar");
+    if (inDialog)
+    {
+      toolbar = new JPanel();
+    }
+    else
+    {
+      ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("revu.issueForm.toolbar");
 
-    ActionToolbar actionToolbar = ActionManager.getInstance()
-      .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
-    actionToolbar.setTargetComponent(targetActionComponent);
-    toolbar = actionToolbar.getComponent();
+      ActionToolbar actionToolbar = ActionManager.getInstance()
+        .createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
+      actionToolbar.setTargetComponent(targetActionComponent);
+      toolbar = actionToolbar.getComponent();
+    }
   }
 
   private void configureUI()
