@@ -256,7 +256,9 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   public int getWeight()
   {
-    return Integer.MAX_VALUE;
+    // http://code.google.com/p/idea-revu/issues/detail?id=18
+    // bug when 2 panes have same weight?!
+    return Integer.MAX_VALUE - 1;
   }
 
   public void installComparator()
