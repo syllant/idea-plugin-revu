@@ -1,0 +1,47 @@
+WIKI:
+- compare with
+
+- create review from changes
+- active in diff
+
+Next:
+- delete review -> delete file (checkbox)
+- add assignees tab in create issue dialog (/!\ depends on selected review in mainForm)
+- warning when shared review files are not under VCS -> intention to add in VCS !
+- multi-locations in a issue
+- navigation popup in gutter
+- detailed history
+- Idea X deprecations
+
+Epics:
+- action to compute diff changed from review
+  -> keep all in cache to allow more features
+     - colors in scope: modified, added
+     - improve compare with (disabled if revision does not exist)
+- show changes in gutter in reviewing mode
+- fill user table from SCM committers in current project
+- review merge UI
+- CSV export
+- create item from intention /!\ No hook to add options to existing intentions (com.intellij.codeInsight.daemon.impl.HighlightInfo.IntentionActionDescriptor.getOptions)
+
+Known bugs:
+- some combo boxes are not selectable using keyboard (e.g. : priorities in "Issue Edit Form") ?
+- Index: 2, Size: 2: Index: 2, Size: 2
+java.lang.IndexOutOfBoundsException: Index: 2, Size: 2
+	at java.util.ArrayList.RangeCheck(ArrayList.java:547)
+	at java.util.ArrayList.get(ArrayList.java:322)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.createHierarchyEvents(Container.java:1357)
+	at java.awt.Container.removeAll(Container.java:1239)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.a(ScopeEditorPanel.java:416)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.access$2000(ScopeEditorPanel.java:57)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$11$1.run(ScopeEditorPanel.java:377)
+	at com.intellij.openapi.application.impl.ApplicationImpl.runReadAction(ApplicationImpl.java:695)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$11.run(ScopeEditorPanel.java:351)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl$2.run(ProgressManagerImpl.java:198)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.executeProcessUnderProgress(ProgressManagerImpl.java:223)
+	at com.intellij.openapi.progress.impl.ProgressManagerImpl.runProcess(ProgressManagerImpl.java:189)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.e(ScopeEditorPanel.java:386)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel.access$1100(ScopeEditorPanel.java:57)
+	at com.intellij.ide.util.scopeChooser.ScopeEditorPanel$10$1.run(ScopeEditorPanel.java:311)
