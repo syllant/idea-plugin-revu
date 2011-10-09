@@ -94,7 +94,7 @@ Users, priorities and tags are defined in a ***referential***. You'll probably u
 *   ***Reviewing***: code is being inspected by reviewers 
 *   ***Fixing***: issues are being fixed by authors 
 *   ***Closed***: review is finished 
-*   **\[Template]**: special status for reviews only used as template
+*   ***\[Template]***: special status for reviews only used as template
 
 A review may apply to all files inside project, or only for some selected file. File selection is defined in *Files scope* tab of review. It allows to select files from their paths (using IDEA native *Scopes* definitions), or from their VCS revision. 
 
@@ -102,7 +102,7 @@ A review may apply to all files inside project, or only for some selected file. 
 
 ### Perform review
 
-Issues may be added as soon as the review is in *reviewing* mode. To pass a review in *reviewing* mode, just change its status in settings or click on *Start Reviewing -> \[Some Review]* menu. You may activate several reviews at the same time. By clicking on *Start Reviewing -> \[Some Review]* menu, you make the selected review the default one.
+Issues may be added as soon as the review is in *reviewing* mode. To pass a review in *reviewing* mode, just change its status in settings or click on `Start Reviewing -> \[Some Review]` menu. You may activate several reviews at the same time. By clicking on `Start Reviewing -> \[Some Review]` menu, you make the selected review the default one.
 
 A new type of project views is available: for each active review (status = *reviewing* or *fixing*), you will be able to use a dedicated project view showing files matching selection defined in review settings. You can filter this view to show only files with issues. 
 
@@ -110,16 +110,16 @@ A new type of project views is available: for each active review (status = *revi
 
 When you have started a review (after clicking on `Start Reviewing -> \[Some Review]` menu), 2 new menu items are enabled in editor gutter:
 
-*   `Annotate for \[Some Review]`
-*   `Compare for \[Some Review]`
+*   *Annotate for \[Some Review]*
+*   *Compare for \[Some Review]*
 
 ![Gutter menu](https://github.com/syllant/idea-plugin-revu/raw/master/src/main/doc/screenshots/gutterMenu.png)
 
-`Annotate for \[Some Review]` adds VCS annotations inside gutter so you can view for each line the last commit information: committer, date and VCS revision. It is the same behaviour than native Annotate action of IDEA except that only relevant lines are shown. For example, if your review targets all changes done after a specific commit, only lines modified from this commit will be annotated. This make reading of annotation easier.
+*Annotate for \[Some Review]* adds VCS annotations inside gutter so you can view for each line the last commit information: committer, date and VCS revision. It is the same behaviour than native Annotate action of IDEA except that only relevant lines are shown. For example, if your review targets all changes done after a specific commit, only lines modified from this commit will be annotated. This make reading of annotation easier.
 
 ![Gutter annotations](https://github.com/syllant/idea-plugin-revu/raw/master/src/main/doc/screenshots/gutterAnnotations.png)
 
-`Compare for \[Some Review]` launches the diff viewer between the current revision and the original revision which the review is based on. For example, if you have selected *revision 3* as the first revision to start the review (`Files scope > VCS revisions > From revision` in review settings), comparison will be done against this *revision 3* (note that if the file did not exist for selected revision, you'll see an error in message view). When no VCS revision has been set in *Files scope*, comparison is done against last revision.
+*Compare for \[Some Review]* launches the diff viewer between the current revision and the original revision which the review is based on. For example, if you have selected *revision 3* as the first revision to start the review (*Files scope > VCS revisions > From revision* in review settings), comparison will be done against this *revision 3* (note that if the file did not exist for selected revision, you'll see an error in message view). When no VCS revision has been set in *Files scope*, comparison is done against last revision.
 
 #### Adding issues
 
