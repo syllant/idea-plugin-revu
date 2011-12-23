@@ -152,7 +152,6 @@ public class VcsFetcher implements ApplicationComponent
       return false;
     }
 
-    @Override
     public void run(ProgressIndicator indicator)
     {
       indicator.setIndeterminate(true);
@@ -185,8 +184,12 @@ public class VcsFetcher implements ApplicationComponent
       AbstractVcs vcs = VcsUtil.getVcsFor(project, vFile);
       assert vcs != null;
 
-      VcsRevisionNumber vcsRevisionNumber = vcs.parseRevisionNumber(rev);
-      if (vcsRevisionNumber == null)
+      VcsRevisionNumber vcsRevisionNumber;
+      try
+      {
+        vcsRevisionNumber = vcs.parseRevisionNumber(rev);
+      }
+      catch (VcsException e)
       {
         throw new RevuFriendlyException("Failed to parse VCS revision number: " + rev,
           RevuBundle.message("friendlyError.failedToFetchVcsFile.invalidRevision.details.text",
@@ -215,9 +218,9 @@ public class VcsFetcher implements ApplicationComponent
 
       if (content == null)
       {
-        throw new RevuFriendlyException("VCS fetched content is null: "+ contentRevision,
+        throw new RevuFriendlyException("VCS fetched content is null: ",
           RevuBundle.message("friendlyError.failedToFetchVcsFile.nullContent.details.text",
-          vFile.getPath()));
+          vFile.getPath(), contentRevision));
       }
 
       return new VcsVirtualFile(contentRevision.getFile().getPath(), content.getBytes(),

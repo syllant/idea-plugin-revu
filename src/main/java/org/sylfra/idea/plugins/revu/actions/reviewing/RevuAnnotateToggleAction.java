@@ -111,6 +111,11 @@ public class RevuAnnotateToggleAction extends ToggleAction
       if (editor == null)
       {
         VirtualFile selectedFile = context.getSelectedFile();
+        if (selectedFile == null)
+        {
+          return;
+        }
+
         FileEditor[] fileEditors = FileEditorManager.getInstance(context.getProject()).openFile(selectedFile, false);
         for (FileEditor fileEditor : fileEditors)
         {
@@ -124,24 +129,34 @@ public class RevuAnnotateToggleAction extends ToggleAction
       LOGGER.assertTrue(editor != null);
 
       doAnnotate(editor, context.getProject());
-
     }
   }
 
   private static void doAnnotate(final Editor editor, final Project project)
   {
-    final VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
     if (project == null)
     {
       return;
     }
+
+    final VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
+    if (file == null)
+    {
+      return;
+    }
+
     final ProjectLevelVcsManager plVcsManager = ProjectLevelVcsManager.getInstance(project);
     AbstractVcs vcs = plVcsManager.getVcsFor(file);
     if (vcs == null)
     {
       return;
     }
+
     final AnnotationProvider annotationProvider = vcs.getAnnotationProvider();
+    if (annotationProvider == null)
+    {
+      return;
+    }
 
     final Ref<FileAnnotation> fileAnnotationRef = new Ref<FileAnnotation>();
     final Ref<VcsException> exceptionRef = new Ref<VcsException>();
@@ -195,12 +210,8 @@ public class RevuAnnotateToggleAction extends ToggleAction
 
   public static void doAnnotate(final Editor editor, final Project project, final FileAnnotation fileAnnotation)
   {
-    String upToDateContent = fileAnnotation.getAnnotatedContent();
-
-    final UpToDateLineNumberProvider getUpToDateLineNumber = new UpToDateLineNumberProviderImpl(
-      editor.getDocument(),
-      project,
-      upToDateContent);
+    final UpToDateLineNumberProvider getUpToDateLineNumber = new UpToDateLineNumberProviderImpl(editor.getDocument(),
+      project);
 
     editor.getGutter().closeAllAnnotations();
 

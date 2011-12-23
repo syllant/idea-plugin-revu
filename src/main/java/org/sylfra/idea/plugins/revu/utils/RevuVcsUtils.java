@@ -161,7 +161,7 @@ public class RevuVcsUtils
     }
 
     final ChangesBrowserDialog dialog = new ChangesBrowserDialog(project,
-      new CommittedChangesTableModel(changes, provider.getColumns(), false), ChangesBrowserDialog.Mode.Choose);
+      new CommittedChangesTableModel(changes, provider.getColumns(), false), ChangesBrowserDialog.Mode.Choose, null);
     dialog.show();
 
     return dialog.isOK() ? dialog.getSelectedChangeList() : null;
@@ -177,5 +177,18 @@ public class RevuVcsUtils
 
     //noinspection unchecked
     return provider.getCommittedChanges(provider.createDefaultSettings(), location, RETRIEVED_CHANGES_MAX_COUNT);
+  }
+
+  public static boolean isRevisionNumberParsable(AbstractVcs vcs, String revisionNumber)
+  {
+    try
+    {
+      vcs.parseRevisionNumber(revisionNumber);
+      return true;
+    }
+    catch (VcsException e)
+    {
+      return false;
+    }
   }
 }

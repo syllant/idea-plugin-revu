@@ -4,9 +4,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.FilePath;
+import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.actions.DiffActionExecutor;
 import com.intellij.openapi.vcs.actions.VcsContextFactory;
 import com.intellij.openapi.vcs.diff.ItemLatestState;
@@ -26,6 +28,8 @@ import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
  */
 public class CompareWithAction extends AnAction
 {
+  private final static Logger LOGGER = Logger.getInstance(CompareWithAction.class.getName());
+
   private FileScopeManager fileScopeManager;
 
   public CompareWithAction()
@@ -64,7 +68,15 @@ public class CompareWithAction extends AnAction
     VcsRevisionNumber revision;
     if (review.getFileScope().getVcsAfterRev() != null)
     {
-      revision = vcs.parseRevisionNumber(review.getFileScope().getVcsAfterRev());
+      try
+      {
+        revision = vcs.parseRevisionNumber(review.getFileScope().getVcsAfterRev());
+      }
+      catch (VcsException ex)
+      {
+        LOGGER.error("Failed to parse VCS revision: " + review.getFileScope().getVcsAfterRev());
+        return;
+      }
     }
     else
     {

@@ -20,7 +20,6 @@ import com.intellij.ide.SelectInTarget;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.ProjectViewNodeDecorator;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
-import com.intellij.ide.scopeView.ScopeTreeViewPanel;
 import com.intellij.ide.scopeView.nodes.BasePsiNode;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -85,7 +84,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   public static final Icon ICON = IconLoader.getIcon("/org/sylfra/idea/plugins/revu/resources/icons/revu.png");
 
   private final ProjectView myProjectView;
-  private ScopeTreeViewPanel myViewPanel;
+  private RevuScopeTreeViewPanel myViewPanel;
   private final IdentityHashMap<Review, NamedScope> scopes;
 
   public RevuProjectViewPane(Project project, ProjectView projectView)
@@ -126,10 +125,9 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
     return ID;
   }
 
-
   public JComponent createComponent()
   {
-    myViewPanel = new ScopeTreeViewPanel(myProject);
+    myViewPanel = new RevuScopeTreeViewPanel(myProject);
     Disposer.register(this, myViewPanel);
     myViewPanel.initListeners();
     updateFromRoot(true);
@@ -241,7 +239,10 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   private boolean changeView(final PackageSet packageSet, final PsiElement element, final PsiFile psiFile,
     final String name, boolean requestFocus)
   {
-    if (packageSet.contains(psiFile, NamedScopesHolder.getHolder(myProject, name, null)))
+    // Does not work anymore with IDEA 11
+    //NamedScopesHolder holder = NamedScopesHolder.getHolder(myProject, name, null);
+    NamedScopesHolder holder = NamedScopesHolder.getAllNamedScopeHolders(myProject)[0];
+    if ((holder == null) || packageSet.contains(psiFile, holder))
     {
       if (!name.equals(getSubId()))
       {
@@ -337,9 +338,9 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   private class CustomTreeCellRenderer extends ColoredTreeCellRenderer
   {
     private final Project project;
-    private final ScopeTreeViewPanel scopeTreeViewPanel;
+    private final RevuScopeTreeViewPanel scopeTreeViewPanel;
 
-    public CustomTreeCellRenderer(Project project, ScopeTreeViewPanel scopeTreeViewPanel)
+    public CustomTreeCellRenderer(Project project, RevuScopeTreeViewPanel scopeTreeViewPanel)
     {
       this.project = project;
       this.scopeTreeViewPanel = scopeTreeViewPanel;
@@ -355,9 +356,10 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         {
           setIcon(expanded ? node.getOpenIcon() : node.getClosedIcon());
         }
-        catch (IndexNotReadyException ignore)
+        catch (IndexNotReadyException ignored)
         {
         }
+
         final SimpleTextAttributes regularAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
         TextAttributes textAttributes = regularAttributes.toTextAttributes();
         if (node instanceof BasePsiNode && ((BasePsiNode) node).isDeprecated())
@@ -374,7 +376,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
               ? ((PsiDirectory) psiElement).getVirtualFile()
                 : (psiElement.getContainingFile() == null) ? null : psiElement.getContainingFile().getVirtualFile());
 
-        String reviewName = scopeTreeViewPanel.CURRENT_SCOPE_NAME;
+        String reviewName = scopeTreeViewPanel.getCurrentScopeName();
         if (reviewName == null)
         {
           return;

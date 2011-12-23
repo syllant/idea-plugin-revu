@@ -1,6 +1,7 @@
 package org.sylfra.idea.plugins.revu;
 
 import com.intellij.javaee.ExternalResourceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NonNls;
@@ -38,11 +39,17 @@ public class RevuPlugin implements ProjectComponent
     {
       public void run()
       {
-        addSchemaResource("1_0");
+        ApplicationManager.getApplication().runWriteAction(new Runnable()
+        {
+          public void run()
+          {
+            addSchemaResource("1_0");
+          }
+        });
       }
     });
   }
-  
+
   private void addSchemaResource(String version)
   {
     File file = new File(

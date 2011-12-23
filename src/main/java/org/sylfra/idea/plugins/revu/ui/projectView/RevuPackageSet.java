@@ -4,11 +4,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.scope.packageSet.NamedScopesHolder;
-import com.intellij.psi.search.scope.packageSet.PackageSet;
-import com.intellij.psi.search.scope.packageSet.PackageSetFactory;
-import com.intellij.psi.search.scope.packageSet.ParsingException;
+import com.intellij.psi.search.scope.packageSet.*;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.model.Review;
@@ -18,7 +14,7 @@ import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
 * @version $Id$
 */
-public class RevuPackageSet implements PackageSet
+public class RevuPackageSet extends PackageSetBase
 {
   private static final Logger LOGGER = Logger.getInstance(RevuPackageSet.class.getName());
 
@@ -55,16 +51,12 @@ public class RevuPackageSet implements PackageSet
     return wrappedPackageSet;
   }
 
-  public boolean contains(PsiFile file, NamedScopesHolder holder)
-  {
-    return contains(file.getVirtualFile());
-  }
-
-  public boolean contains(VirtualFile vFile)
+  @Override
+  public boolean contains(VirtualFile vFile, NamedScopesHolder holder)
   {
     return (vFile != null)
       && (checkFilter(vFile))
-      && fileScopeManager.belongsToScope(project, review.getFileScope(), wrappedPackageSet, vFile);
+      && fileScopeManager.belongsToScope(project, review, wrappedPackageSet, vFile);
   }
 
   private boolean checkFilter(VirtualFile vFile)

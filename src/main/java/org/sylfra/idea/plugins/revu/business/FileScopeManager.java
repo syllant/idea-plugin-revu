@@ -7,9 +7,9 @@ import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.scope.packageSet.NamedScopesHolder;
 import com.intellij.psi.search.scope.packageSet.PackageSet;
+import com.intellij.psi.search.scope.packageSet.PackageSetBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuPlugin;
@@ -43,13 +43,13 @@ public class FileScopeManager implements ApplicationComponent
   public boolean belongsToScope(@NotNull Project project, @NotNull Review review, @NotNull VirtualFile vFile)
   {
     RevuPackageSet revuPackageSet = new RevuPackageSet(project, review);
-    return belongsToScope(project, review.getFileScope(), revuPackageSet.getWrappedPackageSet(), vFile);
+    return belongsToScope(project, review, revuPackageSet.getWrappedPackageSet(), vFile);
   }
 
-  public boolean belongsToScope(@NotNull Project project, @NotNull FileScope fileScope, @Nullable PackageSet packageSet,
+  public boolean belongsToScope(@NotNull Project project, @NotNull Review review, @Nullable PackageSet packageSet,
     @NotNull VirtualFile vFile)
   {
-    return matchFrom(project, fileScope, vFile) && matchPathPattern(project, packageSet, vFile);
+    return matchFrom(project, review.getFileScope(), vFile) && matchPathPattern(project, review, packageSet, vFile);
   }
 
   public boolean matchFrom(Project project, FileScope fileScope, VirtualFile vFile)
@@ -101,7 +101,7 @@ public class FileScopeManager implements ApplicationComponent
     }
   }
 
-  private boolean matchPathPattern(@NotNull Project project, @Nullable PackageSet packageSet,
+  private boolean matchPathPattern(@NotNull Project project, @NotNull Review review, @Nullable PackageSet packageSet,
     @NotNull VirtualFile vFile)
   {
     if (packageSet == null)
@@ -109,7 +109,10 @@ public class FileScopeManager implements ApplicationComponent
       return true;
     }
 
-    PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
-    return (psiFile == null) || packageSet.contains(psiFile, null);
+    // Does not work anymore with IDEA 11
+    // final NamedScopesHolder holder = NamedScopesHolder.getHolder(project, review.getName(), null);
+    final NamedScopesHolder holder = NamedScopesHolder.getAllNamedScopeHolders(project)[0];
+
+    return (holder == null) || (((PackageSetBase) packageSet).contains(vFile, holder));
   }
 }

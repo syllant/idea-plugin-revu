@@ -9,6 +9,7 @@ import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
+import com.intellij.psi.search.scope.packageSet.NamedScopeManager;
 import com.intellij.psi.search.scope.packageSet.PackageSet;
 import com.intellij.psi.search.scope.packageSet.PackageSetFactory;
 import com.intellij.psi.search.scope.packageSet.ParsingException;
@@ -57,7 +58,7 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
 
   private void createUIComponents()
   {
-    scopeEditorPanel = new ScopeEditorPanel(project);
+    scopeEditorPanel = new ScopeEditorPanel(project, NamedScopeManager.getInstance(project));
     pnScopeEditor = scopeEditorPanel.getPanel();
   }
 
@@ -178,13 +179,13 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
       AbstractVcs vcs = vcss[0];
       if (ckVcsAfterRev.isSelected())
       {
-        updateError(tfVcsAfterRev, vcs.parseRevisionNumber(tfVcsAfterRev.getText()) == null,
+        updateError(tfVcsAfterRev, RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsBeforeRev.getText()),
           RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
 
       if (ckVcsBeforeRev.isSelected())
       {
-        updateError(tfVcsBeforeRev, vcs.parseRevisionNumber(tfVcsBeforeRev.getText()) == null,
+        updateError(tfVcsBeforeRev, RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsBeforeRev.getText()),
           RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
     }
