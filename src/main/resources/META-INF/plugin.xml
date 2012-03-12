@@ -9,13 +9,18 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.6rc</version>
+  <version>2.6rc1</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant/idea-plugin-revu">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.6rc1</b> (03/12/2012)
+  <ul>
+    <li>Fix: Compatibility issues with IDEA 11
+  </ul>
+
   <b>2.5</b> (12/18/2010)
   <ul>
     <li>Fix (<a href="http://code.google.com/p/idea-revu/issues/detail?id=16">Issue 16</a>): XSD schema registration did not work anymore

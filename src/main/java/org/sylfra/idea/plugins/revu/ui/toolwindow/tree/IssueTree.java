@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.FilterComponent;
 import com.intellij.ui.PopupHandler;
-import com.intellij.ui.TreeToolTipHandler;
 import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
@@ -51,7 +50,7 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
     setShowsRootHandles(true);
 
     UIUtil.setLineStyleAngled(this);
-    TreeToolTipHandler.install(this);
+//    TreeToolTipHandler.install(this); // Not in IDEA 11
     TreeUtil.installActions(this);
     EditSourceOnDoubleClickHandler.install(this);
 
