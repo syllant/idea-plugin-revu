@@ -1,7 +1,6 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow.tree;
 
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.business.IIssueListener;
@@ -24,7 +23,7 @@ import java.util.List;
  */
 public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
 {
-  private final IssueTreeBuilder treeBuilder;
+  private IssueTreeBuilder treeBuilder;
   private Review review;
   private String plainTextFilter;
   private IIssueTreeGrouper<? extends INamedGroup> grouper;
@@ -32,16 +31,19 @@ public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
   private Object filterValue;
   private List<Issue> issues;
 
-  public IssueTreeModel(Project project, @NotNull Review review,
-    @NotNull IIssueTreeGrouper<? extends INamedGroup> grouper)
+  public IssueTreeModel(@NotNull Review review, @NotNull IIssueTreeGrouper<? extends INamedGroup> grouper)
   {
     super(null);
 
-    treeBuilder = new IssueTreeBuilder(project);
     this.grouper = grouper;
     setReview(review);
 
     rebuild();
+  }
+
+  public void setTreeBuilder(IssueTreeBuilder treeBuilder)
+  {
+    this.treeBuilder = treeBuilder;
   }
 
   public List<Issue> getIssues()
@@ -101,7 +103,7 @@ public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
     return review.getIssues().size();
   }
 
-  private void rebuild()
+  public void rebuild()
   {
     List<Issue> newIssues = review.getIssues();
 
@@ -116,7 +118,15 @@ public class IssueTreeModel extends DefaultTreeModel implements IIssueListener
     }
 
     this.issues = newIssues;
-    setRoot(treeBuilder.build(grouper, newIssues));
+
+    if (treeBuilder != null)
+    {
+      setRoot(treeBuilder.build(grouper, newIssues));
+    }
+    else
+    {
+      setRoot(new DefaultMutableTreeNode());
+    }
   }
 
   private List<Issue> applyPlainTextFilter(List<Issue> issues)

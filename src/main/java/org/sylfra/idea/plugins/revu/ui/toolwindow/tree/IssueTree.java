@@ -1,6 +1,8 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow.tree;
 
 import com.intellij.ide.OccurenceNavigator;
+import com.intellij.ide.projectView.impl.ProjectTreeStructure;
+import com.intellij.ide.util.treeView.AlphaComparator;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -22,6 +24,7 @@ import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Issue;
 import org.sylfra.idea.plugins.revu.model.Review;
+import org.sylfra.idea.plugins.revu.ui.projectView.RevuProjectViewPane;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.IIssueTreeGrouper;
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.INamedGroup;
 
@@ -45,7 +48,15 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
   {
     this.project = project;
     this.review = review;
-    setModel(new IssueTreeModel(project, review, issueTreeGrouper));
+
+    IssueTreeModel model = new IssueTreeModel(review, issueTreeGrouper);
+    IssueTreeBuilder treeBuilder = new IssueTreeBuilder(project, this, model,
+      new ProjectTreeStructure(project, RevuProjectViewPane.ID){}, AlphaComparator.INSTANCE);
+    model.setTreeBuilder(treeBuilder);
+    model.rebuild();
+
+    setModel(model);
+
     setRootVisible(false);
     setShowsRootHandles(true);
 

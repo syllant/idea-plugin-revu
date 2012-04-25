@@ -9,15 +9,21 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.6rc1</version>
+  <version>2.6rc2</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant/idea-plugin-revu">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.6rc2</b> (04/25/2012)
+  <ul>
+    <li>Fix: Compatibility issues with IDEA 11
+  </ul>
+
   <b>2.6rc1</b> (03/12/2012)
   <ul>
+    <li>(not publicly available)
     <li>Fix: Compatibility issues with IDEA 11
   </ul>
 
@@ -53,7 +59,7 @@
   </ul>
 </html>
 ]]></change-notes>
-  <idea-version since-build="90.10000"/>
+  <idea-version since-build="111.69"/>
   <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 
   <application-components>

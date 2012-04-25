@@ -77,7 +77,6 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
   private final static ReviewStatus[] VISIBLE_STATUSES_ARRAY
     = {ReviewStatus.DRAFT, ReviewStatus.FIXING, ReviewStatus.REVIEWING};
   private static final List<ReviewStatus> VISIBLE_STATUSES_LIST = Arrays.asList(VISIBLE_STATUSES_ARRAY);
-  private static final NamedScope EMPTY_SCOPE = new NamedScope("", new EmptyPackageSet());
 
   @NonNls
   public static final String ID = "Revu";
@@ -130,13 +129,14 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
     myViewPanel = new RevuScopeTreeViewPanel(myProject);
     Disposer.register(this, myViewPanel);
     myViewPanel.initListeners();
-    updateFromRoot(true);
 
     myTree = myViewPanel.getTree();
     PopupHandler.installPopupHandler(myTree, "RevuProjectViewPopupMenu", "RevuProjectViewPopup");
     enableDnD();
 
     myTree.setCellRenderer(new CustomTreeCellRenderer(myProject, myViewPanel));
+
+    updateFromRoot(true);
 
     return myViewPanel.getPanel();
   }
@@ -174,21 +174,17 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   public ActionCallback updateFromRoot(boolean restoreExpandedPaths)
   {
-    if (scopes.isEmpty())
+    saveExpandedPaths();
+//    myViewPanel.selectScope(NamedScopesHolder.getScope(myProject, getSubId()));
+    for (NamedScope namedScope : scopes.values())
     {
-      myViewPanel.selectScope(EMPTY_SCOPE);
-    }
-    else
-    {
-      for (NamedScope namedScope : scopes.values())
+      if (namedScope.getName().equals(getSubId()))
       {
-        if (namedScope.getName().equals(getSubId()))
-        {
-          myViewPanel.selectScope(namedScope);
-          break;
-        }
+        myViewPanel.selectScope(namedScope);
+        break;
       }
     }
+    restoreExpandedPaths();
 
     return new ActionCallback.Done();
   }
@@ -299,8 +295,10 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   private boolean isVisible(Review review)
   {
-    return VISIBLE_STATUSES_LIST.contains(review.getStatus()) && review.getDataReferential().getUser(
-      RevuUtils.getCurrentUserLogin(), true) != null;
+    String currentUserLogin = RevuUtils.getCurrentUserLogin();
+    return (currentUserLogin != null)
+      && VISIBLE_STATUSES_LIST.contains(review.getStatus())
+      && review.getDataReferential().getUser(currentUserLogin, true) != null;
   }
 
   public void rebuildPane()
@@ -484,26 +482,4 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
       }
     }
   }
-
-  private final static class EmptyPackageSet implements PackageSet
-  {
-    public boolean contains(PsiFile file, NamedScopesHolder holder)
-    {
-      return false;
-    }
-
-    public PackageSet createCopy()
-    {
-      return null;
-    }
-
-    public String getText()
-    {
-      return "?";
-    }
-
-    public int getNodePriority()
-    {
-      return 0;
-    }
-  }}
+}

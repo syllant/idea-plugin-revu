@@ -1,6 +1,9 @@
 package org.sylfra.idea.plugins.revu.ui.toolwindow.tree;
 
+import com.intellij.ide.projectView.BaseProjectTreeBuilder;
 import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.util.treeView.AbstractTreeStructure;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.ide.util.treeView.PresentableNodeDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.LayeredIcon;
@@ -14,6 +17,7 @@ import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.IIssueTreeGroupe
 import org.sylfra.idea.plugins.revu.ui.toolwindow.tree.groupers.INamedGroup;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.*;
@@ -22,13 +26,12 @@ import java.util.*;
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
  * @version $Id$
  */
-public class IssueTreeBuilder
+public class IssueTreeBuilder extends BaseProjectTreeBuilder
 {
-  private final Project project;
-
-  public IssueTreeBuilder(Project project)
+  public IssueTreeBuilder(Project project, JTree tree, IssueTreeModel treeModel,
+    AbstractTreeStructure treeStructure, Comparator<NodeDescriptor> comparator)
   {
-    this.project = project;
+    super(project, tree, treeModel, treeStructure, comparator);
   }
 
   public TreeNode build(IIssueTreeGrouper<? extends INamedGroup> grouper, List<Issue> issues)
@@ -38,7 +41,7 @@ public class IssueTreeBuilder
     SortedMap<? extends INamedGroup, SortedSet<Issue>> map = grouper.group(issues);
     for (Map.Entry<? extends INamedGroup, SortedSet<Issue>> entry : map.entrySet())
     {
-      GroupNodeDescriptor groupNodeDescriptor = new GroupNodeDescriptor(project, entry.getKey().getName());
+      GroupNodeDescriptor groupNodeDescriptor = new GroupNodeDescriptor(myProject, entry.getKey().getName());
       DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(groupNodeDescriptor);
 
       for (Issue issue : entry.getValue())
