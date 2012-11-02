@@ -8,6 +8,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
@@ -273,6 +274,17 @@ public class RevuUtils
     history.setLastUpdatedOn(now);
 
     return history;
+  }
+
+  @NotNull
+  public static RangeMarker createRangeMarker(@NotNull Issue issue, @NotNull Document document)
+  {
+    int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
+    int lineEnd = (issue.getLineEnd() == -1) ? 0 : issue.getLineEnd();
+    final int lineCount = document.getLineCount();
+    lineStart = lineStart < lineCount ? lineStart : lineCount - 1;
+    lineEnd = lineEnd < lineCount ? lineEnd : lineCount - 1;
+    return document.createRangeMarker(document.getLineStartOffset(lineStart), document.getLineStartOffset(lineEnd));
   }
 
   public static boolean isActive(@NotNull Review review)

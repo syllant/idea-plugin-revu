@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.model.Issue;
+import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 import java.util.*;
 
@@ -44,11 +45,7 @@ class DocumentChangeTracker implements DocumentListener
   @NotNull
   RangeMarker addMarker(@NotNull Issue issue, boolean orphanMarker)
   {
-    int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
-    int lineEnd = (issue.getLineEnd() == -1) ? 0 : issue.getLineEnd();
-
-    RangeMarker marker = document.createRangeMarker(document.getLineStartOffset(lineStart),
-      document.getLineEndOffset(lineEnd));
+    RangeMarker marker = RevuUtils.createRangeMarker(issue, document);
 
     marker.putUserData(ORPHAN_MARKER_KEY, orphanMarker);
     markers.put(issue, marker);
