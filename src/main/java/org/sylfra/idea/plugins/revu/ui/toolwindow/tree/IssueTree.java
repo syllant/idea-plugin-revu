@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.FilterComponent;
 import com.intellij.ui.PopupHandler;
@@ -33,6 +34,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:syllant@gmail.com">Sylvain FRANCOIS</a>
@@ -111,8 +113,11 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
     }
 
     DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-    NodeDescriptor nodeDescriptor = (NodeDescriptor) node.getUserObject();
-
+    final Object userObject = node.getUserObject();
+    if (!(userObject instanceof NodeDescriptor)) {
+      return null;
+    }
+    NodeDescriptor nodeDescriptor = (NodeDescriptor) userObject;
     Object object = nodeDescriptor.getElement();
 
     return (object instanceof Issue) ? (Issue) object : null;
@@ -210,13 +215,14 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
 
   public Object getData(@NonNls String dataId)
   {
+    final Issue selectedIssue = getSelectedIssue();
+
     if (PlatformDataKeys.NAVIGATABLE_ARRAY.is(dataId))
     {
-      Issue currentIssue = getSelectedIssue();
-      if ((currentIssue != null) && (currentIssue.getFile() != null))
-      {
-        OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, currentIssue.getFile(),
-          currentIssue.getLineStart(), 0);
+      final VirtualFile selectedIssueFile = selectedIssue == null ? null : selectedIssue.getFile();
+      if ((selectedIssue != null) && (selectedIssueFile != null)) {
+        OpenFileDescriptor fileDescriptor = new OpenFileDescriptor(project, selectedIssueFile,
+            selectedIssue.getLineStart(), 0);
         return new Navigatable[]{fileDescriptor};
       }
 
@@ -225,12 +231,12 @@ public class IssueTree extends Tree implements DataProvider, OccurenceNavigator
 
     if (RevuDataKeys.ISSUE.is(dataId))
     {
-      return getSelectedIssue();
+      return selectedIssue;
     }
 
     if (RevuDataKeys.ISSUE_LIST.is(dataId))
     {
-      return Arrays.asList(getSelectedIssue());
+      return selectedIssue == null ? Collections.emptyList() : Arrays.asList(selectedIssue);
     }
 
     if (RevuDataKeys.REVIEW.is(dataId))
