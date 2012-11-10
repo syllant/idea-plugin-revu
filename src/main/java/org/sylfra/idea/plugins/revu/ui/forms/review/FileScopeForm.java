@@ -179,13 +179,13 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
       AbstractVcs vcs = vcss[0];
       if (ckVcsAfterRev.isSelected())
       {
-        updateError(tfVcsAfterRev, RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsBeforeRev.getText()),
+        updateError(tfVcsAfterRev, !RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsAfterRev.getText()),
           RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
 
       if (ckVcsBeforeRev.isSelected())
       {
-        updateError(tfVcsBeforeRev, RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsBeforeRev.getText()),
+        updateError(tfVcsBeforeRev, !RevuVcsUtils.isRevisionNumberParsable(vcs, tfVcsBeforeRev.getText()),
           RevuBundle.message("projectSettings.review.scope.invalidRev.text"));
       }
     }

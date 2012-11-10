@@ -183,11 +183,11 @@ public class RevuVcsUtils
   {
     try
     {
-      vcs.parseRevisionNumber(revisionNumber);
-      return true;
+      return vcs.parseRevisionNumber(revisionNumber) != null;
     }
     catch (VcsException e)
     {
+      LOGGER.warn("Failed to parse revision number: " + revisionNumber);
       return false;
     }
   }

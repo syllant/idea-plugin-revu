@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE idea-plugin PUBLIC
   "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
-<idea-plugin version="2" url="http://idea-revu.googlecode.com/">
+<idea-plugin version="2" url="https://github.com/syllant/idea-plugin-revu">
   <id>org.sylfra.idea.plugins.revu</id>
   <name>reVu</name>
   <description><![CDATA[
@@ -9,13 +9,19 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.6rc2</version>
+  <version>2.6rc3</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant/idea-plugin-revu">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.6rc3</b> (??/??/2012)
+  <ul>
+    <li>Fix: Compatibility issues with IDEA 11 (<a href="https://github.com/syllant/idea-plugin-revu/issues/9">Issue #9 (Does not work with IDEA Build #IU-117.912)</a>)
+    <li>Fix: Bug in validation of revision numbers (<a href="https://github.com/syllant/idea-plugin-revu/issues/7">Issue #7 (Can't enter revision number)</a>)
+  </ul>
+
   <b>2.6rc2</b> (04/25/2012)
   <ul>
     <li>Fix: Compatibility issues with IDEA 11

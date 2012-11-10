@@ -82,14 +82,25 @@ public class FileScopeManager implements ApplicationComponent
 
     try
     {
-      if ((fileScope.getVcsBeforeRev() != null)
-        && (rev.compareTo(vcs.parseRevisionNumber(fileScope.getVcsBeforeRev())) < 0))
+      VcsRevisionNumber vcsRevisionNumber;
+      if (fileScope.getVcsBeforeRev() != null)
       {
-        return false;
+        vcsRevisionNumber = vcs.parseRevisionNumber(fileScope.getVcsBeforeRev());
+
+        // Strict Before
+        if ((vcsRevisionNumber != null) && rev.compareTo(vcsRevisionNumber) <= 0)
+        {
+          return false;
+        }
       }
 
-      return ((fileScope.getVcsAfterRev() == null)
-        || (rev.compareTo(vcs.parseRevisionNumber(fileScope.getVcsAfterRev())) >= 0));
+      if (fileScope.getVcsAfterRev() == null)
+      {
+        return true;
+      }
+
+      vcsRevisionNumber = vcs.parseRevisionNumber(fileScope.getVcsAfterRev());
+      return ((vcsRevisionNumber == null) || rev.compareTo(vcs.parseRevisionNumber(fileScope.getVcsAfterRev())) >= 0);
     }
     catch (Exception ignored)
     {

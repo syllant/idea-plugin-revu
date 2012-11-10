@@ -281,9 +281,12 @@ public class RevuUtils
   {
     int lineStart = (issue.getLineStart() == -1) ? 0 : issue.getLineStart();
     int lineEnd = (issue.getLineEnd() == -1) ? 0 : issue.getLineEnd();
+
     final int lineCount = document.getLineCount();
-    lineStart = lineStart < lineCount ? lineStart : lineCount - 1;
-    lineEnd = lineEnd < lineCount ? lineEnd : lineCount - 1;
+
+    lineStart = ((lineStart < lineCount) ? lineStart : (lineCount - 1));
+    lineEnd = ((lineEnd < lineCount) ? lineEnd : (lineCount - 1));
+
     return document.createRangeMarker(document.getLineStartOffset(lineStart), document.getLineStartOffset(lineEnd));
   }
 
