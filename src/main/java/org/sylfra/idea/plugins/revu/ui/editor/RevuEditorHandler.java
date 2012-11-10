@@ -244,8 +244,7 @@ public class RevuEditorHandler implements ProjectComponent
       Document document = RevuUtils.getDocument(project, issue);
       if (document != null)
       {
-        marker = document.createRangeMarker(document.getLineStartOffset(issue.getLineStart()),
-          document.getLineEndOffset(issue.getLineEnd()));
+        marker = RevuUtils.createRangeMarker(issue, document);
       }
     }
 
