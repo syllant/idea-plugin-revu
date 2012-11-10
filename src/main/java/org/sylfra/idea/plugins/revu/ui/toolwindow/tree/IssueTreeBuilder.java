@@ -57,6 +57,11 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
     return rootNode;
   }
 
+  @Override
+  protected boolean isDisposeOnCollapsing(NodeDescriptor nodeDescriptor) {
+    return false;
+  }
+
   private final static class GroupNodeDescriptor extends PresentableNodeDescriptor<String>
   {
     private List<IssueNodeDescriptor> children;
