@@ -174,8 +174,6 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
 
   public ActionCallback updateFromRoot(boolean restoreExpandedPaths)
   {
-    saveExpandedPaths();
-//    myViewPanel.selectScope(NamedScopesHolder.getScope(myProject, getSubId()));
     for (NamedScope namedScope : scopes.values())
     {
       if (namedScope.getName().equals(getSubId()))
@@ -184,7 +182,6 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         break;
       }
     }
-    restoreExpandedPaths();
 
     return new ActionCallback.Done();
   }
