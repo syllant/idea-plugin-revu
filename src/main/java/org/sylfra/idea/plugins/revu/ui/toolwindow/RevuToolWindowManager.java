@@ -64,8 +64,11 @@ public class RevuToolWindowManager implements ProjectComponent, IReviewListener
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 
     IssueBrowsingPane issueBrowsingPane = new IssueBrowsingPane(project, review);
+
     Content content = contentFactory.createContent(issueBrowsingPane.getContentPane(), buildTableTitle(review), true);
     content.putUserData(RevuKeys.ISSUE_BROWSING_PANE_KEY, issueBrowsingPane);
+    content.setCloseable(false);
+
     toolwindow.getContentManager().addContent(content);
     contentsByReviews.put(review, content);
 
