@@ -361,6 +361,11 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
       toString();
   }
 
+  public String getPresentableSummary()
+  {
+    return getSummary();
+  }
+
   public void copyFrom(Issue source)
   {
     setFile(source.getFile());

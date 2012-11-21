@@ -125,7 +125,7 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
       super(groupNodeDescriptor.getProject(), groupNodeDescriptor);
       this.issue = issue;
 
-      myName = issue.getSummary();
+      myName = issue.getPresentableSummary();
 
       myClosedIcon = new LayeredIcon(new ColorIconCache.ColorIcon(16, RevuUtils.getIssueStatusColor(issue.getStatus())),
         RevuIconProvider.getIcon(RevuIconProvider.IconRef.GUTTER_ISSUE));
