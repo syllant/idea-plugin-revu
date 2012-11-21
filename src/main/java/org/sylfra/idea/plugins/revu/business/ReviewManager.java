@@ -294,6 +294,9 @@ public class ReviewManager implements ProjectComponent
   @Nullable
   private InputStream getInputStream(@NotNull Review review) throws IOException
   {
+    if (!review.isExternalizable()) {
+      return null;
+    }
     // Embedded review
     if (review.isEmbedded())
     {
@@ -336,15 +339,13 @@ public class ReviewManager implements ProjectComponent
         {
           continue;
         }
-
-        String filePath = RevuVfsUtils.buildRelativePath(project, review.getFile());
-        if (filePaths.contains(filePath))
-        {
-          changedReviews.put(filePath, review);
-        }
-        else
-        {
-          fireReviewDeleted(review);
+        if (review.isExternalizable()) {
+          String filePath = RevuVfsUtils.buildRelativePath(project, review.getFile());
+          if (filePaths.contains(filePath)) {
+            changedReviews.put(filePath, review);
+          } else {
+            fireReviewDeleted(review);
+          }
         }
         Review oldReview = reviewsByFiles.remove(review.getFile());
         reviewsByNames.remove(review.getName());
@@ -452,6 +453,9 @@ public class ReviewManager implements ProjectComponent
 
     InputStream inputStream = null;
     Exception exception = null;
+    if (!review.isExternalizable()) {
+      return true;
+    }
     File file = review.getFile();
     try
     {
@@ -535,7 +539,9 @@ public class ReviewManager implements ProjectComponent
 
     try
     {
-      reviewExternalizer.save(review, review.getFile());
+      if (review.isExternalizable()) {
+        reviewExternalizer.save(review, review.getFile());
+      }
     }
     finally
     {

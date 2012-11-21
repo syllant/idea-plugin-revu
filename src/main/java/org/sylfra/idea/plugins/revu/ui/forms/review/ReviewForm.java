@@ -220,7 +220,7 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     {
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       Review review = reviewManager.getReviewByName(tfName.getText());
-      nameAlreadyExists = ((review != null) && (!review.getFile().equals(data.getFile())));
+      nameAlreadyExists = ((review != null) && review.isExternalizable() && data.isExternalizable() && (!review.getFile().equals(data.getFile())));
     }
     
     updateError(tfName, nameAlreadyExists,

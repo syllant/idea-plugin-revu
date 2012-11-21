@@ -360,4 +360,29 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
       append("notes", notes).
       toString();
   }
+
+  public void copyFrom(Issue source)
+  {
+    setFile(source.getFile());
+    setVcsRev(source.getVcsRev());
+    setLocalRev(source.getLocalRev());
+    setLineStart(source.getLineStart());
+    setLineEnd(source.getLineEnd());
+    setHash(source.getHash());
+    setHistory(source.getHistory().clone());
+    setReview(source.getReview());
+    setResolver(source.getResolver());
+    setSummary(source.getSummary());
+    setDesc(source.getDesc());
+    final IssuePriority sourcePriority = source.getPriority();
+    if (sourcePriority != null) {
+      setPriority(sourcePriority.clone());
+    }
+    getTags().addAll(source.getTags());
+    setStatus(source.getStatus());
+    getAssignees().addAll(source.getAssignees());
+    for (IssueNote note : source.getNotes()) {
+      getNotes().add(note.clone());
+    }
+  }
 }
