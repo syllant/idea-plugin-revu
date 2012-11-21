@@ -136,7 +136,7 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
     {
       PresentationData presentation = new PresentationData();
 
-      presentation.addText(" " + issue.getSummary(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      presentation.addText(" " + issue.getPresentableSummary(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
       presentation.setTooltip(issue.getDesc());
 
