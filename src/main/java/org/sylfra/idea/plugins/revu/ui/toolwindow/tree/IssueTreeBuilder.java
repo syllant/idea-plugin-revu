@@ -131,7 +131,7 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
       super(groupNodeDescriptor.getProject(), groupNodeDescriptor);
       this.issue = issue;
 
-      myName = issue.getSummary();
+      myName = issue.getPresentableSummary();
 
       myClosedIcon = new LayeredIcon(new ColorIconCache.ColorIcon(16, RevuUtils.getIssueStatusColor(issue.getStatus())),
         RevuIconProvider.getIcon(RevuIconProvider.IconRef.GUTTER_ISSUE));
@@ -142,7 +142,7 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
     {
       PresentationData presentation = new PresentationData();
 
-      presentation.addText(" " + issue.getSummary(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+      presentation.addText(" " + issue.getPresentableSummary(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
       presentation.setTooltip(issue.getDesc());
 

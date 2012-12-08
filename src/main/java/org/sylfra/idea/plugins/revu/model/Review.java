@@ -30,6 +30,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private FileScope fileScope;
   private Map<VirtualFile, List<Issue>> issuesByFiles;
   private final transient List<IIssueListener> issueListeners;
+  private boolean externalizable = true;
 
   public Review(@Nullable String name)
   {
@@ -146,6 +147,16 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   public void setFileScope(FileScope fileScope)
   {
     this.fileScope = fileScope;
+  }
+
+  public boolean isExternalizable()
+  {
+    return externalizable;
+  }
+
+  public void setExternalizable(boolean externalizable)
+  {
+    this.externalizable = externalizable;
   }
 
   @NotNull
