@@ -57,8 +57,14 @@ public class IssueTreeBuilder extends BaseProjectTreeBuilder
     return rootNode;
   }
 
+  // Deactivate new standard queue mechanism.
+  // Whole tree management should now be revamped!
+  public void updateFromRoot() {
+  }
+
   @Override
-  protected boolean isDisposeOnCollapsing(NodeDescriptor nodeDescriptor) {
+  protected boolean isDisposeOnCollapsing(NodeDescriptor nodeDescriptor)
+  {
     return false;
   }
 
