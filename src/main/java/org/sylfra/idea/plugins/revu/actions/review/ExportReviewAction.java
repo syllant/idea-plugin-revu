@@ -44,7 +44,12 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
     }
 
     Review review = (Review) liReviews.getSelectedValue();
-
+    if (!review.isExternalizable()) {
+      String errorTitle = RevuBundle.message("friendlyError.notExternalizableReview.title.text", review.getName());
+      String errorDetails = RevuBundle.message("friendlyError.notExternalizableReview.details.details.text", review.getName());
+      StatusBarComponent.showMessageInPopup(project, new StatusBarMessage(StatusBarMessage.Type.ERROR, errorTitle, errorDetails), true);
+      return;
+    }
     ExportDialog exportDialog = new ExportDialog(project);
     exportDialog.show(review);
     if (!exportDialog.isOK())

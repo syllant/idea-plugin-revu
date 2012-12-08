@@ -82,17 +82,18 @@ public class IssuePreviewForm extends AbstractIssueForm
   {
     super.internalUpdateUI(data, requestFocus);
 
-    boolean currentIdModified = (data != null) && (data.getFile() != null)
-      && RevuVcsUtils.fileIsModifiedFromVcs(project, data.getFile());
-    String currentRev = RevuVcsUtils.formatRevision((data == null)
-      ? null : RevuVcsUtils.getVcsRevisionNumber(project, data.getFile()), currentIdModified);
+    final VirtualFile file = data == null ? null : data.getFile();
+    boolean currentIdModified = (data != null) && (file != null)
+        && RevuVcsUtils.fileIsModifiedFromVcs(project, file);
+    String currentRev = RevuVcsUtils.formatRevision((file == null)
+        ? null : RevuVcsUtils.getVcsRevisionNumber(project, file), currentIdModified);
     String initialRev = RevuVcsUtils.formatRevision((data == null) ? null : data.getVcsRev(),
       (data != null) && (data.getLocalRev() != null));
 
     rbCurrent.setText(RevuBundle.message("issueForm.preview.currentRev.text", currentRev));
     rbInitial.setText(RevuBundle.message("issueForm.preview.initialRev.text", initialRev));
 
-    boolean underVcs = (data != null) && (RevuVcsUtils.isUnderVcs(project, data.getFile()));
+    boolean underVcs = (data != null) && (RevuVcsUtils.isUnderVcs(project, file));
     if (underVcs)
     {
       rbInitial.setEnabled(true);
@@ -102,8 +103,9 @@ public class IssuePreviewForm extends AbstractIssueForm
       rbInitial.setEnabled(false);
       rbCurrent.setSelected(true);
     }
-
-    fetchAndLoad();
+    if (file != null) {
+      fetchAndLoad();
+    }
   }
 
   private void showMessage(@NotNull String message, @NotNull MessageType type)

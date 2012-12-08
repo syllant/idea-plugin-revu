@@ -103,7 +103,7 @@ public class IssueMainForm extends AbstractIssueForm
           else
           {
             Review review = (Review) value;
-            tooltip = review.getFile().getPath();
+            tooltip = review.isExternalizable() ? review.getFile().getPath() : review.getName();
             value = review.getName();
           }
 
