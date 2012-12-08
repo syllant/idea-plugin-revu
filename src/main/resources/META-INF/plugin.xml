@@ -18,6 +18,7 @@
 <html>
   <b>2.6rc3</b> (??/??/2012)
   <ul>
+    <li>Fix: Compatibility issues with IDEA 12 (<a href="https://github.com/syllant/idea-plugin-revu/issues/18">Issue #18 (not working in IDEA 12)</a>)
     <li>Fix: Compatibility issues with IDEA 11 (<a href="https://github.com/syllant/idea-plugin-revu/issues/9">Issue #9 (Does not work with IDEA Build #IU-117.912)</a>)
     <li>Fix: Bug in validation of revision numbers (<a href="https://github.com/syllant/idea-plugin-revu/issues/7">Issue #7 (Can't enter revision number)</a>)
     <li>Fix: Review tabs should not be closeable (<a href="https://github.com/syllant/idea-plugin-revu/issues/8">Issue #8 (It's not possible to return reviews to toolbar, after closing)</a>)

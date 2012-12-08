@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="reVu / IU12" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin" singleton="true">
+    <module name="revu" />
+    <option name="VM_PARAMETERS" value=" -Xms32m -Xmx256m -XX:MaxPermSize=256m" />
+    <option name="PROGRAM_PARAMETERS" value="" />
+    <alternative-path path="$APPLICATION_HOME_DIR$" alternative-path-enabled="true" />
+    <log_file path="D:/_syfranco/config/IntellijIdea-plugins/system/plugins-sandbox/system/log/idea.log" checked="true" skipped="true" show_all="false" alias="IDEA LOG" />
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
+    <RunnerSettings RunnerId="Profile ">
+      <option name="myExternalizedOptions" value="&#13;&#10;use-64-bit=false&#13;&#10;additional-options2=onexit\=snapshot&#13;&#10;" />
+    </RunnerSettings>
+    <ConfigurationWrapper RunnerId="Debug" />
+    <method />
+  </configuration>
+</component>
