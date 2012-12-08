@@ -294,9 +294,11 @@ public class ReviewManager implements ProjectComponent
   @Nullable
   private InputStream getInputStream(@NotNull Review review) throws IOException
   {
-    if (!review.isExternalizable()) {
+    if (!review.isExternalizable())
+    {
       return null;
     }
+
     // Embedded review
     if (review.isEmbedded())
     {

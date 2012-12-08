@@ -146,6 +146,11 @@ public class IssuePane extends AbstractIssueForm
     updateTabIcons(tabbedPane);
   }
 
+  public Issue getCurrentIssue()
+  {
+    return currentIssue;
+  }
+
   @NotNull
   public JPanel getContentPane()
   {

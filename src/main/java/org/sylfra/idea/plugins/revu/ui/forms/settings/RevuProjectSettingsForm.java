@@ -213,7 +213,8 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
         continue;
       }
 
-      if (editedReview.isExternalizable()) {
+      if (editedReview.isExternalizable())
+      {
         String reviewFilePath = RevuVfsUtils.buildRelativePath(project, editedReview.getFile());
 
         if (editedReview.isShared()) {

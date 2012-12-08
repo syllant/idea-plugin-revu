@@ -201,7 +201,7 @@ public class IssueBrowsingPane implements Disposable, DataProvider
   {
     Issue current = issueTree.getSelectedIssue();
 
-    if (current == null)
+    if ((current == null) || !current.equals(issuePane.getCurrentIssue()))
     {
       return true;
     }

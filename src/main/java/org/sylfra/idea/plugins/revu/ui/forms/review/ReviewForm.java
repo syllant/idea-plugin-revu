@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.io.FileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -220,7 +221,10 @@ public class ReviewForm extends AbstractUpdatableForm<Review>
     {
       ReviewManager reviewManager = project.getComponent(ReviewManager.class);
       Review review = reviewManager.getReviewByName(tfName.getText());
-      nameAlreadyExists = ((review != null) && review.isExternalizable() && data.isExternalizable() && (!review.getFile().equals(data.getFile())));
+      nameAlreadyExists = ((review != null)
+        && review.isExternalizable()
+        && data.isExternalizable()
+        && (!FileUtil.filesEqual(review.getFile(), data.getFile())));
     }
     
     updateError(tfName, nameAlreadyExists,

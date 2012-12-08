@@ -166,7 +166,6 @@ public abstract class AbstractUpdatableForm<T extends IRevuEntity<T>> implements
     this.enclosingReview = enclosingReview;
 
     clearErrors();
-    internalValidateInput(null);
 
     internalUpdateUI(data, requestFocus);
 

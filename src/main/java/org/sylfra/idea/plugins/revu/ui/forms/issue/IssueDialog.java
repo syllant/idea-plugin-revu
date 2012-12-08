@@ -23,6 +23,7 @@ public class IssueDialog extends DialogWrapper
   private JPanel centerPanel;
   private IUpdatableForm<Issue> currentForm;
   private final boolean create;
+  private Issue issue;
 
   public IssueDialog(@NotNull Project project, boolean create)
   {
@@ -55,6 +56,7 @@ public class IssueDialog extends DialogWrapper
 
   public void show(@NotNull Issue issue)
   {
+    this.issue = issue;
     currentForm = (create) ? createMainForm : updateTabbedPane;
     currentForm.updateUI(issue.getReview(), issue, true);
 
@@ -66,7 +68,7 @@ public class IssueDialog extends DialogWrapper
   @Override
   protected void doOKAction()
   {
-    if (currentForm.validateInput(null))
+    if (currentForm.validateInput(issue))
     {
       super.doOKAction();
     }

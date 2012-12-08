@@ -224,6 +224,39 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
     return LocationType.LINE_RANGE;
   }
 
+  public String getPresentableSummary()
+  {
+    return getSummary();
+  }
+
+  // TODO Should not be here since not used in reVu (but in a extension)?!
+  public void copyFrom(Issue source)
+  {
+    setFile(source.getFile());
+    setVcsRev(source.getVcsRev());
+    setLocalRev(source.getLocalRev());
+    setLineStart(source.getLineStart());
+    setLineEnd(source.getLineEnd());
+    setHash(source.getHash());
+    setHistory(source.getHistory().clone());
+    setReview(source.getReview());
+    setResolver(source.getResolver());
+    setSummary(source.getSummary());
+    setDesc(source.getDesc());
+    final IssuePriority sourcePriority = source.getPriority();
+    if (sourcePriority != null)
+    {
+      setPriority(sourcePriority.clone());
+    }
+    getTags().addAll(source.getTags());
+    setStatus(source.getStatus());
+    getAssignees().addAll(source.getAssignees());
+    for (IssueNote note : source.getNotes())
+    {
+      getNotes().add(note.clone());
+    }
+  }
+
   public int compareTo(Issue o)
   {
     return history.getCreatedOn().compareTo(o.getHistory().getCreatedOn());
@@ -359,35 +392,5 @@ public class Issue extends AbstractRevuEntity<Issue> implements IRevuHistoryHold
       append("assignees", assignees).
       append("notes", notes).
       toString();
-  }
-
-  public String getPresentableSummary()
-  {
-    return getSummary();
-  }
-
-  public void copyFrom(Issue source)
-  {
-    setFile(source.getFile());
-    setVcsRev(source.getVcsRev());
-    setLocalRev(source.getLocalRev());
-    setLineStart(source.getLineStart());
-    setLineEnd(source.getLineEnd());
-    setHash(source.getHash());
-    setHistory(source.getHistory().clone());
-    setReview(source.getReview());
-    setResolver(source.getResolver());
-    setSummary(source.getSummary());
-    setDesc(source.getDesc());
-    final IssuePriority sourcePriority = source.getPriority();
-    if (sourcePriority != null) {
-      setPriority(sourcePriority.clone());
-    }
-    getTags().addAll(source.getTags());
-    setStatus(source.getStatus());
-    getAssignees().addAll(source.getAssignees());
-    for (IssueNote note : source.getNotes()) {
-      getNotes().add(note.clone());
-    }
   }
 }

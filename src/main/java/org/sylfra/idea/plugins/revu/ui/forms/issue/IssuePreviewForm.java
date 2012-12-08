@@ -82,9 +82,8 @@ public class IssuePreviewForm extends AbstractIssueForm
   {
     super.internalUpdateUI(data, requestFocus);
 
-    final VirtualFile file = data == null ? null : data.getFile();
-    boolean currentIdModified = (data != null) && (file != null)
-        && RevuVcsUtils.fileIsModifiedFromVcs(project, file);
+    final VirtualFile file = (data == null) ? null : data.getFile();
+    boolean currentIdModified = (data != null) && (file != null) && RevuVcsUtils.fileIsModifiedFromVcs(project, file);
     String currentRev = RevuVcsUtils.formatRevision((file == null)
         ? null : RevuVcsUtils.getVcsRevisionNumber(project, file), currentIdModified);
     String initialRev = RevuVcsUtils.formatRevision((data == null) ? null : data.getVcsRev(),
@@ -103,7 +102,9 @@ public class IssuePreviewForm extends AbstractIssueForm
       rbInitial.setEnabled(false);
       rbCurrent.setSelected(true);
     }
-    if (file != null) {
+
+    if (file != null)
+    {
       fetchAndLoad();
     }
   }

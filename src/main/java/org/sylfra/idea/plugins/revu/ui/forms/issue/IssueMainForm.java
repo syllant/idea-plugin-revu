@@ -1,5 +1,6 @@
 package org.sylfra.idea.plugins.revu.ui.forms.issue;
 
+import com.intellij.ide.ui.ListCellRendererWrapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import org.jetbrains.annotations.NotNull;
@@ -89,34 +90,28 @@ public class IssueMainForm extends AbstractIssueForm
     if (createMode)
     {
       cbReview.setModel(new ReviewComboBoxModel(project));
-      cbReview.setRenderer(new DefaultListCellRenderer()
+      cbReview.setRenderer(new ListCellRendererWrapper<Review>(cbReview)
       {
-        public Component getListCellRendererComponent(JList list, Object value, int index,
-          boolean isSelected, boolean cellHasFocus)
+        @Override
+        public void customize(JList list, Review review, int index, boolean selected, boolean hasFocus)
         {
           String tooltip;
-          if (value == null)
+          if (review == null)
           {
             tooltip = null;
-            value = RevuBundle.message("general.selectComboValue.text");
+            setText(RevuBundle.message("general.selectComboValue.text"));
           }
           else
           {
-            Review review = (Review) value;
             tooltip = review.isExternalizable() ? review.getFile().getPath() : review.getName();
-            value = review.getName();
+            setText(review.getName());
           }
-
-          JComponent result = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected,
-            cellHasFocus);
 
           if (tooltip != null)
           {
-            result.setToolTipText(tooltip);
+            setToolTipText(tooltip);
           }
-
-          return result;
-        }
+       }
       });
 
       cbReview.addActionListener(new ActionListener()
@@ -334,8 +329,8 @@ public class IssueMainForm extends AbstractIssueForm
 
   public void internalValidateInput(@Nullable Issue data)
   {
-    updateRequiredError(taSummary, (data != null) && "".equals(taSummary.getText().trim()));
-    updateRequiredError(cbReview, (data != null) && (createMode && (!(cbReview.getSelectedItem() instanceof Review))));
+    updateRequiredError(taSummary, "".equals(taSummary.getText().trim()));
+    updateRequiredError(cbReview, (createMode && (!(cbReview.getSelectedItem() instanceof Review))));
   }
 
   private boolean isIssueSynchronized(Issue issue)

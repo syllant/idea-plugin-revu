@@ -184,7 +184,9 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         break;
       }
     }
-    if (myTree != null) {
+
+    if (myTree != null)
+    {
       restoreExpandedPaths();
     }
 
@@ -354,7 +356,20 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         PackageDependenciesNode node = (PackageDependenciesNode) value;
         try
         {
-          setIcon(expanded ? node.getOpenIcon() : node.getClosedIcon());
+          try
+          {
+            setIcon(expanded ? node.getOpenIcon() : node.getClosedIcon());
+          }
+          catch (NoSuchMethodError e)
+          {
+            try
+            {
+              setIcon((Icon) node.getClass().getMethod("getIcon").invoke(node));
+            }
+            catch (Throwable ignored)
+            {
+            }
+          }
         }
         catch (IndexNotReadyException ignored)
         {

@@ -30,7 +30,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
   private FileScope fileScope;
   private Map<VirtualFile, List<Issue>> issuesByFiles;
   private final transient List<IIssueListener> issueListeners;
-  private boolean externalizable = true;
+  private boolean externalizable; // not in hashcode/equals?!
 
   public Review(@Nullable String name)
   {
@@ -40,6 +40,7 @@ public class Review extends AbstractRevuEntity<Review> implements IRevuHistoryHo
     issueListeners = new LinkedList<IIssueListener>();
     dataReferential = new DataReferential(this);
     fileScope = new FileScope();
+    externalizable = true;
   }
 
   public Review()
