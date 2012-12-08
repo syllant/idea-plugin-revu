@@ -16,12 +16,13 @@
   </vendor>
   <change-notes><![CDATA[
 <html>
-  <b>2.6rc3</b> (??/??/2012)
+  <b>2.6rc3</b> (12/08/2012)
   <ul>
     <li>Fix: Compatibility issues with IDEA 12 (<a href="https://github.com/syllant/idea-plugin-revu/issues/18">Issue #18 (not working in IDEA 12)</a>)
     <li>Fix: Compatibility issues with IDEA 11 (<a href="https://github.com/syllant/idea-plugin-revu/issues/9">Issue #9 (Does not work with IDEA Build #IU-117.912)</a>, <a href="https://github.com/syllant/idea-plugin-revu/issues/5">Issue #5 (Internal IDE error when saving a review)</a>)
     <li>Fix: Bug in validation of revision numbers (<a href="https://github.com/syllant/idea-plugin-revu/issues/7">Issue #7 (Can't enter revision number)</a>)
     <li>Fix: lots of other declared issues (<a href="https://github.com/syllant/idea-plugin-revu/issues?milestone=1&state=closed">Closed issues</a>)
+    <li>Thanks to <a href="https://github.com/blabno">Bernard Labno</a> for help
   </ul>
 
   <b>2.6rc2</b> (04/25/2012)
