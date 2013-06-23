@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.review;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public class RemoveReviewAction extends AbstractReviewSettingsAction
 {
   public void actionPerformed(AnActionEvent e)
   {
-    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
+    JList liReviews = (JList) e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
     DefaultListModel model = (DefaultListModel) liReviews.getModel();
     Review selectedReview = (Review) liReviews.getSelectedValue();
 

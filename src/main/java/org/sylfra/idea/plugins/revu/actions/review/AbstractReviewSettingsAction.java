@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.actions.review;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import org.jetbrains.annotations.NotNull;
 import org.sylfra.idea.plugins.revu.model.Review;
 
@@ -32,7 +32,7 @@ public abstract class AbstractReviewSettingsAction extends AnAction
   @Override
   public void update(AnActionEvent e)
   {
-    Component component = e.getData(DataKeys.CONTEXT_COMPONENT);
+    Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
     if (!(component instanceof JList))
     {
       return;

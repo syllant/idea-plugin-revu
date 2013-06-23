@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.actions.issue;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Issue;
@@ -16,7 +16,7 @@ public class ShowUpdateIssuePopupAction extends AnAction
 {
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     Issue issue = e.getData(RevuDataKeys.ISSUE);
 
     if ((issue == null) || (project == null))

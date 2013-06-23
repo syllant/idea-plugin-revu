@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.review;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileTextField;
@@ -36,8 +36,8 @@ public class ExportReviewAction extends AbstractReviewSettingsAction
 
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
-    JList liReviews = (JList) e.getData(DataKeys.CONTEXT_COMPONENT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
+    JList liReviews = (JList) e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
     if ((project == null) || (liReviews == null))
     {
       return;

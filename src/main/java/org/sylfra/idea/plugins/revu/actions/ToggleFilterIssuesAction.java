@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.settings.project.workspace.RevuWorkspaceSettings;
@@ -16,7 +16,7 @@ public class ToggleFilterIssuesAction extends ToggleAction
 {
   public void setSelected(AnActionEvent e, boolean state)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
 
     if (project != null)
     {
@@ -30,7 +30,7 @@ public class ToggleFilterIssuesAction extends ToggleAction
 
   public boolean isSelected(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
 
     return (project != null) && RevuUtils.getWorkspaceSettings(project).isFilterFilesWithIssues();
   }

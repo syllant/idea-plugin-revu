@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.issue;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -27,8 +27,8 @@ public class CreateIssueAction extends AbstractIssueAction
   @Override
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
-    Editor editor = e.getData(DataKeys.EDITOR);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
+    Editor editor = e.getData(PlatformDataKeys.EDITOR);
     VirtualFile vFile = RevuUtils.getVirtualFile(e);
 
     if ((project == null) || (vFile == null))
@@ -87,7 +87,7 @@ public class CreateIssueAction extends AbstractIssueAction
   public void update(AnActionEvent e)
   {
     boolean enabled = false;
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     VirtualFile vFile = RevuUtils.getVirtualFile(e);
 
     if ((project != null) && (vFile != null))

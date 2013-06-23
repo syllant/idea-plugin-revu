@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.reviewing;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -59,7 +59,7 @@ public class RevuAnnotateToggleAction extends ToggleAction
 
   public void update(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     if (project == null)
     {
       return;
@@ -75,7 +75,7 @@ public class RevuAnnotateToggleAction extends ToggleAction
     {
       e.getPresentation().setText(RevuBundle.message("reviewing.annotate.review.text", review.getName()));
 
-      VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+      VirtualFile vFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
       e.getPresentation().setEnabled((vFile != null)
         && RevuVcsUtils.isUnderVcs(project, vFile)
         && fileScopeManager.belongsToScope(project, review, vFile));

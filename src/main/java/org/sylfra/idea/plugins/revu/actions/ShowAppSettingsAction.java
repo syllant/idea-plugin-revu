@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
 /**
@@ -13,6 +13,6 @@ public class ShowAppSettingsAction extends AnAction
 {
   public void actionPerformed(AnActionEvent e)
   {
-    RevuUtils.editAppSettings(e.getData(DataKeys.PROJECT));
+    RevuUtils.editAppSettings(e.getData(PlatformDataKeys.PROJECT));
   }
 }

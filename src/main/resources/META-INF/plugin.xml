@@ -9,13 +9,18 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.6rc3</version>
+  <version>2.6rc4</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
-          url="https://github.com/syllant/idea-plugin-revu">Sylvain FRANCOIS
+          url="https://github.com/syllant">Sylvain FRANCOIS
   </vendor>
   <change-notes><![CDATA[
 <html>
+  <b>2.6rc4</b> (06/23/2013)
+  <ul>
+    <li>Support for all IntelliJ Platform Products
+  </ul>
+
   <b>2.6rc3</b> (12/08/2012)
   <ul>
     <li>Fix: Compatibility issues with IDEA 12 (<a href="https://github.com/syllant/idea-plugin-revu/issues/18">Issue #18 (not working in IDEA 12)</a>)
@@ -69,6 +74,7 @@
 </html>
 ]]></change-notes>
   <idea-version since-build="111.69"/>
+  <depends>com.intellij.modules.lang</depends>
   <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 
   <application-components>
@@ -269,7 +275,7 @@
       <reference ref="revu.CreateIssue"/>
       <separator/>
       <reference ref="revu.settings"/>
-      <add-to-group group-id="MainMenu" anchor="after" relative-to-action="AnalyzeMenu"/>
+      <add-to-group group-id="MainMenu" anchor="before" relative-to-action="WindowMenu"/>
     </group>
 
     <group id="revu.reviewing.editor">
@@ -278,7 +284,6 @@
       <reference ref="revu.Annotate"/>
       <reference ref="revu.CompareWith"/>
       <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
-      <add-to-group group-id="AnalyzeMenu" anchor="last"/>
     </group>
 
     <!-- Gutter -->

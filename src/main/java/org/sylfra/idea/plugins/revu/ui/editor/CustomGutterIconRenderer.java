@@ -216,14 +216,14 @@ class CustomGutterIconRenderer extends GutterIconRenderer
       @Override
       public void actionPerformed(AnActionEvent e)
       {
-        Editor editor = e.getData(DataKeys.EDITOR);
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (editor != null)
         {
           editor.getCaretModel().moveToOffset(editor.getDocument().getLineStartOffset(lineStart));
         }
 
         // Could also be managed through a listener...
-        Project project = e.getData(DataKeys.PROJECT);
+        Project project = e.getData(PlatformDataKeys.PROJECT);
         if (project != null)
         {
           IssueBrowsingPane browsingPane =

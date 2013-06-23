@@ -3,7 +3,7 @@ package org.sylfra.idea.plugins.revu.actions.review;
 import com.intellij.ide.impl.ProjectViewSelectInTarget;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.model.Review;
@@ -17,7 +17,7 @@ public class ShowFileScopeAction extends AnAction
 {
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     Review review = e.getData(RevuDataKeys.REVIEW);
 
     if ((project == null) || (review == null))

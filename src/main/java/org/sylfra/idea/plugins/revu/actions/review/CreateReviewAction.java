@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.review;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
@@ -44,7 +44,7 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
 
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
 
     Collection<Review> reviews = getExistingReviews(e);
 
@@ -80,7 +80,7 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
       return reviews;
     }
 
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     return project.getComponent(ReviewManager.class).getReviews();
   }
 

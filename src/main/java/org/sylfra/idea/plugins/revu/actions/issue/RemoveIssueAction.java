@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.actions.issue;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuDataKeys;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -24,7 +24,7 @@ public class RemoveIssueAction extends AbstractIssueAction
   @Override
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     List<Issue> issues = e.getData(RevuDataKeys.ISSUE_LIST);
 
     if (issues == null)

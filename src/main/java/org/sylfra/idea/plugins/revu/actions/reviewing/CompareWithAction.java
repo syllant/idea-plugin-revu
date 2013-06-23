@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.actions.reviewing;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -39,8 +39,8 @@ public class CompareWithAction extends AnAction
 
   protected AbstractVcs getVcs(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
-    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
+    VirtualFile vFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
     if ((project == null) || (vFile == null))
     {
       return null;
@@ -54,8 +54,8 @@ public class CompareWithAction extends AnAction
   {
     AbstractVcs vcs = getVcs(e);
 
-    Project project = e.getData(DataKeys.PROJECT);
-    VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
+    VirtualFile vFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
 
     final FilePath filePath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(vFile);
     if ((filePath == null) || (!vcs.fileIsUnderVcs(filePath)))
@@ -96,7 +96,7 @@ public class CompareWithAction extends AnAction
   @Override
   public void update(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     if (project == null)
     {
       return;
@@ -111,7 +111,7 @@ public class CompareWithAction extends AnAction
     else
     {
       e.getPresentation().setText(RevuBundle.message("reviewing.comparewith.review.text", review.getName()));
-      VirtualFile vFile = e.getData(DataKeys.VIRTUAL_FILE);
+      VirtualFile vFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
       e.getPresentation().setEnabled((vFile != null)
         && RevuVcsUtils.isUnderVcs(project, vFile)
         && fileScopeManager.belongsToScope(project, review, vFile));

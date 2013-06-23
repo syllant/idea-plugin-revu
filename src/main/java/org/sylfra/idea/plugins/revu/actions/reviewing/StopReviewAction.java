@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.actions.reviewing;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
@@ -21,7 +21,7 @@ public class StopReviewAction extends AnAction
   @Override
   public void update(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
     if (project == null)
     {
       return;
@@ -42,7 +42,7 @@ public class StopReviewAction extends AnAction
   @Override
   public void actionPerformed(AnActionEvent e)
   {
-    Project project = e.getData(DataKeys.PROJECT);
+    Project project = e.getData(PlatformDataKeys.PROJECT);
 
     Review review = RevuUtils.getReviewingReview(project);
     if (review == null)

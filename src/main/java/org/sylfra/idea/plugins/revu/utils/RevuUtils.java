@@ -2,7 +2,7 @@ package org.sylfra.idea.plugins.revu.utils;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
@@ -55,7 +55,7 @@ public class RevuUtils
   @Nullable
   public static Project getProject()
   {
-    return DataKeys.PROJECT.getData(DataManager.getInstance().getDataContext());
+    return PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext());
   }
 
   @Nullable
@@ -98,10 +98,10 @@ public class RevuUtils
   @Nullable
   public static VirtualFile getVirtualFile(AnActionEvent e)
   {
-    VirtualFile result = e.getData(DataKeys.VIRTUAL_FILE);
+    VirtualFile result = e.getData(PlatformDataKeys.VIRTUAL_FILE);
     if (result == null)
     {
-      Editor editor = e.getData(DataKeys.EDITOR);
+      Editor editor = e.getData(PlatformDataKeys.EDITOR);
       if (editor != null)
       {
         result = FileDocumentManager.getInstance().getFile(editor.getDocument());
