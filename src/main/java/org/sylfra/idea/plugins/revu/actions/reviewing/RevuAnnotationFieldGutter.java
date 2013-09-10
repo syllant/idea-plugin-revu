@@ -23,7 +23,6 @@ import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.actions.ActiveAnnotationGutter;
-import com.intellij.openapi.vcs.annotate.AnnotationListener;
 import com.intellij.openapi.vcs.annotate.AnnotationSource;
 import com.intellij.openapi.vcs.annotate.FileAnnotation;
 import com.intellij.openapi.vcs.annotate.LineAnnotationAspect;
@@ -35,7 +34,8 @@ import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,23 +51,12 @@ class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
   private final FileAnnotation myAnnotation;
   private final FileScopeManager fileScopeManager;
   private final Editor myEditor;
-  private final AnnotationListener myListener;
 
   RevuAnnotationFieldGutter(FileAnnotation annotation, Editor editor)
   {
     myAnnotation = annotation;
     myEditor = editor;
     fileScopeManager = ApplicationManager.getApplication().getComponent(FileScopeManager.class);
-
-    myListener = new AnnotationListener()
-    {
-      public void onAnnotationChanged()
-      {
-        myEditor.getGutter().closeAllAnnotations();
-      }
-    };
-
-    myAnnotation.addListener(myListener);
   }
 
   public String getLineText(int line, Editor editor)
@@ -126,7 +115,6 @@ class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
 
   public void gutterClosed()
   {
-    myAnnotation.removeListener(myListener);
     myAnnotation.dispose();
     final Collection<ActiveAnnotationGutter> gutters = myEditor.getUserData(RevuAnnotateToggleAction.KEY_IN_EDITOR);
     if (gutters != null)

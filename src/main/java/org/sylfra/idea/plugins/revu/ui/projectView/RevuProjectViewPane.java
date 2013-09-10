@@ -356,20 +356,7 @@ public class RevuProjectViewPane extends AbstractProjectViewPane
         PackageDependenciesNode node = (PackageDependenciesNode) value;
         try
         {
-          try
-          {
-            setIcon(expanded ? node.getOpenIcon() : node.getClosedIcon());
-          }
-          catch (NoSuchMethodError e)
-          {
-            try
-            {
-              setIcon((Icon) node.getClass().getMethod("getIcon").invoke(node));
-            }
-            catch (Throwable ignored)
-            {
-            }
-          }
+            setIcon(node.getIcon());
         }
         catch (IndexNotReadyException ignored)
         {
