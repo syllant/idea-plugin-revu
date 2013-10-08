@@ -14,6 +14,7 @@
           email="syllant@gmail.com"
           url="https://github.com/syllant">Sylvain FRANCOIS
   </vendor>
+  <depends optional="true">Git4Idea</depends>
   <change-notes><![CDATA[
 <html>
   <b>2.6rc4</b> (06/23/2013)
