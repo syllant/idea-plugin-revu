@@ -193,7 +193,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
           ? exception.toString() : exception.getLocalizedMessage());
         addMessage(new StatusBarMessage(StatusBarMessage.Type.ERROR,
           RevuBundle.message("friendlyError.externalizing.save.error.title.text"),
-          RevuBundle.message("friendlyError.externalizing.load.error.details.text", review.getFile(), details)), true);
+          RevuBundle.message("friendlyError.externalizing.save.error.details.text", review.getFile(), details)), true);
       }
 
       public void loadSucceeded(Review review)

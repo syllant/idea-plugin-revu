@@ -34,17 +34,11 @@ import org.sylfra.idea.plugins.revu.business.FileScopeManager;
 import org.sylfra.idea.plugins.revu.model.Review;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
- * @author Irina Chernushina
- * @author Konstantin Bulenkov
  */
 class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
 {

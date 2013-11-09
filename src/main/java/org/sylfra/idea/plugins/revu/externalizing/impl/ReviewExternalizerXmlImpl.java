@@ -99,12 +99,12 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
   public void save(@NotNull Review review, @NotNull final File file) throws RevuException, IOException
   {
     // Review will be fully serialized into a temporary memory stream before. It prevents
-    // cases where serialization fails while writing to file and make an corrupted file
+    // cases where serialization fails while writing to file and makes corrupted file
     final StringWriter writer = new StringWriter();
     save(review, writer);
 
     // XML conversion is OK, now saving it to a file
-    final IOException[] exception = new IOException[1];
+    final RevuException[] exception = new RevuException[1];
     ApplicationManager.getApplication().runWriteAction(new Runnable()
     {
       public void run()
@@ -114,16 +114,22 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
           final VirtualFile vParentFile = RevuVfsUtils.findFile(file.getParent());
           if (vParentFile == null)
           {
-            exception[0] = new FileNotFoundException("Parent directory does not exist: " + file.getParent());
+            exception[0] = new RevuException("Parent directory does not exist: " + file.getParent());
             return;
           }
+
+          chmodReviewFile(file);
 
           VirtualFile vFile = vParentFile.createChildData(this, file.getName());
           VfsUtil.saveText(vFile, writer.toString());
         }
-        catch (IOException e)
+        catch (RevuException e)
         {
           exception[0] = e;
+        }
+        catch (IOException e)
+        {
+          exception[0] = new RevuException(e);
         }
       }
     });
@@ -131,6 +137,21 @@ public class ReviewExternalizerXmlImpl implements IReviewExternalizer, ProjectCo
     if (exception[0] != null)
     {
       throw exception[0];
+    }
+  }
+
+  private void chmodReviewFile(File file) throws RevuException
+  {
+    if (file.exists() && !file.canWrite())
+    {
+      if (file.setWritable(true))
+      {
+        LOGGER.debug("Review file was readonly, chmoded it: " + file);
+      }
+      else
+      {
+        throw new RevuException("Review file is readonly and cannot chmod it: " + file);
+      }
     }
   }
 

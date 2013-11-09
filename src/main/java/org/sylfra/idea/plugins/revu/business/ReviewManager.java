@@ -541,7 +541,8 @@ public class ReviewManager implements ProjectComponent
 
     try
     {
-      if (review.isExternalizable()) {
+      if (review.isExternalizable())
+      {
         reviewExternalizer.save(review, review.getFile());
       }
     }
