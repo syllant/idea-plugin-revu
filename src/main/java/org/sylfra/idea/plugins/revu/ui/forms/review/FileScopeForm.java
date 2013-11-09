@@ -8,11 +8,13 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.psi.search.scope.packageSet.NamedScopeManager;
 import com.intellij.psi.search.scope.packageSet.PackageSet;
 import com.intellij.psi.search.scope.packageSet.PackageSetFactory;
 import com.intellij.psi.search.scope.packageSet.ParsingException;
+import git4idea.changes.GitCommittedChangeList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -22,7 +24,12 @@ import org.sylfra.idea.plugins.revu.ui.forms.AbstractUpdatableForm;
 import org.sylfra.idea.plugins.revu.utils.RevuUtils;
 import org.sylfra.idea.plugins.revu.utils.RevuVcsUtils;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -101,7 +108,16 @@ public class FileScopeForm extends AbstractUpdatableForm<FileScope>
         CommittedChangeList changeList = selectChangeList();
         if (changeList != null)
         {
-          tfVcsAfterRev.setText(String.valueOf(changeList.getNumber()));
+            try {
+                if (changeList instanceof GitCommittedChangeList) {
+                    final VcsRevisionNumber revisionNumber = ((GitCommittedChangeList) changeList).getRevisionNumber();
+                    tfVcsAfterRev.setText(null == revisionNumber ? null : revisionNumber.asString());
+                } else {
+                    tfVcsAfterRev.setText(String.valueOf(changeList.getNumber()));
+                }
+            } catch (NoClassDefFoundError ex) {
+                tfVcsAfterRev.setText(String.valueOf(changeList.getNumber()));
+            }
         }
       }
     });
