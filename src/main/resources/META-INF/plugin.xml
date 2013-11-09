@@ -19,10 +19,10 @@
 <html>
   <b>2.6</b> (11/09/2013)
   <ul>
-    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/28">Issue #28 Support git when selecting revisions</a>
-    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/29">Issue #29 Improve performance for "Annotate for review</a>
-    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/23">AnnotationListener not exist in Idea 12</a>
-    <li>Review files chmoded to avoid VCS read-only issues (<a href="https://github.com/syllant/idea-plugin-revu/issues/25">Issue #25 Revu and TFS</a>)
+    <li>Fix: <a href="https://github.com/syllant/idea-plugin-revu/issues/28">Issue #28 Support git when selecting revisions</a>
+    <li>Fix: <a href="https://github.com/syllant/idea-plugin-revu/issues/29">Issue #29 Improve performance for "Annotate for review</a>
+    <li>Fix: <a href="https://github.com/syllant/idea-plugin-revu/issues/23">Issue #23 AnnotationListener not exist in Idea 12</a>
+    <li>New: Review files chmoded to avoid VCS read-only issues (<a href="https://github.com/syllant/idea-plugin-revu/issues/25">Issue #25 Revu and TFS</a>)
     <li>Thanks to <a href="https://github.com/blabno">Bernard Labno</a> for contributions
   </ul>
 
