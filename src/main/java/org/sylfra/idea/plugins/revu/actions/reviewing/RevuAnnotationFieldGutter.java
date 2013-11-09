@@ -38,7 +38,9 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Irina Chernushina
@@ -52,14 +54,18 @@ class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
   private final FileScopeManager fileScopeManager;
   private final Editor myEditor;
 
-  RevuAnnotationFieldGutter(FileAnnotation annotation, Editor editor)
-  {
-    myAnnotation = annotation;
-    myEditor = editor;
-    fileScopeManager = ApplicationManager.getApplication().getComponent(FileScopeManager.class);
-  }
+    private Map<Integer, Boolean> lineHighlight = new HashMap<Integer, Boolean>();
 
-  public String getLineText(int line, Editor editor)
+    private Map<VcsRevisionNumber, Boolean> revisionHighlight = new HashMap<VcsRevisionNumber, Boolean>();
+
+    RevuAnnotationFieldGutter(FileAnnotation annotation, Editor editor)
+    {
+        myAnnotation = annotation;
+        myEditor = editor;
+        fileScopeManager = ApplicationManager.getApplication().getComponent(FileScopeManager.class);
+    }
+
+    public String getLineText(int line, Editor editor)
   {
     if (!isLineHightlighted(line, editor))
     {
@@ -136,21 +142,33 @@ class RevuAnnotationFieldGutter implements ActiveAnnotationGutter
 
   private boolean isLineHightlighted(final int line, final Editor editor)
   {
-    final VcsRevisionNumber number = myAnnotation.getLineRevisionNumber(line);
-    if (number != null)
-    {
-      Project project = editor.getProject();
-      Review review = RevuUtils.getReviewingReview(project);
-      if (review != null)
-      {
-        VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        if (!fileScopeManager.matchFrom(project, review.getFileScope(), vFile, number))
-        {
-          return false;
-        }
+      Boolean aBoolean = lineHighlight.get(line);
+      if (null == aBoolean) {
+          final VcsRevisionNumber number = myAnnotation.getLineRevisionNumber(line);
+          VirtualFile vFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+          aBoolean = isRevisionHighlighted(number, editor.getProject(), vFile);
+          lineHighlight.put(line, aBoolean);
       }
-    }
-
-    return true;
+      return aBoolean;
   }
+
+    private Boolean isRevisionHighlighted(VcsRevisionNumber number, Project project, VirtualFile vFile)
+    {
+        Boolean aBoolean = revisionHighlight.get(number);
+        if (null == aBoolean) {
+            aBoolean = true;
+            if (number != null) {
+                Review review = RevuUtils.getReviewingReview(project);
+                if (review != null) {
+                    if (!fileScopeManager.matchFrom(project, review.getFileScope(), vFile, number)) {
+                        aBoolean = false;
+                    }
+                }
+            } else {
+                aBoolean = false;
+            }
+            revisionHighlight.put(number, aBoolean);
+        }
+        return aBoolean;
+    }
 }

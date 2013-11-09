@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcs;
+import com.intellij.openapi.vcs.FilePathImpl;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -98,9 +99,8 @@ public class FileScopeManager implements ApplicationComponent
       {
         return true;
       }
-
-      vcsRevisionNumber = vcs.parseRevisionNumber(fileScope.getVcsAfterRev());
-      return ((vcsRevisionNumber == null) || rev.compareTo(vcs.parseRevisionNumber(fileScope.getVcsAfterRev())) >= 0);
+        vcsRevisionNumber = vcs.parseRevisionNumber(fileScope.getVcsAfterRev(), new FilePathImpl(vFile));
+        return (vcsRevisionNumber == null) || rev.compareTo(vcsRevisionNumber) > 0;
     }
     catch (Exception ignored)
     {
