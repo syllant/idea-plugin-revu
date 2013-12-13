@@ -1,8 +1,8 @@
 package org.sylfra.idea.plugins.revu.ui.forms.issue;
 
-import com.intellij.ide.ui.ListCellRendererWrapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.ListCellRendererWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
@@ -90,7 +90,7 @@ public class IssueMainForm extends AbstractIssueForm
     if (createMode)
     {
       cbReview.setModel(new ReviewComboBoxModel(project));
-      cbReview.setRenderer(new ListCellRendererWrapper<Review>(cbReview)
+      cbReview.setRenderer(new ListCellRendererWrapper<Review>()
       {
         @Override
         public void customize(JList list, Review review, int index, boolean selected, boolean hasFocus)
@@ -139,21 +139,20 @@ public class IssueMainForm extends AbstractIssueForm
       });
     }
 
-    cbPriority.setRenderer(new DefaultListCellRenderer()
+    cbPriority.setRenderer(new ListCellRendererWrapper<IssuePriority>()
     {
-      public Component getListCellRendererComponent(JList list, Object value, int index,
-        boolean isSelected, boolean cellHasFocus)
+      @Override
+      public void customize(JList jList, IssuePriority value, int i, boolean b, boolean b2)
       {
         if (value == null)
         {
-          value = RevuBundle.message(((createMode) && (cbReview.getSelectedItem() == null))
-            ? "general.selectReviewBeforeFillingCombo.text" : "general.selectComboValue.text");
+          setText(RevuBundle.message(((createMode) && (cbReview.getSelectedItem() == null))
+            ? "general.selectReviewBeforeFillingCombo.text" : "general.selectComboValue.text"));
         }
         else
         {
-          value = ((IssuePriority) value).getName();
+          setText(value.getName());
         }
-        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       }
     });
 

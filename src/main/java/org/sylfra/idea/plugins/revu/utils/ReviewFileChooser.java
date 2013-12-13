@@ -50,7 +50,7 @@ public class ReviewFileChooser
     }
 
     descriptor.setOpenMode(openMode);
-    VirtualFile[] virtualFiles = FileChooser.chooseFiles(project, descriptor, this.defaultFile);
+    VirtualFile[] virtualFiles = FileChooser.chooseFiles(descriptor, project, this.defaultFile);
 
     if (virtualFiles.length > 0)
     {

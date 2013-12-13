@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.6</version>
+  <version>2.7</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant">Sylvain FRANCOIS
@@ -17,6 +17,11 @@
   <depends optional="true">Git4Idea</depends>
   <change-notes><![CDATA[
 <html>
+  <b>2.7</b> (12/13/2013)
+  <ul>
+    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/32">Issue #32 IntelliJ Idea 13 Support</a>
+  </ul>
+
   <b>2.6</b> (11/09/2013)
   <ul>
     <li>Fix: <a href="https://github.com/syllant/idea-plugin-revu/issues/28">Issue #28 Support git when selecting revisions</a>
@@ -83,7 +88,7 @@
   </ul>
 </html>
 ]]></change-notes>
-  <idea-version since-build="111.69"/>
+  <idea-version since-build="133.193"/>
   <depends>com.intellij.modules.lang</depends>
   <resource-bundle>org.sylfra.idea.plugins.revu.resources.Bundle</resource-bundle>
 

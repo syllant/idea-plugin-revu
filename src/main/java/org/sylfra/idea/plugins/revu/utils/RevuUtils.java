@@ -18,12 +18,10 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.UIUtil;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 import org.sylfra.idea.plugins.revu.RevuIconProvider;
-import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.business.ReviewManager;
 import org.sylfra.idea.plugins.revu.model.*;
 import org.sylfra.idea.plugins.revu.settings.app.RevuAppSettings;
@@ -109,17 +107,6 @@ public class RevuUtils
     }
 
     return result;
-  }
-
-  @NotNull
-  public static String z(@Nullable String s1, @Nullable String s2)
-  {
-    if ((s1 == null) || ("".equals(s1)))
-    {
-      return "";
-    }
-
-    return DigestUtils.md5Hex(s1 + RevuPlugin.PLUGIN_NAME + ((s2 == null) ? "" : s2));
   }
 
   @Nullable

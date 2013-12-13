@@ -1,6 +1,6 @@
 package org.sylfra.idea.plugins.revu.actions;
 
-import com.intellij.openapi.util.PasswordPromptDialog;
+import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.Nullable;
 import org.sylfra.idea.plugins.revu.RevuBundle;
 
@@ -22,17 +22,11 @@ public class UpdatePasswordActionListener implements ActionListener
 
   public void actionPerformed(ActionEvent e)
   {
-    PasswordPromptDialog dialog = new PasswordPromptDialog(RevuBundle.message("dialog.updatePassword.password.label"),
-      RevuBundle.message("dialog.updatePassword.title"), "");
-    dialog.show();
-    if (dialog.isOK())
+    String password = Messages.showPasswordDialog(RevuBundle.message("dialog.updatePassword.password.label"),
+      RevuBundle.message("dialog.updatePassword.title"));
+    if (password != null)
     {
-      String password = dialog.getPassword().trim();
-      if (password == null)
-      {
-        password = null;
-      }
-      passwordReceiver.setPassword(password);
+      passwordReceiver.setPassword(password.trim());
     }
   }
 
