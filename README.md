@@ -102,13 +102,13 @@ A review may apply to all files inside project, or only for some selected file. 
 
 ### Perform review
 
-Issues may be added as soon as the review is in *reviewing* mode. To pass a review in *reviewing* mode, just change its status in settings or click on `Start Reviewing -> \[Some Review]` menu. You may activate several reviews at the same time. By clicking on `Start Reviewing -> \[Some Review]` menu, you make the selected review the default one.
+Issues may be added as soon as the review is in *reviewing* mode. To pass a review in *reviewing* mode, just change its status in settings or click on `Start Reviewing -> [Some Review]` menu. You may activate several reviews at the same time. By clicking on `Start Reviewing -> [Some Review]` menu, you make the selected review the default one.
 
 A new type of project views is available: for each active review (status = *reviewing* or *fixing*), you will be able to use a dedicated project view showing files matching selection defined in review settings. You can filter this view to show only files with issues. 
 
 ![Project view](https://github.com/syllant/idea-plugin-revu/raw/master/src/main/doc/screenshots/projectView.png)
 
-When you have started a review (after clicking on `Start Reviewing -> \[Some Review]` menu), 2 new menu items are enabled in editor gutter:
+When you have started a review (after clicking on `Start Reviewing -> [Some Review]` menu), 2 new menu items are enabled in editor gutter:
 
 *   *Annotate for \[Some Review]*
 *   *Compare for \[Some Review]*
