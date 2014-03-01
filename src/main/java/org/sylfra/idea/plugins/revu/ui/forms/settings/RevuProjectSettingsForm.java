@@ -77,6 +77,7 @@ public class RevuProjectSettingsForm extends AbstractListUpdatableForm<Review, R
     // only one intention, so build it here once to optimize it !
     lbMessageWholePane.setText(RevuBundle.message("general.form.noLogin.text"));
     lbMessageWholePane.setIcon(Messages.getInformationIcon());
+    lbMessageWholePane.setHorizontalTextPosition(SwingConstants.RIGHT);
     lbMessageWholePane.setIconTextGap(20);
     lbMessageWholePane.addMouseListener(new MouseAdapter()
     {

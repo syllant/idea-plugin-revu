@@ -144,12 +144,15 @@ public class ReferentialTabbedPane extends AbstractUpdatableForm<DataReferential
       if (thisUsers.isEmpty())
       {
         User user = RevuUtils.getCurrentUser();
-        for (User.Role role : User.Role.values())
+        if (user != null)
         {
-          user.addRole(role);
-        }
+          for (User.Role role : User.Role.values())
+          {
+            user.addRole(role);
+          }
 
-        thisUsers.add(user);
+          thisUsers.add(user);
+        }
       }
       return new ReferentialListHolder<User>(thisUsers, null);
     }

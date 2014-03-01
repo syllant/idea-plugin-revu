@@ -119,7 +119,7 @@ public class RevuUtils
   public static User getCurrentUser()
   {
     RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
-    if (appSettings.getLogin() == null)
+    if ((appSettings.getLogin() == null) || (appSettings.getLogin().trim().length() == 0))
     {
       return null;
     }

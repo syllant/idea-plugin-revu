@@ -3,7 +3,7 @@
     <module name="revu" />
     <option name="VM_PARAMETERS" value=" -Xms32m -Xmx256m -XX:MaxPermSize=256m" />
     <option name="PROGRAM_PARAMETERS" value="" />
-    <alternative-path path="$APPLICATION_HOME_DIR$" alternative-path-enabled="true" />
+    <alternative-path path="$KALISTICK_TECHBOX_DIR$/java/tools/IntellijIDEA-12" alternative-path-enabled="true" />
     <log_file path="D:/_syfranco/config/IntellijIdea-plugins/system/plugins-sandbox/system/log/idea.log" checked="true" skipped="true" show_all="false" alias="IDEA LOG" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="" />

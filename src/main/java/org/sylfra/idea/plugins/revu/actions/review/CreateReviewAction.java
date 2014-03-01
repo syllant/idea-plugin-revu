@@ -103,20 +103,23 @@ public class CreateReviewAction extends AbstractReviewSettingsAction
     }
 
     User currentUser = RevuUtils.getCurrentUser();
-    User reviewCurrentUser = review.getDataReferential().getUser(currentUser.getLogin(), false);
-    if (reviewCurrentUser == null)
+    if (currentUser != null)
     {
-      for (User.Role role : User.Role.values())
+      User reviewCurrentUser = review.getDataReferential().getUser(currentUser.getLogin(), false);
+      if (reviewCurrentUser == null)
       {
-        currentUser.addRole(role);
+        for (User.Role role : User.Role.values())
+        {
+          currentUser.addRole(role);
+        }
+        review.getDataReferential().addUser(currentUser);
       }
-      review.getDataReferential().addUser(currentUser);
-    }
-    else
-    {
-      if (!reviewCurrentUser.hasRole(User.Role.ADMIN))
+      else
       {
-        reviewCurrentUser.addRole(User.Role.ADMIN);
+        if (!reviewCurrentUser.hasRole(User.Role.ADMIN))
+        {
+          reviewCurrentUser.addRole(User.Role.ADMIN);
+        }
       }
     }
 

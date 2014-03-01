@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.7</version>
+  <version>2.7.1</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant">Sylvain FRANCOIS
@@ -17,6 +17,11 @@
   <depends optional="true">Git4Idea</depends>
   <change-notes><![CDATA[
 <html>
+  <b>2.7.1</b> (03/01/2014)
+  <ul>
+    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/35">Issue #35 NPE in logs when creating review without defined login</a>
+  </ul>
+
   <b>2.7</b> (12/13/2013)
   <ul>
     <li><a href="https://github.com/syllant/idea-plugin-revu/issues/32">Issue #32 IntelliJ Idea 13 Support</a>
