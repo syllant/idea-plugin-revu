@@ -9,7 +9,7 @@
   Team Code Reviewer for Intellij IDEA. Simple and flexible, created specially for IDEA.
 </html>
     ]]></description>
-  <version>2.7.1</version>
+  <version>2.7.2</version>
   <vendor logo="/org/sylfra/idea/plugins/revu/resources/icons/revu.png"
           email="syllant@gmail.com"
           url="https://github.com/syllant">Sylvain FRANCOIS
@@ -17,6 +17,11 @@
   <depends optional="true">Git4Idea</depends>
   <change-notes><![CDATA[
 <html>
+  <b>2.7.2</b> (?)
+  <ul>
+    <li><a href="https://github.com/syllant/idea-plugin-revu/issues/39">Issue #39 "File already exists in VFS" error</a>
+  </ul>
+
   <b>2.7.1</b> (03/01/2014)
   <ul>
     <li><a href="https://github.com/syllant/idea-plugin-revu/issues/35">Issue #35 NPE in logs when creating review without defined login</a>
