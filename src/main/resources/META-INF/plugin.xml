@@ -17,7 +17,7 @@
   <depends optional="true">Git4Idea</depends>
   <change-notes><![CDATA[
 <html>
-  <b>2.7.2</b> (?)
+  <b>2.7.2</b> (07/21/2015)
   <ul>
     <li><a href="https://github.com/syllant/idea-plugin-revu/issues/39">Issue #39 "File already exists in VFS" error</a>
   </ul>
