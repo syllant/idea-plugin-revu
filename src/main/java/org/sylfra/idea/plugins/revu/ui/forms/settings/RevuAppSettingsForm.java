@@ -1,7 +1,7 @@
 package org.sylfra.idea.plugins.revu.ui.forms.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ColorChooser;
@@ -188,7 +188,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
       appSettings.getIssueStatusColors().put(entry.getKey(), RevuUtils.getHex(entry.getValue().getBackground()));
     }
 
-    ServiceManager.getService(RevuAppSettingsComponent.class).loadState(appSettings);
+    ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).loadState(appSettings);
   }
 
   /**
@@ -208,7 +208,7 @@ public class RevuAppSettingsForm implements ApplicationComponent, Configurable
 
   private RevuAppSettings retrieveAppSettings()
   {
-    return ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+    return ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState();
   }
 
   /**

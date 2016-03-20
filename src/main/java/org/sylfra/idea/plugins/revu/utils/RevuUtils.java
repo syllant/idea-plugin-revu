@@ -4,7 +4,6 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -112,13 +111,13 @@ public class RevuUtils
   @Nullable
   public static String getCurrentUserLogin()
   {
-    return ServiceManager.getService(RevuAppSettingsComponent.class).getState().getLogin();
+    return ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState().getLogin();
   }
 
   @Nullable
   public static User getCurrentUser()
   {
-    RevuAppSettings appSettings = ServiceManager.getService(RevuAppSettingsComponent.class).getState();
+    RevuAppSettings appSettings = ApplicationManager.getApplication().getComponent(RevuAppSettingsComponent.class).getState();
     if ((appSettings.getLogin() == null) || (appSettings.getLogin().trim().length() == 0))
     {
       return null;

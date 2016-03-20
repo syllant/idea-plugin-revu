@@ -1,8 +1,11 @@
 package org.sylfra.idea.plugins.revu.settings.project;
 
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import org.jetbrains.annotations.NotNull;
+import org.sylfra.idea.plugins.revu.RevuPlugin;
 import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComponent;
 
 /**
@@ -23,7 +26,7 @@ import org.sylfra.idea.plugins.revu.settings.AbstractReviewFilesRevuSettingsComp
     )}
 )
 public class RevuProjectSettingsComponent extends AbstractReviewFilesRevuSettingsComponent<RevuProjectSettings>
-  implements PersistentStateComponent<RevuProjectSettings>
+  implements PersistentStateComponent<RevuProjectSettings>, ProjectComponent
 {
   /**
    * {@inheritDoc}
@@ -41,5 +44,31 @@ public class RevuProjectSettingsComponent extends AbstractReviewFilesRevuSetting
   public void loadState(RevuProjectSettings state)
   {
     internalLoadState(state);
+  }
+
+  public void projectOpened()
+  {
+
+  }
+
+  public void projectClosed()
+  {
+
+  }
+
+  public void initComponent()
+  {
+
+  }
+
+  public void disposeComponent()
+  {
+
+  }
+
+  @NotNull
+  public String getComponentName()
+  {
+    return RevuPlugin.PLUGIN_NAME + "." + getClass().getSimpleName();
   }
 }
