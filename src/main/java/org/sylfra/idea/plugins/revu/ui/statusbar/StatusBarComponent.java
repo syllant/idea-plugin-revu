@@ -117,7 +117,7 @@ public class StatusBarComponent extends JLabel implements ProjectComponent, Appl
     {
       if ((blinkerTask == null) || (blinkerTask.isCancelled()))
       {
-        blinkerTask = JobScheduler.getScheduler().scheduleAtFixedRate(new Blinker(), 1L, 1L, TimeUnit.SECONDS);
+        blinkerTask = JobScheduler.getScheduler().scheduleWithFixedDelay(new Blinker(), 1L, 1L, TimeUnit.SECONDS);
       }
     }
     else
